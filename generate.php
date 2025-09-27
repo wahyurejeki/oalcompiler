@@ -27,12 +27,12 @@ $middleware->visit($tree);
 $route = new CompilerRoute();
 $route->visit($tree);
 
-$dirPathOutput = __DIR__.'/output';
-$dirPathModels = __DIR__ . "/output/app/Models";
-$dirPathMigrations = __DIR__ . "/output/database/migrations";
-$dirPathControllers = __DIR__ . "/output/app/Http/Controllers";
-$dirPathMiddleware = __DIR__ . "/output/app/Http/Middleware";
-$dirPathRoute = __DIR__ . "/output/routes";
+$dirPathOutput = __DIR__.'/template';
+$dirPathModels = $dirPathOutput . "/app/Models";
+$dirPathMigrations = $dirPathOutput . "/database/migrations";
+$dirPathControllers = $dirPathOutput . "/app/Http/Controllers";
+$dirPathMiddleware = $dirPathOutput . "/app/Http/Middleware";
+$dirPathRoute = $dirPathOutput . "/routes";
 
 if (is_dir($dirPathMigrations)) {
     //delete all migration   file

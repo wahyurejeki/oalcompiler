@@ -7,6 +7,7 @@ use OALBaseVisitor;
 class CompilerController extends OALBaseVisitor
 {
     private $controllers = [];
+    private $usedModels = [];
 
     // ================= Controllers =================
     public function visitControllerStmt($ctx)
@@ -23,14 +24,14 @@ class CompilerController extends OALBaseVisitor
 
         $txtMethod = implode("\n\n", $methods);
 
+        $imporUsedModels = $this->importUsedModels($name);
+
         $controllerCode = <<<PHP
 <?php
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Book;
-use App\Models\Member;
-use App\Models\BorrowRecord;
+$imporUsedModels
 
 class $name extends Controller {
 $txtMethod
@@ -39,6 +40,17 @@ PHP;
 
         $this->controllers[$name] = $controllerCode;
         return $controllerCode;
+    }
+
+    private function importUsedModels($controllerName)
+    {
+        $strImportModel = '';
+        foreach ($this->usedModels[$controllerName] as  $usedModel)
+        {
+            $strImportModel.= 'use App\Models\\'.$usedModel.';'."\n";
+        }
+
+        return$strImportModel;
     }
 
     public function visitControllerMethod($ctx)
@@ -289,10 +301,25 @@ PHP;
         return null;
     }
 
+    private function getCurrentControllerName($ctx)
+    {
+        $parent = $ctx->getParent();
+        while ($parent !== null) {
+            $class = get_class($parent);
+            if ($class === 'Context\ControllerStmtContext') {
+                return $parent->ID()->getText();
+            }
+            $parent = $parent->getParent();
+        }
+        return null;
+    }
+
     public function visitModelMethodCall($ctx)
     {
         $varName = $this->getVariableName($ctx);
+        $controllerName = $this->getCurrentControllerName($ctx);
         $model = $ctx->ID()->getText();
+        $this->usedModels[$controllerName][$model] = $model;
         $method = $ctx->MODEL_METHOD()->getText();
         $paramsCtx = $ctx->modelMethodParams();
         $argsCode = [];
