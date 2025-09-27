@@ -1,5 +1,6 @@
 /vendor/
 /output/
+/src/OAlLib/
 .php-cs-fixer.cache
 /template/app/Http/Controllers
 /template/app/Http/Middleware
