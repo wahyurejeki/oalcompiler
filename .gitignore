@@ -1,0 +1,8 @@
+/vendor/
+/output/
+.php-cs-fixer.cache
+/template/app/Http/Controllers
+/template/app/Http/Middleware
+/template/database/migrations
+/template/node_modules
+/template/vendor

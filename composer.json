@@ -1,0 +1,35 @@
+{
+    "name": "wahyurejeki/oalcompiler",
+    "description": "OAL (Object Action Language) compiler for Laravel, built with ANTLR.",
+    "license": "MIT",
+    "version": "1.0.1",
+    "scripts": {
+        "format": "php-cs-fixer fix"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wahyurejeki\\Oalcompiler\\": "src/"
+        },
+        "files": [
+            "src/OalLib/OALVisitor.php",
+            "src/OalLib/OALBaseVisitor.php",
+            "src/OalLib/OALListener.php",
+            "src/OalLib/OALBaseListener.php",
+            "src/OalLib/OALParser.php",
+            "src/OalLib/OALLexer.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Wahyu Rejeki",
+            "email": "wahyurejeki61@gmail.com"
+        }
+    ],
+    "require": {
+        "laravel/framework": "^v12.30.1",
+        "antlr/antlr4-php-runtime": "^0.9.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.87"
+    }
+}
