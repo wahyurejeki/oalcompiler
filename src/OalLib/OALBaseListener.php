@@ -606,14 +606,14 @@ class OALBaseListener implements OALListener
 	 *
 	 * The default implementation does nothing.
 	 */
-	public function enterLaravelType(Context\LaravelTypeContext $context): void {}
+	public function enterOalType(Context\OalTypeContext $context): void {}
 
 	/**
 	 * {@inheritdoc}
 	 *
 	 * The default implementation does nothing.
 	 */
-	public function exitLaravelType(Context\LaravelTypeContext $context): void {}
+	public function exitOalType(Context\OalTypeContext $context): void {}
 	/**
 	 * {@inheritdoc}
 	 *

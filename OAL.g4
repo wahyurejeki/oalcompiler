@@ -39,7 +39,7 @@ modelBody
     ;
 
 field
-    : laravelType ID fieldModifier* SEMICOLON
+    : oalType ID fieldModifier* SEMICOLON
     ;
 
 fieldModifier
@@ -244,8 +244,8 @@ logicalOperator
     : '&&' | '||'
     ;
 
-// ================= Laravel Types =================
-laravelType
+// ================= Oal Types =================
+oalType
     : STRING_TYPE
     | TEXT_TYPE
     | INTEGER_TYPE

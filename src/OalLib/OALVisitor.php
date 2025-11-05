@@ -417,13 +417,13 @@ interface OALVisitor extends ParseTreeVisitor
 	public function visitLogicalOperator(Context\LogicalOperatorContext $context);
 
 	/**
-	 * Visit a parse tree produced by {@see OALParser::laravelType()}.
+	 * Visit a parse tree produced by {@see OALParser::oalType()}.
 	 *
-	 * @param Context\LaravelTypeContext $context The parse tree.
+	 * @param Context\OalTypeContext $context The parse tree.
 	 *
 	 * @return mixed The visitor result.
 	 */
-	public function visitLaravelType(Context\LaravelTypeContext $context);
+	public function visitOalType(Context\OalTypeContext $context);
 
 	/**
 	 * Visit a parse tree produced by {@see OALParser::modelMethodCall()}.

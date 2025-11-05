@@ -238,7 +238,7 @@ forStmt
 ifStmt
 comparisonOperator
 logicalOperator
-laravelType
+oalType
 modelMethodCall
 modelMethodParams
 

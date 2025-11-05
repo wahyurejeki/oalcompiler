@@ -60,7 +60,7 @@ namespace {
                RULE_routeStmt = 37, RULE_middlewareList = 38, RULE_controllerRef = 39, 
                RULE_foreachStmt = 40, RULE_forStmt = 41, RULE_ifStmt = 42, 
                RULE_comparisonOperator = 43, RULE_logicalOperator = 44, 
-               RULE_laravelType = 45, RULE_modelMethodCall = 46, RULE_modelMethodParams = 47;
+               RULE_oalType = 45, RULE_modelMethodCall = 46, RULE_modelMethodParams = 47;
 
 		/**
 		 * @var array<string>
@@ -75,7 +75,7 @@ namespace {
 			'arrayLiteral', 'arrayElement', 'sessionFunction', 'cookieFunction', 
 			'httpFetchFunction', 'responseFunction', 'routeStmt', 'middlewareList', 
 			'controllerRef', 'foreachStmt', 'forStmt', 'ifStmt', 'comparisonOperator', 
-			'logicalOperator', 'laravelType', 'modelMethodCall', 'modelMethodParams'
+			'logicalOperator', 'oalType', 'modelMethodCall', 'modelMethodParams'
 		];
 
 		/**
@@ -751,7 +751,7 @@ namespace {
 		    try {
 		        $this->enterOuterAlt($localContext, 1);
 		        $this->setState(143);
-		        $this->laravelType();
+		        $this->oalType();
 		        $this->setState(144);
 		        $this->match(self::ID);
 		        $this->setState(148);
@@ -2670,11 +2670,11 @@ namespace {
 		/**
 		 * @throws RecognitionException
 		 */
-		public function laravelType(): Context\LaravelTypeContext
+		public function oalType(): Context\OalTypeContext
 		{
-		    $localContext = new Context\LaravelTypeContext($this->ctx, $this->getState());
+		    $localContext = new Context\OalTypeContext($this->ctx, $this->getState());
 
-		    $this->enterRule($localContext, 90, self::RULE_laravelType);
+		    $this->enterRule($localContext, 90, self::RULE_oalType);
 
 		    try {
 		        $this->enterOuterAlt($localContext, 1);
@@ -3161,9 +3161,9 @@ namespace Context {
 		    return OALParser::RULE_field;
 	    }
 
-	    public function laravelType(): ?LaravelTypeContext
+	    public function oalType(): ?OalTypeContext
 	    {
-	    	return $this->getTypedRuleContext(LaravelTypeContext::class, 0);
+	    	return $this->getTypedRuleContext(OalTypeContext::class, 0);
 	    }
 
 	    public function ID(): ?TerminalNode
@@ -5264,7 +5264,7 @@ namespace Context {
 		}
 	} 
 
-	class LaravelTypeContext extends ParserRuleContext
+	class OalTypeContext extends ParserRuleContext
 	{
 		public function __construct(?ParserRuleContext $parent, ?int $invokingState = null)
 		{
@@ -5273,7 +5273,7 @@ namespace Context {
 
 		public function getRuleIndex(): int
 		{
-		    return OALParser::RULE_laravelType;
+		    return OALParser::RULE_oalType;
 	    }
 
 	    public function STRING_TYPE(): ?TerminalNode
@@ -5344,21 +5344,21 @@ namespace Context {
 		public function enterRule(ParseTreeListener $listener): void
 		{
 			if ($listener instanceof OALListener) {
-			    $listener->enterLaravelType($this);
+			    $listener->enterOalType($this);
 		    }
 		}
 
 		public function exitRule(ParseTreeListener $listener): void
 		{
 			if ($listener instanceof OALListener) {
-			    $listener->exitLaravelType($this);
+			    $listener->exitOalType($this);
 		    }
 		}
 
 		public function accept(ParseTreeVisitor $visitor): mixed
 		{
 			if ($visitor instanceof OALVisitor) {
-			    return $visitor->visitLaravelType($this);
+			    return $visitor->visitOalType($this);
 		    }
 
 			return $visitor->visitChildren($this);

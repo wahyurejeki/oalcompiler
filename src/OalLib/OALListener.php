@@ -462,15 +462,15 @@ interface OALListener extends ParseTreeListener {
 	 */
 	public function exitLogicalOperator(Context\LogicalOperatorContext $context): void;
 	/**
-	 * Enter a parse tree produced by {@see OALParser::laravelType()}.
+	 * Enter a parse tree produced by {@see OALParser::oalType()}.
 	 * @param $context The parse tree.
 	 */
-	public function enterLaravelType(Context\LaravelTypeContext $context): void;
+	public function enterOalType(Context\OalTypeContext $context): void;
 	/**
-	 * Exit a parse tree produced by {@see OALParser::laravelType()}.
+	 * Exit a parse tree produced by {@see OALParser::oalType()}.
 	 * @param $context The parse tree.
 	 */
-	public function exitLaravelType(Context\LaravelTypeContext $context): void;
+	public function exitOalType(Context\OalTypeContext $context): void;
 	/**
 	 * Enter a parse tree produced by {@see OALParser::modelMethodCall()}.
 	 * @param $context The parse tree.

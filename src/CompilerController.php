@@ -45,12 +45,13 @@ PHP;
     private function importUsedModels($controllerName)
     {
         $strImportModel = '';
-        foreach ($this->usedModels[$controllerName] as  $usedModel)
-        {
-            $strImportModel.= 'use App\Models\\'.$usedModel.';'."\n";
+        if (!empty($this->usedModels[$controllerName])) {
+            foreach ($this->usedModels[$controllerName] as  $usedModel) {
+                $strImportModel .= 'use App\Models\\'.$usedModel.';'."\n";
+            }
         }
 
-        return$strImportModel;
+        return $strImportModel;
     }
 
     public function visitControllerMethod($ctx)
@@ -78,6 +79,8 @@ PHP;
 
     public function getControllers() { return $this->controllers; }
 
+    public function getUsedModels() { return $this->usedModels; }
+
     // ================= Statements =================
     public function visitVarStmt($ctx)
     {
@@ -98,7 +101,6 @@ PHP;
         $expr = $this->visit($ctx->expression());
         if (!$expr) return ';';
 
-        // Cek null dulu sebelum preg_match
         if (is_string($expr)) {
             if (preg_match('/^json\(/', $expr)) $expr = str_replace('json(', 'response()->json(', $expr);
             elseif (preg_match('/^html\(/', $expr)) $expr = str_replace('html(', 'response()->html(', $expr);
@@ -209,7 +211,6 @@ PHP;
         $where = '';
         foreach ($args as $key => $value) {
             if (is_array($value) && count($value) === 2 && is_string($value[0])) {
-                // Operator style: ["Operator", Value]
                 $op = $value[0];
                 $val = $this->phpValue($value[1]);
 
@@ -240,11 +241,10 @@ PHP;
             $strOrm.= $varName.'=';
         }
 
-
         $strOrm.='new '. $model.'();'."\n";
         $txtObj = '';
         foreach ($args as $key => $value) {
-            $key = preg_replace('/["\']/', '', $key); // hapus quotes di key
+            $key = preg_replace('/["\']/', '', $key);
             $txtObj.= $varName.'->'.$key.' = '.$this->phpValue($value).";\n";
         }
         $txtObj.=$varName.'->save()';
@@ -266,22 +266,20 @@ PHP;
         $strOrm.=$model.'::query()'.$whereParams.'->first();'."\n";
         $txtObj = '';
         foreach ($updates as $key => $value) {
-            $key = preg_replace('/["\']/', '', $key); // hapus quotes di key
+            $key = preg_replace('/["\']/', '', $key);
             $txtObj.= $varName.'->'.$key.' = '.$this->phpValue($value).";\n";
         }
         $txtObj.=$varName.'->update()';
         $strOrm.=$txtObj;
 
         return $strOrm;
-
     }
 
     private function phpValue($value)
     {
-        if (is_null($value)) return 'null'; // oke, tetap literal
-        if (is_bool($value)) return $value ? 'true' : 'false'; // harus literal
+        if (is_null($value)) return 'null';
+        if (is_bool($value)) return $value ? 'true' : 'false';
         if (is_string($value)) {
-            // jangan tambahkan quotes kalau dia variable
             if (preg_match('/^\$[a-zA-Z_][a-zA-Z0-9_\->]*$/', $value)) return $value;
             return '"' . addslashes($value) . '"';
         }
@@ -341,14 +339,11 @@ PHP;
             case 'modelCreate':
                 $args = $argsCode[0] ?? [];
                 return $this->buildOrmCreate($varName, $model, $args);
-                //return "$model::query()->create(" . var_export($args, true) . ")";
 
             case 'modelUpdate':
-                //$where = $this->buildWhereFromArgs($argsCode[0] ?? []);
                 $where =  $argsCode[0] ?? [];
                 $updates = $argsCode[1] ?? [];
                 return $this->buildOrmUpdate($varName, $model, $where, $updates);
-               // return "$model::query()$where->\nupdate(" . var_export($updates, true) . ")";
 
             case 'modelDelete':
                 $where = $this->buildWhereFromArgs($argsCode[0] ?? []);
@@ -402,6 +397,7 @@ PHP;
         return $this->visit($exprs[0]);
     }
 
+    // ================= Atom & JSON Handling =================
     public function visitAtom($ctx)
     {
         if ($ctx->STRING()) return $ctx->STRING()->getText();
@@ -409,6 +405,30 @@ PHP;
         elseif ($ctx->getText() === 'true') return 'true';
         elseif ($ctx->getText() === 'false') return 'false';
         elseif ($ctx->getText() === 'null') return 'null';
+
+        if ($ctx->responseFunction()) {
+            return $this->visitResponseFunction($ctx->responseFunction());
+        }
+
         return parent::visitAtom($ctx);
+    }
+
+    public function visitResponseFunction($ctx)
+    {
+        $name = $ctx->getChild(0)->getText();
+        $args = [];
+
+        if ($ctx->argumentList()) {
+            $exprs = $ctx->argumentList()->expression();
+            if (!is_array($exprs)) $exprs = [$exprs];
+            foreach ($exprs as $e) $args[] = $this->visit($e);
+        }
+
+        switch ($name) {
+            case 'json': return 'response()->json(' . implode(', ', $args) . ')';
+            case 'html': return 'response()->html(' . implode(', ', $args) . ')';
+            case 'redirect': return 'response()->redirect(' . implode(', ', $args) . ')';
+            case 'print': return 'echo ' . implode(' . ', $args);
+        }
     }
 }

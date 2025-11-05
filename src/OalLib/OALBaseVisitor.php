@@ -514,7 +514,7 @@ class OALBaseVisitor extends AbstractParseTreeVisitor implements OALVisitor
 	 * The default implementation returns the result of calling
 	 * {@see self::visitChildren()} on `context`.
 	 */
-	public function visitLaravelType(Context\LaravelTypeContext $context)
+	public function visitOalType(Context\OalTypeContext $context)
 	{
 	    return $this->visitChildren($context);
 	}
