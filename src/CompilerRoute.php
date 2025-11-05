@@ -7,6 +7,7 @@ use OALBaseVisitor;
 class CompilerRoute extends OALBaseVisitor
 {
     private $routes = [];
+    private $usedMiddlewares = [];
     // ================= Routes =================
     public function visitRouteStmt(\Context\RouteStmtContext $ctx)
     {
@@ -14,14 +15,16 @@ class CompilerRoute extends OALBaseVisitor
         $url = trim($ctx->STRING()->getText(), '"');
         $controller = $ctx->controllerRef()->CONTROLLER_METHOD()->getText();
 
-        // Build middleware as fully-qualified class references for Laravel
+        // Build middleware references; collect imports
         $middleware = '';
         if ($ctx->middlewareList()) {
             $middlewares = [];
             foreach ($ctx->middlewareList()->ID() as $m) {
                 $name = $m->getText();
-                // Use class-based middleware reference
-                $middlewares[] = "\\App\\Http\\Middleware\\{$name}::class";
+                // Track used middleware for import
+                $this->usedMiddlewares[$name] = true;
+                // Use short class name; will be imported at top
+                $middlewares[] = "{$name}::class";
             }
             $middleware = "->middleware([" . implode(', ', $middlewares) . "])";
         }
@@ -34,14 +37,19 @@ class CompilerRoute extends OALBaseVisitor
 
     public function getRoutes()
     {
-        $txtRoute = <<<PHP
-<?php
+        $imports = [
+            'use Illuminate\\Support\\Facades\\Route;'
+        ];
+        if (!empty($this->usedMiddlewares)) {
+            ksort($this->usedMiddlewares);
+            foreach (array_keys($this->usedMiddlewares) as $mw) {
+                $imports[] = 'use App\\Http\\Middleware\\' . $mw . ';';
+            }
+        }
 
-use Illuminate\Support\Facades\Route;
+        $txtRoute = "<?php\n\n" . implode("\n", $imports) . "\n";
 
-PHP;
-
-        return $txtRoute."\n". implode("\n", $this->routes);
+        return $txtRoute . "\n" . implode("\n", $this->routes);
     }
 
 }
