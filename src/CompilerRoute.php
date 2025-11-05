@@ -14,14 +14,16 @@ class CompilerRoute extends OALBaseVisitor
         $url = trim($ctx->STRING()->getText(), '"');
         $controller = $ctx->controllerRef()->CONTROLLER_METHOD()->getText();
 
-
+        // Build middleware as fully-qualified class references for Laravel
         $middleware = '';
         if ($ctx->middlewareList()) {
             $middlewares = [];
             foreach ($ctx->middlewareList()->ID() as $m) {
-                $middlewares[] = $m->getText();
+                $name = $m->getText();
+                // Use class-based middleware reference
+                $middlewares[] = "\\App\\Http\\Middleware\\{$name}::class";
             }
-            $middleware = "->middleware([" . implode(', ', array_map(fn($x) => "'$x'", $middlewares)) . "])";
+            $middleware = "->middleware([" . implode(', ', $middlewares) . "])";
         }
 
         $routeCode = "Route::$method('$url', '$controller')$middleware;";

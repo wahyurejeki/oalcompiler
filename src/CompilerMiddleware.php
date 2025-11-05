@@ -7,6 +7,13 @@ use OALBaseVisitor;
 class CompilerMiddleware extends OALBaseVisitor
 {
     private $middlewares = [];
+    private $stmtTranslator;
+
+    public function __construct()
+    {
+        // Reuse controller visitor to translate statements/expressions consistently
+        $this->stmtTranslator = new CompilerController();
+    }
 
     // ================= Middleware =================
     public function visitMiddlewareStmt(\Context\MiddlewareStmtContext $ctx)
@@ -38,10 +45,16 @@ PHP;
     public function visitMiddlewareMethod(\Context\MiddlewareMethodContext $ctx)
     {
         $body = [];
-        foreach ($ctx->block()->statement() as $stmt) {
-            $body[] = '    ' . $this->visit($stmt);
+        $stmts = $ctx->block()->statement();
+        if (!is_array($stmts)) { $stmts = [$stmts]; }
+        foreach ($stmts as $stmt) {
+            $translated = $this->stmtTranslator->visit($stmt);
+            if ($translated !== null && $translated !== '') {
+                $body[] = '        ' . $translated; // 8 spaces for method indentation
+            }
         }
-        return "public function handle(Request \$req, Closure \$next) {\n" . implode("\n", $body) . "\n    return \$next(\$req);\n}";
+        $bodyCode = implode("\n", $body);
+        return "    public function handle(Request \$req, Closure \$next) {\n$bodyCode\n        return \$next(\$req);\n    }";
     }
 
     public function getMiddlewares() { return $this->middlewares; }

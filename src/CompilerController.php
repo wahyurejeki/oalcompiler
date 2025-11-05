@@ -104,7 +104,7 @@ PHP;
         if (is_string($expr)) {
             if (preg_match('/^json\(/', $expr)) $expr = str_replace('json(', 'response()->json(', $expr);
             elseif (preg_match('/^html\(/', $expr)) $expr = str_replace('html(', 'response()->html(', $expr);
-            elseif (preg_match('/^redirect\(/', $expr)) $expr = str_replace('redirect(', 'response()->redirect(', $expr);
+            elseif (preg_match('/^redirect\(/', $expr)) $expr = str_replace('redirect(', 'redirect(', $expr);
             elseif (preg_match('/^print\(/', $expr)) $expr = str_replace('print(', 'echo(', $expr);
         }
 
@@ -115,7 +115,10 @@ PHP;
     {
         if ($ctx->expression()) {
             $expr = $this->visit($ctx->expression());
-            if (is_string($expr) && preg_match('/^(response|echo)/', $expr)) return $expr . ';';
+            // Always return response objects; avoid invalid "return echo" constructs
+            if (is_string($expr) && preg_match('/^echo\b/', $expr)) {
+                return $expr . ';';
+            }
             return 'return ' . $expr . ';';
         }
         return 'return;';
@@ -158,7 +161,13 @@ PHP;
         $update = $this->visit($ctx->assignmentStmt());
         $body = $this->visit($ctx->block());
 
-        return "for ($init $cond; $update) $body";
+        // Remove trailing semicolons for use inside for(;;)
+        $init = rtrim($init);
+        if (str_ends_with($init, ';')) $init = substr($init, 0, -1);
+        $update = rtrim($update);
+        if (str_ends_with($update, ';')) $update = substr($update, 0, -1);
+
+        return "for ($init; $cond; $update) $body";
     }
 
     public function visitForeachStmt($ctx)
@@ -183,6 +192,87 @@ PHP;
         return $out;
     }
 
+    // ================= Expressions (binary ops) =================
+    public function visitLogicalOrExpr($ctx)
+    {
+        $parts = $ctx->logicalAndExpr();
+        if (!is_array($parts)) $parts = [$parts];
+        $out = [];
+        foreach ($parts as $p) $out[] = $this->phpCode($this->visit($p));
+        return '(' . implode(' || ', $out) . ')';
+    }
+
+    public function visitLogicalAndExpr($ctx)
+    {
+        $parts = $ctx->equalityExpr();
+        if (!is_array($parts)) $parts = [$parts];
+        $out = [];
+        foreach ($parts as $p) $out[] = $this->phpCode($this->visit($p));
+        return '(' . implode(' && ', $out) . ')';
+    }
+
+    public function visitEqualityExpr($ctx)
+    {
+        $parts = $ctx->relationalExpr();
+        if (!is_array($parts)) $parts = [$parts];
+        if (count($parts) === 1) return $this->visit($parts[0]);
+
+        // Operators are at odd indices among children; safer to read tokens from getText slices
+        $out = $this->phpCode($this->visit($parts[0]));
+        for ($i = 1; $i < count($parts); $i++) {
+            // Determine operator by inspecting the concrete child between expressions
+            $op = $ctx->getChild($i * 2 - 1)->getText(); // '==' or '!='
+            $rhs = $this->phpCode($this->visit($parts[$i]));
+            $out = '(' . $out . ' ' . $op . ' ' . $rhs . ')';
+        }
+        return $out;
+    }
+
+    public function visitRelationalExpr($ctx)
+    {
+        $parts = $ctx->additiveExpr();
+        if (!is_array($parts)) $parts = [$parts];
+        if (count($parts) === 1) return $this->visit($parts[0]);
+
+        $out = $this->phpCode($this->visit($parts[0]));
+        for ($i = 1; $i < count($parts); $i++) {
+            $op = $ctx->getChild($i * 2 - 1)->getText(); // <, <=, >, >=
+            $rhs = $this->phpCode($this->visit($parts[$i]));
+            $out = '(' . $out . ' ' . $op . ' ' . $rhs . ')';
+        }
+        return $out;
+    }
+
+    public function visitAdditiveExpr($ctx)
+    {
+        $parts = $ctx->multiplicativeExpr();
+        if (!is_array($parts)) $parts = [$parts];
+        if (count($parts) === 1) return $this->visit($parts[0]);
+
+        $out = $this->phpCode($this->visit($parts[0]));
+        for ($i = 1; $i < count($parts); $i++) {
+            $op = $ctx->getChild($i * 2 - 1)->getText(); // + or -
+            $rhs = $this->phpCode($this->visit($parts[$i]));
+            $out = '(' . $out . ' ' . $op . ' ' . $rhs . ')';
+        }
+        return $out;
+    }
+
+    public function visitMultiplicativeExpr($ctx)
+    {
+        $parts = $ctx->unaryExpr();
+        if (!is_array($parts)) $parts = [$parts];
+        if (count($parts) === 1) return $this->visit($parts[0]);
+
+        $out = $this->phpCode($this->visit($parts[0]));
+        for ($i = 1; $i < count($parts); $i++) {
+            $op = $ctx->getChild($i * 2 - 1)->getText(); // *, /, %
+            $rhs = $this->phpCode($this->visit($parts[$i]));
+            $out = '(' . $out . ' ' . $op . ' ' . $rhs . ')';
+        }
+        return $out;
+    }
+
     public function visitFunctionCall($ctx)
     {
         $name = $ctx->ID()->getText();
@@ -191,13 +281,16 @@ PHP;
         if ($ctx->argumentList()) {
             $exprs = $ctx->argumentList()->expression();
             if (!is_array($exprs)) $exprs = [$exprs];
-            foreach ($exprs as $e) $args[] = $this->visit($e);
+            foreach ($exprs as $e) {
+                $visited = $this->visit($e);
+                $args[] = $this->phpCode($visited);
+            }
         }
 
         switch ($name) {
             case 'json': return 'response()->json(' . implode(', ', $args) . ')';
             case 'html': return 'response()->html(' . implode(', ', $args) . ')';
-            case 'redirect': return 'response()->redirect(' . implode(', ', $args) . ')';
+            case 'redirect': return 'redirect(' . implode(', ', $args) . ')';
             case 'print': return 'echo ' . implode(' . ', $args);
             default: return $name . '(' . implode(', ', $args) . ')';
         }
@@ -277,13 +370,62 @@ PHP;
 
     private function phpValue($value)
     {
+        // Preserve PHP null/boolean as keywords
         if (is_null($value)) return 'null';
         if (is_bool($value)) return $value ? 'true' : 'false';
+
+        // Coerce common literal strings produced by the parser into proper PHP code
         if (is_string($value)) {
-            if (preg_match('/^\$[a-zA-Z_][a-zA-Z0-9_\->]*$/', $value)) return $value;
+            $trim = trim($value);
+
+            // Already a quoted PHP string literal (e.g., "foo" or 'bar')
+            if ((str_starts_with($trim, '"') && str_ends_with($trim, '"')) ||
+                (str_starts_with($trim, "'") && str_ends_with($trim, "'"))) {
+                return $trim; // do not re-escape/re-quote
+            }
+
+            // Raw variable or property chain like $req->name
+            if (preg_match('/^\$[a-zA-Z_][a-zA-Z0-9_\->]*$/', $trim)) return $trim;
+
+            // Literal keywords passed as plain text from visitAtom (true/false/null)
+            $lower = strtolower($trim);
+            if (in_array($lower, ['true', 'false', 'null'], true)) return $lower;
+
+            // Numeric literal provided as string
+            if (is_numeric($trim)) return $trim;
+
+            // Fallback: quote as a normal PHP string
             return '"' . addslashes($value) . '"';
         }
-        return $value;
+
+        // Numbers and other scalars
+        return (string)$value;
+    }
+
+    // Render a PHP code representation of a visited value (scalars, variables, arrays)
+    private function phpCode($value)
+    {
+        if (is_array($value)) {
+            $isAssoc = $this->isAssocArray($value);
+            $parts = [];
+            if ($isAssoc) {
+                foreach ($value as $k => $v) {
+                    $parts[] = $this->phpCode($k) . ' => ' . $this->phpCode($v);
+                }
+            } else {
+                foreach ($value as $v) {
+                    $parts[] = $this->phpCode($v);
+                }
+            }
+            return '[' . implode(', ', $parts) . ']';
+        }
+        return $this->phpValue($value);
+    }
+
+    private function isAssocArray(array $arr): bool
+    {
+        $keys = array_keys($arr);
+        return $keys !== array_keys($keys);
     }
 
     private function getVariableName($ctx)
@@ -425,10 +567,73 @@ PHP;
         }
 
         switch ($name) {
-            case 'json': return 'response()->json(' . implode(', ', $args) . ')';
-            case 'html': return 'response()->html(' . implode(', ', $args) . ')';
-            case 'redirect': return 'response()->redirect(' . implode(', ', $args) . ')';
-            case 'print': return 'echo ' . implode(' . ', $args);
+            case 'json':
+                $argsCode = array_map(fn($a) => $this->phpCode($a), $args);
+                return 'response()->json(' . implode(', ', $argsCode) . ')';
+            case 'html':
+                $argsCode = array_map(fn($a) => $this->phpCode($a), $args);
+                return 'response()->html(' . implode(', ', $argsCode) . ')';
+            case 'redirect':
+                $argsCode = array_map(fn($a) => $this->phpCode($a), $args);
+                return 'redirect(' . implode(', ', $argsCode) . ')';
+            case 'print':
+                $argsCode = array_map(fn($a) => $this->phpCode($a), $args);
+                return 'echo ' . implode(' . ', $argsCode);
+            case 'split':
+                // split(expr1, expr2) -> explode(expr1, expr2)
+                $left = $this->visit($ctx->expression(0));
+                $right = $this->visit($ctx->expression(1));
+                return 'explode(' . $this->phpCode($left) . ', ' . $this->phpCode($right) . ')';
         }
+    }
+
+    // ================= Session & Cookie Functions =================
+    public function visitSessionFunction($ctx)
+    {
+        $name = $ctx->getChild(0)->getText();
+        if ($name === 'getSession') {
+            $key = $this->visit($ctx->expression(0));
+            return 'session()->get(' . $this->phpCode($key) . ')';
+        }
+        // setSession(key, value, ttl?)
+        $key = $this->visit($ctx->expression(0));
+        $val = $this->visit($ctx->expression(1));
+        return 'session()->put(' . $this->phpCode($key) . ', ' . $this->phpCode($val) . ')';
+    }
+
+    public function visitCookieFunction($ctx)
+    {
+        $name = $ctx->getChild(0)->getText();
+        if ($name === 'getCookie') {
+            $key = $this->visit($ctx->expression(0));
+            return 'request()->cookie(' . $this->phpCode($key) . ')';
+        }
+        // For setCookie/removeCookie, return simple PHP setcookie as a minimal fallback
+        if ($name === 'setCookie') {
+            $key = $this->visit($ctx->expression(0));
+            $val = $this->visit($ctx->expression(1));
+            return 'setcookie(' . $this->phpCode($key) . ', ' . $this->phpCode($val) . ')';
+        }
+        if ($name === 'removeCookie') {
+            $key = $this->visit($ctx->expression(0));
+            return 'setcookie(' . $this->phpCode($key) . ', null, time() - 3600)';
+        }
+        return parent::visitCookieFunction($ctx);
+    }
+
+    // ================= Unary Expressions =================
+    public function visitUnaryExpr($ctx)
+    {
+        // Handle logical NOT
+        if ($ctx->getChildCount() === 2 && $ctx->getChild(0)->getText() === '!') {
+            $inner = $this->visit($ctx->unaryExpr());
+            // $inner is already PHP code for an expression; do not escape/quote it
+            return '!' . '(' . $inner . ')';
+        }
+        // Fallback: atom
+        if (method_exists($ctx, 'atom') && $ctx->atom() !== null) {
+            return $this->visit($ctx->atom());
+        }
+        return parent::visitUnaryExpr($ctx);
     }
 }

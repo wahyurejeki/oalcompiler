@@ -26,6 +26,8 @@ class CompilerModel extends OALBaseVisitor
         $fieldsCode = implode("\n    ", $fields);
         $relationsCode = implode("\n\n    ", $relations);
 
+        $tableName = strtolower($modelName) . 's';
+
         $modelCode = <<<PHP
 <?php
 namespace App\Models;
@@ -34,6 +36,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class $modelName extends Model
 {
+    protected \$table = '$tableName';
+
     $fieldsCode
 
     $relationsCode
@@ -50,9 +54,21 @@ PHP;
 
     public function visitField(\Context\FieldContext $ctx)
     {
-        $type = $ctx->laravelType()->getText();
+        $type = $ctx->oalType()->getText();
         $name = $ctx->ID()->getText();
         return "protected \$$name; // type: $type";
+    }
+
+    private function camelCase(string $name): string
+    {
+        return lcfirst(preg_replace('/[^a-zA-Z0-9]+/', '', $name));
+    }
+
+    private function pluralize(string $word): string
+    {
+        // very naive pluralization just to avoid breaking changes
+        if (str_ends_with($word, 's')) return $word;
+        return $word . 's';
     }
 
     public function visitRelation(\Context\RelationContext $ctx)
@@ -61,18 +77,33 @@ PHP;
         $type = $ctx->getChild(0)->getText();
         $related = $ctx->getChild(1)->getText();
 
+        // normalize method name: camelCase and pluralize for *Many relations
+        $methodName = $this->camelCase($related);
+        if ($type === 'hasMany' || $type === 'belongsToMany') {
+            $methodName = $this->camelCase($this->pluralize($related));
+        }
+
         switch ($type) {
             case 'hasMany':
-                return "public function {$related}() { return \$this->hasMany($related::class); }";
+                return "public function {$methodName}() { return \$this->hasMany($related::class); }";
             case 'belongsTo':
-                return "public function {$related}() { return \$this->belongsTo($related::class); }";
+                return "public function {$methodName}() { return \$this->belongsTo($related::class); }";
             case 'hasOne':
-                return "public function {$related}() {  return \$this->hasOne($related::class); }";
+                return "public function {$methodName}() {  return \$this->hasOne($related::class); }";
             case 'belongsToMany':
-                return "public function {$related}() { return \$this->belongsToMany($related::class); }";
+                return "public function {$methodName}() { return \$this->belongsToMany($related::class); }";
         }
 
         return '';
+    }
+
+    private function mapColumnType(string $type): string
+    {
+        // Map OAL types to Laravel schema builder methods
+        return match ($type) {
+            'datetime' => 'dateTime',
+            default => $type,
+        };
     }
 
     private function generateMigration($modelName, $modelBody)
@@ -85,11 +116,20 @@ PHP;
             if ($body->field()) {
                 $f = $body->field();
                 $name = $f->ID()->getText();
-                $type = $f->laravelType()->getText();
+                $type = $f->oalType()->getText();
+                $mods = [];
+                foreach ($f->fieldModifier() as $mod) { $mods[] = $mod->getText(); }
 
-                $col = "            \$table->$type('$name')";
-                foreach ($f->fieldModifier() as $mod) {
-                    $modText = $mod->getText();
+                // Special handling for id primary
+                if ($name === 'id' && in_array('primary', $mods, true)) {
+                    $col = "            \$table->" . ($type === 'integer' ? 'increments' : 'bigIncrements') . "('id');";
+                    $fields[] = $col;
+                    continue;
+                }
+
+                $laravelType = $this->mapColumnType($type);
+                $col = '            $table->' . $laravelType . "('$name')";
+                foreach ($mods as $modText) {
                     if ($modText === 'primary') $col .= "->primary()";
                     if ($modText === 'unique') $col .= "->unique()";
                     if ($modText === 'nullable') $col .= "->nullable()";

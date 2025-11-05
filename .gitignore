@@ -4,5 +4,7 @@
 /template/app/Http/Controllers
 /template/app/Http/Middleware
 /template/database/migrations
+/template/app/Models
+/template/routes
 /template/node_modules
 /template/vendor
