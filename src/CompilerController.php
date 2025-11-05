@@ -161,13 +161,7 @@ PHP;
         $update = $this->visit($ctx->assignmentStmt());
         $body = $this->visit($ctx->block());
 
-        // Remove trailing semicolons for use inside for(;;)
-        $init = rtrim($init);
-        if (str_ends_with($init, ';')) $init = substr($init, 0, -1);
-        $update = rtrim($update);
-        if (str_ends_with($update, ';')) $update = substr($update, 0, -1);
-
-        return "for ($init; $cond; $update) $body";
+        return "for ($init $cond; $update) $body";
     }
 
     public function visitForeachStmt($ctx)
@@ -188,87 +182,6 @@ PHP;
         for ($i = 1; $i < count($ids); $i++) {
             $name = $ids[$i]->getText();
             $out .= ($name === 'count') ? '->count()' : '->' . $name;
-        }
-        return $out;
-    }
-
-    // ================= Expressions (binary ops) =================
-    public function visitLogicalOrExpr($ctx)
-    {
-        $parts = $ctx->logicalAndExpr();
-        if (!is_array($parts)) $parts = [$parts];
-        $out = [];
-        foreach ($parts as $p) $out[] = $this->phpCode($this->visit($p));
-        return '(' . implode(' || ', $out) . ')';
-    }
-
-    public function visitLogicalAndExpr($ctx)
-    {
-        $parts = $ctx->equalityExpr();
-        if (!is_array($parts)) $parts = [$parts];
-        $out = [];
-        foreach ($parts as $p) $out[] = $this->phpCode($this->visit($p));
-        return '(' . implode(' && ', $out) . ')';
-    }
-
-    public function visitEqualityExpr($ctx)
-    {
-        $parts = $ctx->relationalExpr();
-        if (!is_array($parts)) $parts = [$parts];
-        if (count($parts) === 1) return $this->visit($parts[0]);
-
-        // Operators are at odd indices among children; safer to read tokens from getText slices
-        $out = $this->phpCode($this->visit($parts[0]));
-        for ($i = 1; $i < count($parts); $i++) {
-            // Determine operator by inspecting the concrete child between expressions
-            $op = $ctx->getChild($i * 2 - 1)->getText(); // '==' or '!='
-            $rhs = $this->phpCode($this->visit($parts[$i]));
-            $out = '(' . $out . ' ' . $op . ' ' . $rhs . ')';
-        }
-        return $out;
-    }
-
-    public function visitRelationalExpr($ctx)
-    {
-        $parts = $ctx->additiveExpr();
-        if (!is_array($parts)) $parts = [$parts];
-        if (count($parts) === 1) return $this->visit($parts[0]);
-
-        $out = $this->phpCode($this->visit($parts[0]));
-        for ($i = 1; $i < count($parts); $i++) {
-            $op = $ctx->getChild($i * 2 - 1)->getText(); // <, <=, >, >=
-            $rhs = $this->phpCode($this->visit($parts[$i]));
-            $out = '(' . $out . ' ' . $op . ' ' . $rhs . ')';
-        }
-        return $out;
-    }
-
-    public function visitAdditiveExpr($ctx)
-    {
-        $parts = $ctx->multiplicativeExpr();
-        if (!is_array($parts)) $parts = [$parts];
-        if (count($parts) === 1) return $this->visit($parts[0]);
-
-        $out = $this->phpCode($this->visit($parts[0]));
-        for ($i = 1; $i < count($parts); $i++) {
-            $op = $ctx->getChild($i * 2 - 1)->getText(); // + or -
-            $rhs = $this->phpCode($this->visit($parts[$i]));
-            $out = '(' . $out . ' ' . $op . ' ' . $rhs . ')';
-        }
-        return $out;
-    }
-
-    public function visitMultiplicativeExpr($ctx)
-    {
-        $parts = $ctx->unaryExpr();
-        if (!is_array($parts)) $parts = [$parts];
-        if (count($parts) === 1) return $this->visit($parts[0]);
-
-        $out = $this->phpCode($this->visit($parts[0]));
-        for ($i = 1; $i < count($parts); $i++) {
-            $op = $ctx->getChild($i * 2 - 1)->getText(); // *, /, %
-            $rhs = $this->phpCode($this->visit($parts[$i]));
-            $out = '(' . $out . ' ' . $op . ' ' . $rhs . ')';
         }
         return $out;
     }
@@ -579,11 +492,6 @@ PHP;
             case 'print':
                 $argsCode = array_map(fn($a) => $this->phpCode($a), $args);
                 return 'echo ' . implode(' . ', $argsCode);
-            case 'split':
-                // split(expr1, expr2) -> explode(expr1, expr2)
-                $left = $this->visit($ctx->expression(0));
-                $right = $this->visit($ctx->expression(1));
-                return 'explode(' . $this->phpCode($left) . ', ' . $this->phpCode($right) . ')';
         }
     }
 
