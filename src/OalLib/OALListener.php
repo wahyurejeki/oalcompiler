@@ -22,6 +22,36 @@ interface OALListener extends ParseTreeListener {
 	 */
 	public function exitProgram(Context\ProgramContext $context): void;
 	/**
+	 * Enter a parse tree produced by {@see OALParser::importStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterImportStmt(Context\ImportStmtContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::importStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitImportStmt(Context\ImportStmtContext $context): void;
+	/**
+	 * Enter a parse tree produced by {@see OALParser::requireStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterRequireStmt(Context\RequireStmtContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::requireStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitRequireStmt(Context\RequireStmtContext $context): void;
+	/**
+	 * Enter a parse tree produced by {@see OALParser::idPath()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterIdPath(Context\IdPathContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::idPath()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitIdPath(Context\IdPathContext $context): void;
+	/**
 	 * Enter a parse tree produced by {@see OALParser::statement()}.
 	 * @param $context The parse tree.
 	 */
@@ -282,6 +312,16 @@ interface OALListener extends ParseTreeListener {
 	 */
 	public function exitAtom(Context\AtomContext $context): void;
 	/**
+	 * Enter a parse tree produced by {@see OALParser::newExpr()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterNewExpr(Context\NewExprContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::newExpr()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitNewExpr(Context\NewExprContext $context): void;
+	/**
 	 * Enter a parse tree produced by {@see OALParser::returnStmt()}.
 	 * @param $context The parse tree.
 	 */
@@ -431,6 +471,66 @@ interface OALListener extends ParseTreeListener {
 	 * @param $context The parse tree.
 	 */
 	public function exitForStmt(Context\ForStmtContext $context): void;
+	/**
+	 * Enter a parse tree produced by {@see OALParser::whileStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterWhileStmt(Context\WhileStmtContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::whileStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitWhileStmt(Context\WhileStmtContext $context): void;
+	/**
+	 * Enter a parse tree produced by {@see OALParser::breakStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterBreakStmt(Context\BreakStmtContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::breakStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitBreakStmt(Context\BreakStmtContext $context): void;
+	/**
+	 * Enter a parse tree produced by {@see OALParser::continueStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterContinueStmt(Context\ContinueStmtContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::continueStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitContinueStmt(Context\ContinueStmtContext $context): void;
+	/**
+	 * Enter a parse tree produced by {@see OALParser::tryCatchStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterTryCatchStmt(Context\TryCatchStmtContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::tryCatchStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitTryCatchStmt(Context\TryCatchStmtContext $context): void;
+	/**
+	 * Enter a parse tree produced by {@see OALParser::throwStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterThrowStmt(Context\ThrowStmtContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::throwStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitThrowStmt(Context\ThrowStmtContext $context): void;
+	/**
+	 * Enter a parse tree produced by {@see OALParser::validateStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function enterValidateStmt(Context\ValidateStmtContext $context): void;
+	/**
+	 * Exit a parse tree produced by {@see OALParser::validateStmt()}.
+	 * @param $context The parse tree.
+	 */
+	public function exitValidateStmt(Context\ValidateStmtContext $context): void;
 	/**
 	 * Enter a parse tree produced by {@see OALParser::ifStmt()}.
 	 * @param $context The parse tree.

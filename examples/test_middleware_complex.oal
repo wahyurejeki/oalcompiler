@@ -1,0 +1,16 @@
+import Carbon from Carbon.Carbon;
+
+middleware LogMiddleware {
+    function handleAction() {
+        var now = Carbon.now().toDateTimeString();
+        print("Access at: " + now);
+    }
+}
+
+controller LogController {
+    function indexAction() {
+        print("Index accessed");
+    }
+}
+
+route get "/log" -> LogController@indexAction middleware LogMiddleware;

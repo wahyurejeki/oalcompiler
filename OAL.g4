@@ -1,7 +1,21 @@
 grammar OAL;
 
 // ================= Program =================
-program: statement* EOF;
+program: (importStmt | requireStmt | statement)* EOF;
+
+// ================= Import =================
+importStmt
+    : 'import' ID 'from' idPath SEMICOLON
+    ;
+
+// ================= Require =================
+requireStmt
+    : REQUIRE STRING SEMICOLON
+    ;
+
+idPath
+    : ID (DOT ID)*
+    ;
 
 // ================= Statements =================
 statement
@@ -14,6 +28,12 @@ statement
     | ifStmt
     | foreachStmt
     | forStmt
+    | whileStmt
+    | breakStmt
+    | continueStmt
+    | tryCatchStmt
+    | throwStmt
+    | validateStmt
     | expressionStmt
     | returnStmt
     ;
@@ -23,12 +43,11 @@ varStmt
     : 'var' ID EQUAL expression SEMICOLON
     ;
 
-// ================= Assignment =================
 assignmentStmt
     : ID EQUAL expression SEMICOLON
     ;
 
-// ================= Models =================
+// ================= Database Models =================
 modelStmt
     : MODEL ID '{' modelBody* '}'
     ;
@@ -50,9 +69,9 @@ fieldModifier
     ;
 
 relation
-    : 'hasMany' ID SEMICOLON
+    : 'hasOne' ID SEMICOLON
+    | 'hasMany' ID SEMICOLON
     | 'belongsTo' ID SEMICOLON
-    | 'hasOne' ID SEMICOLON
     | 'belongsToMany' ID SEMICOLON
     ;
 
@@ -74,7 +93,7 @@ parameterList
     ;
 
 parameter
-    : ID ID
+    : (oalType | ID) ID
     ;
 
 // ================= Block =================
@@ -101,11 +120,11 @@ expression
     ;
 
 logicalOrExpr
-    : logicalAndExpr ('||' logicalAndExpr)*
+    : logicalAndExpr (OR logicalAndExpr)*
     ;
 
 logicalAndExpr
-    : equalityExpr ('&&' equalityExpr)*
+    : equalityExpr (AND equalityExpr)*
     ;
 
 equalityExpr
@@ -145,6 +164,11 @@ atom
     | 'false'
     | 'null'
     | arrayLiteral
+    | newExpr
+    ;
+
+newExpr
+    : NEW ID '(' argumentList? ')'
     ;
 
 // ================= Return Statement =================
@@ -154,7 +178,7 @@ returnStmt
 
 // ================= ID + Property/Method Chain =================
 idChain
-    : ID (DOT ID ('(' argumentList? ')')? )*
+    : ID ( (DOT ID | '[' expression ']') ('(' argumentList? ')')? )*
     ;
 
 // ================= Function Call =================
@@ -179,6 +203,7 @@ arrayElement
 sessionFunction
     : 'setSession' '(' expression COMMA expression (COMMA expression)? ')'
     | 'getSession' '(' expression ')'
+    | 'removeSession' '(' expression ')'
     ;
 
 cookieFunction
@@ -191,17 +216,15 @@ cookieFunction
 httpFetchFunction
     : 'fetchGet' '(' expression COMMA expression (COMMA expression)? ')' //return object
     | 'fetchPost' '(' expression COMMA expression (COMMA expression)? ')'
-    | 'fetchPut' '(' expression COMMA expression (COMMA expression)? ')'
-    | 'fetchPatch' '(' expression COMMA expression (COMMA expression)? ')'
-    | 'fetchDelete' '(' expression COMMA expression (COMMA expression)? ')'
     ;
 
-// ================= Built-in Response =================
+// ================= Response Functions =================
 responseFunction
     : 'json' '(' argumentList? ')'
     | 'html' '(' argumentList? ')'
     | 'redirect' '(' argumentList? ')'
     | 'print' '(' argumentList? ')'
+    | 'render' '(' expression (COMMA expression)? ')'
     | 'split' '(' expression COMMA expression ')'  // returns array
     ;
 
@@ -228,6 +251,31 @@ forStmt
     : FOR '(' varStmt expression SEMICOLON assignmentStmt ')' block
     ;
 
+// ================= WHILE Loop =================
+whileStmt
+    : WHILE '(' expression ')' block
+    ;
+
+breakStmt
+    : BREAK SEMICOLON
+    ;
+
+continueStmt
+    : CONTINUE SEMICOLON
+    ;
+
+tryCatchStmt
+    : TRY block CATCH '(' ID ID ')' block
+    ;
+
+throwStmt
+    : THROW ID '(' expression? ')' SEMICOLON
+    ;
+
+validateStmt
+    : VALIDATE arrayLiteral SEMICOLON
+    ;
+
 // ================= If Statement =================
 ifStmt
     : IF '(' expression ')' block
@@ -249,8 +297,7 @@ oalType
     : STRING_TYPE
     | TEXT_TYPE
     | INTEGER_TYPE
-    | BIGINT_TYPE
-    | UNSIGNED_BIGINT_TYPE
+    | BIGINTEGER_TYPE
     | FLOAT_TYPE
     | DOUBLE_TYPE
     | DECIMAL_TYPE
@@ -261,22 +308,53 @@ oalType
     | TIMESTAMP_TYPE
     ;
 
-// ================= HTTP METHODS =================
-HTTP_METHOD
-    : HTTP_GET
-    | HTTP_POST
-    | HTTP_PUT
-    | HTTP_DELETE
-    | HTTP_PATCH
-    ;
+STRING_TYPE          : 'string';
+TEXT_TYPE            : 'text';
+INTEGER_TYPE         : 'integer';
+BIGINTEGER_TYPE      : 'bigInteger';
+FLOAT_TYPE           : 'float';
+DOUBLE_TYPE          : 'double';
+DECIMAL_TYPE         : 'decimal';
+BOOLEAN_TYPE         : 'boolean';
+DATE_TYPE            : 'date';
+DATETIME_TYPE        : 'datetime';
+TIME_TYPE            : 'time';
+TIMESTAMP_TYPE       : 'timestamp';
 
-HTTP_GET    : 'get';
-HTTP_POST   : 'post';
-HTTP_PUT    : 'put';
-HTTP_DELETE : 'delete';
-HTTP_PATCH  : 'patch';
+// === Keywords ===
+ROUTE      : 'route';
+MODEL      : 'model';
+CONTROLLER : 'controller';
+MIDDLEWARE : 'middleware';
+FUNCTION   : 'function';
+RETURN     : 'return';
+IF         : 'if';
+ELSEIF     : 'elseif';
+ELSE       : 'else';
+FOR        : 'for';
+WHILE      : 'while';
+BREAK      : 'break';
+CONTINUE   : 'continue';
+TRY        : 'try';
+CATCH      : 'catch';
+THROW      : 'throw';
+VALIDATE   : 'validate';
+REQUIRE    : 'require';
+NEW        : 'new';
+IN         : 'in';
 
-// ================= CONTROLLER METHOD =================
+// === Symbols ===
+COMMA       : ',' ;
+SEMICOLON   : ';' ;
+COLON       : ':' ;
+DOT         : '.' ;
+EQUAL       : '=' ;
+ARROW       : '->' ;
+ARROW_ASSOC : '=>' ;
+OR          : '||' ;
+AND         : '&&' ;
+
+// ================= Controllers =================
 CONTROLLER_METHOD
     : [a-zA-Z_][a-zA-Z0-9_]* '@' CONTROLLER_METHOD_NAME
     ;
@@ -297,50 +375,17 @@ MODEL_METHOD
     | 'modelUpdate'
     | 'modelDelete'
     | 'modelCount'
+    | 'modelDataTable'
     ;
 
 modelMethodParams
-    : arrayLiteral (COMMA arrayLiteral)?
+    : arrayLiteral (COMMA arrayLiteral)*
     ;
 
-// ================= Lexer Tokens =================
-STRING_TYPE          : 'string';
-TEXT_TYPE            : 'text';
-INTEGER_TYPE         : 'integer';
-BIGINT_TYPE          : 'bigInteger';
-UNSIGNED_BIGINT_TYPE : 'unsignedBigInteger';
-FLOAT_TYPE           : 'float';
-DOUBLE_TYPE          : 'double';
-DECIMAL_TYPE         : 'decimal';
-BOOLEAN_TYPE         : 'boolean';
-DATE_TYPE            : 'date';
-DATETIME_TYPE        : 'datetime';
-TIME_TYPE            : 'time';
-TIMESTAMP_TYPE       : 'timestamp';
+// ================= HTTP Methods =================
+HTTP_METHOD: 'get' | 'post' | 'put' | 'delete' | 'patch';
 
-// === Keywords ===
-ROUTE      : 'route';
-MODEL      : 'model';
-CONTROLLER : 'controller';
-MIDDLEWARE : 'middleware';
-FUNCTION   : 'function';
-RETURN     : 'return';
-
-IF      : 'if';
-ELSEIF  : 'elseif';
-ELSE    : 'else';
-FOR     : 'for';
-IN      : 'in';
-
-// === Symbols ===
-COMMA       : ',' ;
-SEMICOLON   : ';' ;
-ARROW       : '->' ;
-ARROW_ASSOC : '=>' ;
-DOT         : '.' ;
-EQUAL       : '=' ;
-
-// === ID, Literals ===
+// === Basic Tokens ===
 ID      : [a-zA-Z_][a-zA-Z0-9_]* ;
 NUMBER  : [0-9]+ ('.' [0-9]+)? ;
 STRING  : '"' ( ~["\\] | '\\' . )* '"' ;

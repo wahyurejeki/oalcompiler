@@ -31,10 +31,10 @@ model BorrowRecord {
 controller BookController {
     function listBooksAction(Request req) {
         var books = Book.modelFindAll([
-                                                  "Book_id" => req.bookId,
-                                                  "Member_id" => [">",req.memberId],
-                                                  "returnedAt" => null
-                                              ]);
+          "Book_id" => req.bookId,
+          "Member_id" => [">",req.memberId],
+          "returnedAt" => null
+      ]);
         return json(books);
     }
 

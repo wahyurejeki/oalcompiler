@@ -1,0 +1,437 @@
+// =======================================================
+// OAL-Commerce Suite: Enterprise ERP System Example
+// 11 Models with Full CRUD (Create, Read, Update, Delete)
+// Complete Data Persistence (Store & Update Logic)
+// =======================================================
+
+// 1. DATABASE MODELS
+model User {
+    string name;
+    string email unique;
+    string password;
+}
+
+model Category {
+    string name;
+    text description nullable;
+    hasMany Product;
+}
+
+model Product {
+    string sku unique;
+    string name;
+    integer stock;
+    float price;
+    integer category_id;
+
+    belongsTo Category;
+    hasMany OrderItem;
+    hasMany InventoryLog;
+}
+
+model Supplier {
+    string name;
+    string contact_person;
+    string phone;
+}
+
+model Customer {
+    string name;
+    string email unique;
+    string address;
+    hasMany Order;
+}
+
+model Warehouse {
+    string name;
+    string manager_name;
+}
+
+model Order {
+    integer customer_id;
+    date order_date;
+    float total_amount;
+    string status; // pending, completed, cancelled
+
+    belongsTo Customer;
+    hasMany OrderItem;
+    hasOne Payment;
+    hasOne Shipment;
+}
+
+model OrderItem {
+    integer order_id;
+    integer product_id;
+    integer quantity;
+    float price_at_purchase;
+
+    belongsTo Order;
+    belongsTo Product;
+}
+
+model Payment {
+    integer order_id;
+    string payment_method;
+    float amount_paid;
+    datetime paid_at;
+
+    belongsTo Order;
+}
+
+model Shipment {
+    integer order_id;
+    string tracking_number;
+    string courier_name;
+    string shipping_status;
+
+    belongsTo Order;
+}
+
+model InventoryLog {
+    integer product_id;
+    integer change_amount;
+    string reason; // restock, sale, return
+
+    belongsTo Product;
+}
+
+// 2. SECURITY MIDDLEWARE
+middleware AuthMiddleware {
+    function handleAction() {
+        var userId = getSession("user_id");
+        if (userId == null) {
+            return redirect("/login");
+        }
+    }
+}
+
+// 3. AUTHENTICATION CONTROLLER
+controller AuthController {
+    function showLoginAction() {
+        return render("auth.login");
+    }
+
+    function loginAction() {
+        validate [
+            "email" => "required|email",
+            "password" => "required"
+        ];
+        setSession("user_id", 1);
+        setSession("user_name", "Super Admin");
+        return redirect("/dashboard");
+    }
+
+    function logoutAction() {
+        removeSession("user_id");
+        return redirect("/login");
+    }
+}
+
+// 4. BUSINESS LOGIC CONTROLLERS
+controller DashboardController {
+    function indexAction() {
+        return render("dashboard");
+    }
+}
+
+controller CategoryController {
+    function indexAction() {
+        var data = Category.modelDataTable();
+        return render("categories.list", data);
+    }
+    function createAction() {
+        return render("categories.create");
+    }
+    function storeAction() {
+        validate [ "name" => "required" ];
+        Category.modelCreate([
+            "name" => getPost("name"),
+            "description" => getPost("description")
+        ]);
+        return redirect("/categories");
+    }
+    function editAction(integer id) {
+        var item = Category.modelFindOne(["id" => id]);
+        return render("categories.edit", ["data" => item]);
+    }
+    function updateAction(integer id) {
+        validate [ "name" => "required" ];
+        Category.modelUpdate(["id" => id], [
+            "name" => getPost("name"),
+            "description" => getPost("description")
+        ]);
+        return redirect("/categories");
+    }
+    function deleteAction(integer id) {
+        Category.modelDelete(["id" => id]);
+        return json(["success" => true]);
+    }
+}
+
+controller ProductController {
+    function indexAction() {
+        var data = Product.modelDataTable();
+        return render("products.list", data);
+    }
+    function createAction() {
+        return render("products.create");
+    }
+    function storeAction() {
+        validate [
+            "sku" => "required|unique:products",
+            "name" => "required",
+            "stock" => "required|integer",
+            "price" => "required|numeric",
+            "category_id" => "required"
+        ];
+        Product.modelCreate([
+            "sku" => getPost("sku"),
+            "name" => getPost("name"),
+            "stock" => getPost("stock"),
+            "price" => getPost("price"),
+            "category_id" => getPost("category_id")
+        ]);
+        return redirect("/products");
+    }
+    function editAction(integer id) {
+        var item = Product.modelFindOne(["id" => id]);
+        return render("products.edit", ["data" => item]);
+    }
+    function updateAction(integer id) {
+        validate [ "name" => "required" ];
+        Product.modelUpdate(["id" => id], [
+            "name" => getPost("name"),
+            "stock" => getPost("stock"),
+            "price" => getPost("price"),
+            "category_id" => getPost("category_id")
+        ]);
+        return redirect("/products");
+    }
+    function deleteAction(integer id) {
+        Product.modelDelete(["id" => id]);
+        return json(["success" => true]);
+    }
+}
+
+controller SupplierController {
+    function indexAction() {
+        var data = Supplier.modelDataTable();
+        return render("suppliers.list", data);
+    }
+    function createAction() {
+        return render("suppliers.create");
+    }
+    function storeAction() {
+        validate [ "name" => "required" ];
+        Supplier.modelCreate([
+            "name" => getPost("name"),
+            "contact_person" => getPost("contact_person"),
+            "phone" => getPost("phone")
+        ]);
+        return redirect("/suppliers");
+    }
+}
+
+controller CustomerController {
+    function indexAction() {
+        var data = Customer.modelDataTable();
+        return render("customers.list", data);
+    }
+    function createAction() {
+        return render("customers.create");
+    }
+    function storeAction() {
+        validate [ "name" => "required", "email" => "required|email" ];
+        Customer.modelCreate([
+            "name" => getPost("name"),
+            "email" => getPost("email"),
+            "address" => getPost("address")
+        ]);
+        return redirect("/customers");
+    }
+    function editAction(integer id) {
+        var item = Customer.modelFindOne(["id" => id]);
+        return render("customers.edit", ["data" => item]);
+    }
+}
+
+controller WarehouseController {
+    function indexAction() {
+        var data = Warehouse.modelDataTable();
+        return render("warehouses.list", data);
+    }
+    function createAction() {
+        return render("warehouses.create");
+    }
+    function storeAction() {
+        validate [ "name" => "required" ];
+        Warehouse.modelCreate([
+            "name" => getPost("name"),
+            "manager_name" => getPost("manager_name")
+        ]);
+        return redirect("/warehouses");
+    }
+}
+
+controller OrderController {
+    function indexAction() {
+        var data = Order.modelDataTable();
+        return render("orders.list", data);
+    }
+
+    function createAction() {
+        return render("orders.create");
+    }
+
+    function checkoutAction() {
+        validate [
+            "customer_id" => "required",
+            "product_id" => "required",
+            "qty" => "required|integer"
+        ];
+
+        try {
+            var prodId = getPost("product_id");
+            var qty = getPost("qty");
+            var product = Product.modelFindOne(["id" => prodId]);
+            if (product.stock < qty) {
+                throw Exception("Insufficient stock for product: " + product.name);
+            }
+
+            var total = product.price * qty;
+            var order = Order.modelCreate([
+                "customer_id" => getPost("customer_id"),
+                "order_date" => "2024-03-31",
+                "total_amount" => total,
+                "status" => "pending"
+            ]);
+
+            OrderItem.modelCreate([
+                "order_id" => order.id,
+                "product_id" => prodId,
+                "quantity" => qty,
+                "price_at_purchase" => product.price
+            ]);
+
+            var newStock = product.stock - qty;
+            Product.modelUpdate(["id" => prodId], ["stock" => newStock]);
+
+            InventoryLog.modelCreate([
+                "product_id" => prodId,
+                "change_amount" => qty * -1,
+                "reason" => "Sale Order #" + order.id
+            ]);
+
+            print("Order processed successfully!");
+            return redirect("/orders");
+
+        } catch (Exception e) {
+            print("Checkout Error: " + e.message);
+            return render("errors.business", ["error" => e.message]);
+        }
+    }
+
+    function reportAction() {
+        var orders = Order.modelFindAll(["status" => "completed"]);
+        var i = 0;
+        var grandTotal = 0;
+        while (i < orders.count) {
+            var currentOrder = orders[i];
+            grandTotal = grandTotal + currentOrder.total_amount;
+            i = i + 1;
+        }
+        return render("reports", ["total" => grandTotal]);
+    }
+}
+
+controller OrderItemController {
+    function indexAction() {
+        var data = OrderItem.modelDataTable();
+        return render("orderitems.list", data);
+    }
+}
+
+controller PaymentController {
+    function indexAction() {
+        var data = Payment.modelDataTable();
+        return render("payments.list", data);
+    }
+}
+
+controller ShipmentController {
+    function indexAction() {
+        var data = Shipment.modelDataTable();
+        return render("shipments.list", data);
+    }
+}
+
+controller InventoryLogController {
+    function indexAction() {
+        var data = InventoryLog.modelDataTable();
+        return render("inventorylogs.list", data);
+    }
+}
+
+controller UserController {
+    function indexAction() {
+        var data = User.modelDataTable();
+        return render("users.list", data);
+    }
+    function createAction() {
+        return render("users.create");
+    }
+}
+
+// 5. ROUTES DEFINITION
+route get "/login" -> AuthController@showLoginAction;
+route post "/login" -> AuthController@loginAction;
+route get "/logout" -> AuthController@logoutAction;
+
+// Protected Management Routes
+route get "/dashboard" -> DashboardController@indexAction middleware AuthMiddleware;
+
+// Categories
+route get "/categories" -> CategoryController@indexAction middleware AuthMiddleware;
+route get "/categories/create" -> CategoryController@createAction middleware AuthMiddleware;
+route post "/categories" -> CategoryController@storeAction middleware AuthMiddleware;
+route get "/categories/{id}/edit" -> CategoryController@editAction middleware AuthMiddleware;
+route put "/categories/{id}" -> CategoryController@updateAction middleware AuthMiddleware;
+route delete "/categories/{id}" -> CategoryController@deleteAction middleware AuthMiddleware;
+
+// Products
+route get "/products" -> ProductController@indexAction middleware AuthMiddleware;
+route get "/products/create" -> ProductController@createAction middleware AuthMiddleware;
+route post "/products" -> ProductController@storeAction middleware AuthMiddleware;
+route get "/products/{id}/edit" -> ProductController@editAction middleware AuthMiddleware;
+route put "/products/{id}" -> ProductController@updateAction middleware AuthMiddleware;
+route delete "/products/{id}" -> ProductController@deleteAction middleware AuthMiddleware;
+
+// Suppliers
+route get "/suppliers" -> SupplierController@indexAction middleware AuthMiddleware;
+route get "/suppliers/create" -> SupplierController@createAction middleware AuthMiddleware;
+route post "/suppliers" -> SupplierController@storeAction middleware AuthMiddleware;
+
+// Customers
+route get "/customers" -> CustomerController@indexAction middleware AuthMiddleware;
+route get "/customers/create" -> CustomerController@createAction middleware AuthMiddleware;
+route post "/customers" -> CustomerController@storeAction middleware AuthMiddleware;
+route get "/customers/{id}/edit" -> CustomerController@editAction middleware AuthMiddleware;
+
+// Warehouses
+route get "/warehouses" -> WarehouseController@indexAction middleware AuthMiddleware;
+route get "/warehouses/create" -> WarehouseController@createAction middleware AuthMiddleware;
+route post "/warehouses" -> WarehouseController@storeAction middleware AuthMiddleware;
+
+// Orders
+route get "/orders" -> OrderController@indexAction middleware AuthMiddleware;
+route get "/orders/create" -> OrderController@createAction middleware AuthMiddleware;
+route get "/orders/report" -> OrderController@reportAction middleware AuthMiddleware;
+route post "/orders/checkout" -> OrderController@checkoutAction middleware AuthMiddleware;
+
+// Misc
+route get "/orderitems" -> OrderItemController@indexAction middleware AuthMiddleware;
+route get "/payments" -> PaymentController@indexAction middleware AuthMiddleware;
+route get "/shipments" -> ShipmentController@indexAction middleware AuthMiddleware;
+route get "/inventorylogs" -> InventoryLogController@indexAction middleware AuthMiddleware;
+route get "/users" -> UserController@indexAction middleware AuthMiddleware;
+route get "/users/create" -> UserController@createAction middleware AuthMiddleware;

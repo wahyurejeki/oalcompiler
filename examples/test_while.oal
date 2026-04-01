@@ -1,0 +1,12 @@
+controller TestController {
+    function indexAction() {
+        var i = 0;
+        while (i < 10) {
+            if (i == 3) {
+                break;
+            }
+            print("Iteration: " + i);
+            i = i + 1;
+        }
+    }
+}

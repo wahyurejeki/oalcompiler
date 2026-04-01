@@ -1,0 +1,16 @@
+model Product {
+    string name;
+    integer stock;
+}
+
+controller ProductController {
+    function indexAction() {
+        var products = Product.modelFindAll();
+        json(products);
+    }
+
+    function storeAction() {
+        var p = Product.modelCreate([ "name" => "Keyboard", "stock" => 10 ]);
+        json(p);
+    }
+}

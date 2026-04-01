@@ -1,0 +1,10 @@
+controller HomeController {
+    function indexAction() { render("dashboard"); }
+}
+
+controller ProductController {
+    function indexAction() { render("products.index"); }
+}
+
+route get "/" -> HomeController@indexAction;
+route get "/products" -> ProductController@indexAction;

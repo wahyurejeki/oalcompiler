@@ -34,6 +34,45 @@ class OALBaseListener implements OALListener
 	 *
 	 * The default implementation does nothing.
 	 */
+	public function enterImportStmt(Context\ImportStmtContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitImportStmt(Context\ImportStmtContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function enterRequireStmt(Context\RequireStmtContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitRequireStmt(Context\RequireStmtContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function enterIdPath(Context\IdPathContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitIdPath(Context\IdPathContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
 	public function enterStatement(Context\StatementContext $context): void {}
 
 	/**
@@ -372,6 +411,19 @@ class OALBaseListener implements OALListener
 	 *
 	 * The default implementation does nothing.
 	 */
+	public function enterNewExpr(Context\NewExprContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitNewExpr(Context\NewExprContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
 	public function enterReturnStmt(Context\ReturnStmtContext $context): void {}
 
 	/**
@@ -562,6 +614,84 @@ class OALBaseListener implements OALListener
 	 * The default implementation does nothing.
 	 */
 	public function exitForStmt(Context\ForStmtContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function enterWhileStmt(Context\WhileStmtContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitWhileStmt(Context\WhileStmtContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function enterBreakStmt(Context\BreakStmtContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitBreakStmt(Context\BreakStmtContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function enterContinueStmt(Context\ContinueStmtContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitContinueStmt(Context\ContinueStmtContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function enterTryCatchStmt(Context\TryCatchStmtContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitTryCatchStmt(Context\TryCatchStmtContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function enterThrowStmt(Context\ThrowStmtContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitThrowStmt(Context\ThrowStmtContext $context): void {}
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function enterValidateStmt(Context\ValidateStmtContext $context): void {}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation does nothing.
+	 */
+	public function exitValidateStmt(Context\ValidateStmtContext $context): void {}
 	/**
 	 * {@inheritdoc}
 	 *

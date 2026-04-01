@@ -30,6 +30,39 @@ class OALBaseVisitor extends AbstractParseTreeVisitor implements OALVisitor
 	 * The default implementation returns the result of calling
 	 * {@see self::visitChildren()} on `context`.
 	 */
+	public function visitImportStmt(Context\ImportStmtContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
+	public function visitRequireStmt(Context\RequireStmtContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
+	public function visitIdPath(Context\IdPathContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
 	public function visitStatement(Context\StatementContext $context)
 	{
 	    return $this->visitChildren($context);
@@ -316,6 +349,17 @@ class OALBaseVisitor extends AbstractParseTreeVisitor implements OALVisitor
 	 * The default implementation returns the result of calling
 	 * {@see self::visitChildren()} on `context`.
 	 */
+	public function visitNewExpr(Context\NewExprContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
 	public function visitReturnStmt(Context\ReturnStmtContext $context)
 	{
 	    return $this->visitChildren($context);
@@ -471,6 +515,72 @@ class OALBaseVisitor extends AbstractParseTreeVisitor implements OALVisitor
 	 * {@see self::visitChildren()} on `context`.
 	 */
 	public function visitForStmt(Context\ForStmtContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
+	public function visitWhileStmt(Context\WhileStmtContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
+	public function visitBreakStmt(Context\BreakStmtContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
+	public function visitContinueStmt(Context\ContinueStmtContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
+	public function visitTryCatchStmt(Context\TryCatchStmtContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
+	public function visitThrowStmt(Context\ThrowStmtContext $context)
+	{
+	    return $this->visitChildren($context);
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * The default implementation returns the result of calling
+	 * {@see self::visitChildren()} on `context`.
+	 */
+	public function visitValidateStmt(Context\ValidateStmtContext $context)
 	{
 	    return $this->visitChildren($context);
 	}

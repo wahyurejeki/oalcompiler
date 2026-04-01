@@ -1,0 +1,10 @@
+controller TryCatchController {
+    function indexAction() {
+        try {
+            print("Trying to do something dangerous...");
+            throw Exception("Something went wrong!");
+        } catch (Exception e) {
+            print("Caught an error: " + e.message);
+        }
+    }
+}

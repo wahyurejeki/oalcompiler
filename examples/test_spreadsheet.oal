@@ -1,0 +1,13 @@
+import Spreadsheet from PhpOffice.PhpSpreadsheet.Spreadsheet;
+import Xlsx from PhpOffice.PhpSpreadsheet.Writer.Xlsx;
+
+controller ExportController {
+    function exportAction() {
+        var excel = new Spreadsheet();
+        var sheet = excel.getActiveSheet();
+        sheet.setCellValue("A1", "Hello from OAL!");
+        
+        var writer = new Xlsx(excel);
+        print("Excel file created!");
+    }
+}

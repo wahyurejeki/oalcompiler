@@ -1,0 +1,6 @@
+controller BookController {
+    function indexAction() {
+        var items = [ "title" => "Laravel Guide", "author" => "OAL" ];
+        render("books.index", items);
+    }
+}

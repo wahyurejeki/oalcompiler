@@ -1,0 +1,10 @@
+controller UserController {
+    function storeAction() {
+        validate [
+            "name" => "required|string|max:50",
+            "email" => "required|email|unique:users"
+        ];
+        
+        print("Validation passed!");
+    }
+}

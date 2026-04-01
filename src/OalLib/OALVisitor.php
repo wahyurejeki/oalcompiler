@@ -21,6 +21,33 @@ interface OALVisitor extends ParseTreeVisitor
 	public function visitProgram(Context\ProgramContext $context);
 
 	/**
+	 * Visit a parse tree produced by {@see OALParser::importStmt()}.
+	 *
+	 * @param Context\ImportStmtContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitImportStmt(Context\ImportStmtContext $context);
+
+	/**
+	 * Visit a parse tree produced by {@see OALParser::requireStmt()}.
+	 *
+	 * @param Context\RequireStmtContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitRequireStmt(Context\RequireStmtContext $context);
+
+	/**
+	 * Visit a parse tree produced by {@see OALParser::idPath()}.
+	 *
+	 * @param Context\IdPathContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitIdPath(Context\IdPathContext $context);
+
+	/**
 	 * Visit a parse tree produced by {@see OALParser::statement()}.
 	 *
 	 * @param Context\StatementContext $context The parse tree.
@@ -255,6 +282,15 @@ interface OALVisitor extends ParseTreeVisitor
 	public function visitAtom(Context\AtomContext $context);
 
 	/**
+	 * Visit a parse tree produced by {@see OALParser::newExpr()}.
+	 *
+	 * @param Context\NewExprContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitNewExpr(Context\NewExprContext $context);
+
+	/**
 	 * Visit a parse tree produced by {@see OALParser::returnStmt()}.
 	 *
 	 * @param Context\ReturnStmtContext $context The parse tree.
@@ -388,6 +424,60 @@ interface OALVisitor extends ParseTreeVisitor
 	 * @return mixed The visitor result.
 	 */
 	public function visitForStmt(Context\ForStmtContext $context);
+
+	/**
+	 * Visit a parse tree produced by {@see OALParser::whileStmt()}.
+	 *
+	 * @param Context\WhileStmtContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitWhileStmt(Context\WhileStmtContext $context);
+
+	/**
+	 * Visit a parse tree produced by {@see OALParser::breakStmt()}.
+	 *
+	 * @param Context\BreakStmtContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitBreakStmt(Context\BreakStmtContext $context);
+
+	/**
+	 * Visit a parse tree produced by {@see OALParser::continueStmt()}.
+	 *
+	 * @param Context\ContinueStmtContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitContinueStmt(Context\ContinueStmtContext $context);
+
+	/**
+	 * Visit a parse tree produced by {@see OALParser::tryCatchStmt()}.
+	 *
+	 * @param Context\TryCatchStmtContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitTryCatchStmt(Context\TryCatchStmtContext $context);
+
+	/**
+	 * Visit a parse tree produced by {@see OALParser::throwStmt()}.
+	 *
+	 * @param Context\ThrowStmtContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitThrowStmt(Context\ThrowStmtContext $context);
+
+	/**
+	 * Visit a parse tree produced by {@see OALParser::validateStmt()}.
+	 *
+	 * @param Context\ValidateStmtContext $context The parse tree.
+	 *
+	 * @return mixed The visitor result.
+	 */
+	public function visitValidateStmt(Context\ValidateStmtContext $context);
 
 	/**
 	 * Visit a parse tree produced by {@see OALParser::ifStmt()}.

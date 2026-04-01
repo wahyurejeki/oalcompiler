@@ -1,0 +1,14 @@
+require "moment";
+
+import Moment from moment;
+
+controller TimeController {
+    function indexAction() {
+        var m = Moment();
+        var now = m.format("YYYY-MM-DD HH:mm:ss");
+        print("Express Time: " + now);
+        
+        var data = [ "status" => "success", "time" => now ];
+        json(data);
+    }
+}

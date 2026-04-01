@@ -1,0 +1,13 @@
+model Book {
+    string title;
+    string author;
+}
+
+controller BookController {
+    function indexAction() {
+        var books = Book.modelFindAll();
+        json(books);
+    }
+}
+
+route get "/books" -> BookController@indexAction;

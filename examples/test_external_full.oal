@@ -1,0 +1,9 @@
+require "psr/log";
+
+import Logger from Psr.Log.LoggerInterface;
+
+controller LogTestController {
+    function indexAction() {
+        print("Logger import test");
+    }
+}
