@@ -50,11 +50,55 @@ class QueryModelScanner extends \OALBaseVisitor
     }
 }
 
+class ProgramMiddlewareScanner extends \OALBaseVisitor
+{
+    private $sessionMiddlewares = [];
+    private $tokenMiddlewares = [];
+
+    public function visitMiddlewareStmt($ctx)
+    {
+        $name = $ctx->ID()->getText();
+        if (str_contains($ctx->getText(), 'getSession')) {
+            $this->sessionMiddlewares[$name] = true;
+        }
+        if (str_contains($ctx->getText(), 'token')) {
+            $this->tokenMiddlewares[$name] = true;
+        }
+        return parent::visitMiddlewareStmt($ctx);
+    }
+
+    public function getSessionMiddlewares()
+    {
+        return array_keys($this->sessionMiddlewares);
+    }
+
+    public function getTokenMiddlewares()
+    {
+        return array_keys($this->tokenMiddlewares);
+    }
+}
+
 class LaravelTestCompiler extends BaseCompiler
 {
     private $modelMetadata = [];
     private $routeData = [];
     private $tests = [];
+    private $sessionMiddlewares = [];
+    private $tokenMiddlewares = [];
+    private $scanned = false;
+
+    public function visit(\Antlr\Antlr4\Runtime\Tree\ParseTree $tree): mixed
+    {
+        if (!$this->scanned) {
+            $this->scanned = true;
+            $scanner = new ProgramMiddlewareScanner();
+            $scanner->visit($tree);
+            $this->sessionMiddlewares = $scanner->getSessionMiddlewares();
+            $this->tokenMiddlewares = $scanner->getTokenMiddlewares();
+        }
+
+        return parent::visit($tree);
+    }
 
     public function setModelMetadata($metadata)
     {
@@ -345,11 +389,28 @@ PHP;
             $seedingString = "\n        // Seed dependencies\n" . $seedingString . "\n";
         }
 
+        $routeMiddlewares = $route['middlewares'] ?? [];
+        $usesSession = false;
+        $usesToken = false;
+        foreach ($routeMiddlewares as $mwName) {
+            if (in_array($mwName, $this->sessionMiddlewares)) {
+                $usesSession = true;
+            }
+            if (in_array($mwName, $this->tokenMiddlewares)) {
+                $usesToken = true;
+            }
+        }
+
+        $requestChain = "\$this";
+        if ($usesSession) {
+            $requestChain .= "->withSession(['user' => 'john_doe', 'user_id' => 1])";
+        }
+
         if (str_contains($methodName, 'list') || str_contains($methodName, 'index') || $httpMethod === 'get') {
             $testCode .= "    public function {$testName}_success(): void\n";
             $testCode .= "    {\n";
             $testCode .= $seedingString;
-            $testCode .= "        \$response = \$this->withSession(['user' => 'john_doe', 'user_id' => 1])\n";
+            $testCode .= "        \$response = {$requestChain}\n";
             $testCode .= "                         ->getJson('{$testUrl}{$queryGlue}{$authParam}');\n\n";
             $testCode .= "        \$response->assertStatus(200);\n";
             $testCode .= "    }";
@@ -357,7 +418,7 @@ PHP;
             $testCode .= "    public function {$testName}_success(): void\n";
             $testCode .= "    {\n";
             $testCode .= $seedingString;
-            $testCode .= "        \$response = \$this->withSession(['user' => 'john_doe', 'user_id' => 1])\n";
+            $testCode .= "        \$response = {$requestChain}\n";
             $testCode .= "                         ->postJson('{$testUrl}{$queryGlue}{$authParam}', {$postDataCode});\n\n";
             $testCode .= "        \$response->assertStatus(200);\n";
 
@@ -379,9 +440,37 @@ PHP;
             $testCode .= "    public function {$testName}_success(): void\n";
             $testCode .= "    {\n";
             $testCode .= $seedingString;
-            $testCode .= "        \$response = \$this->withSession(['user' => 'john_doe', 'user_id' => 1])\n";
+            $testCode .= "        \$response = {$requestChain}\n";
             $testCode .= "                         ->call('{$httpMethod}', '{$testUrl}{$queryGlue}{$authParam}', {$postDataCode});\n\n";
             $testCode .= "        \$response->assertStatus(200);\n";
+            $testCode .= "    }";
+        }
+
+        // Add security test cases for token or session auth failure
+        if ($usesToken) {
+            $unauthTestName = "{$testName}_without_token";
+            $testCode .= "\n\n    public function {$unauthTestName}(): void\n";
+            $testCode .= "    {\n";
+            if ($httpMethod === 'get') {
+                $testCode .= "        \$response = \$this->getJson('{$testUrl}');\n";
+            } else {
+                $testCode .= "        \$response = \$this->postJson('{$testUrl}', []);\n";
+            }
+            $testCode .= "        \$response->assertJson(['error' => 'Token invalid']);\n";
+            $testCode .= "    }";
+        }
+
+        if ($usesSession) {
+            $unauthTestName = "{$testName}_without_session";
+            $testCode .= "\n\n    public function {$unauthTestName}(): void\n";
+            $testCode .= "    {\n";
+            $urlWithAuth = $usesToken ? "{$testUrl}{$queryGlue}{$authParam}" : $testUrl;
+            if ($httpMethod === 'get') {
+                $testCode .= "        \$response = \$this->getJson('{$urlWithAuth}');\n";
+            } else {
+                $testCode .= "        \$response = \$this->postJson('{$urlWithAuth}', []);\n";
+            }
+            $testCode .= "        \$response->assertRedirect('/login');\n";
             $testCode .= "    }";
         }
 

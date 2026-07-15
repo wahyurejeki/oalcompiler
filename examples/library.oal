@@ -82,9 +82,6 @@ middleware AuthMiddleware {
         if (req.token != "123456") {
             return json(["error" => "Token invalid"]);
         }
-        if (!getSession("user")) {
-            return redirect("/login");
-        }
     }
 }
 

@@ -17,27 +17,30 @@ class LaravelRouteCompiler extends BaseCompiler
         $url = trim($ctx->STRING()->getText(), '"');
         $controller = $ctx->controllerRef()->CONTROLLER_METHOD()->getText();
 
+        $mws = [];
+        $middleware = '';
+        if ($ctx->middlewareList()) {
+            $mwsClasses = [];
+            foreach ($ctx->middlewareList()->ID() as $m) {
+                $name = $m->getText();
+                $this->usedMiddlewares[$name] = true;
+                $mws[] = $name;
+                $mwsClasses[] = "{$name}::class";
+            }
+            $middleware = "->middleware([" . implode(', ', $mwsClasses) . "])";
+        }
+
         $this->routeData[] = [
             'method' => $method,
             'url' => $url,
-            'controller' => $controller
+            'controller' => $controller,
+            'middlewares' => $mws
         ];
 
         $parts = explode('@', $controller);
         $controllerClass = $parts[0];
         $controllerMethod = $parts[1] ?? 'index';
         $this->usedControllers[$controllerClass] = true;
-
-        $middleware = '';
-        if ($ctx->middlewareList()) {
-            $mws = [];
-            foreach ($ctx->middlewareList()->ID() as $m) {
-                $name = $m->getText();
-                $this->usedMiddlewares[$name] = true;
-                $mws[] = "{$name}::class";
-            }
-            $middleware = "->middleware([" . implode(', ', $mws) . "])";
-        }
 
         $routeCode = "Route::$method('$url', [{$controllerClass}::class, '{$controllerMethod}'])$middleware;";
         $this->routes[] = $routeCode;
