@@ -24,21 +24,33 @@ class BookControllerTest extends TestCase
         $book->available = 1;
         $book->save();
 
-        $response = $this->withSession(['user' => 'john_doe', 'user_id' => 1])
+        $response = $this
                          ->getJson('/books?token=123456');
 
         $response->assertStatus(200);
     }
 
+    public function test_list_books_without_token(): void
+    {
+        $response = $this->getJson('/books');
+        $response->assertJson(['error' => 'Token invalid']);
+    }
+
     public function test_create_book_success(): void
     {
-        $response = $this->withSession(['user' => 'john_doe', 'user_id' => 1])
+        $response = $this
                          ->postJson('/books?token=123456', ['title' => 'Test Title', 'author' => 'Test Author', 'year' => 1, 'isbn' => 'Test Isbn']);
 
         $response->assertStatus(200);
         $this->assertDatabaseHas('books', [
             'title' => 'Test Title',
         ]);
+    }
+
+    public function test_create_book_without_token(): void
+    {
+        $response = $this->postJson('/books', []);
+        $response->assertJson(['error' => 'Token invalid']);
     }
 
     public function test_borrow_book_success(): void
@@ -59,10 +71,16 @@ class BookControllerTest extends TestCase
         $member->phone = 'Test Phone';
         $member->save();
 
-        $response = $this->withSession(['user' => 'john_doe', 'user_id' => 1])
+        $response = $this
                          ->postJson('/books/borrow?token=123456', ['isbn' => 'Test Isbn', 'memberId' => $member->id, 'borrowedAt' => '2026-07-15 10:00:00']);
 
         $response->assertStatus(200);
+    }
+
+    public function test_borrow_book_without_token(): void
+    {
+        $response = $this->postJson('/books/borrow', []);
+        $response->assertJson(['error' => 'Token invalid']);
     }
 
     public function test_return_book_success(): void
@@ -90,9 +108,15 @@ class BookControllerTest extends TestCase
         $borrowRecord->returnedAt = '2026-07-15 10:00:00';
         $borrowRecord->save();
 
-        $response = $this->withSession(['user' => 'john_doe', 'user_id' => 1])
+        $response = $this
                          ->postJson('/books/return?token=123456', ['bookId' => $book->id, 'memberId' => $member->id, 'returnedAt' => '2026-07-15 10:00:00']);
 
         $response->assertStatus(200);
+    }
+
+    public function test_return_book_without_token(): void
+    {
+        $response = $this->postJson('/books/return', []);
+        $response->assertJson(['error' => 'Token invalid']);
     }
 }
