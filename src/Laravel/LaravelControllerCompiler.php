@@ -95,7 +95,13 @@ PHP;
                 // If there are multiple IDs, the last one is the variable name
                 $ids = $p->ID();
                 if (!is_array($ids)) $ids = [$ids];
+                $type = count($ids) === 2 ? $ids[0]->getText() : null;
                 $varName = $ids[count($ids) - 1]->getText();
+                
+                // Skip if it is Request type or named req/request
+                if ($type === 'Request' || $varName === 'req' || $varName === 'request') {
+                    continue;
+                }
                 $params[] = '$' . $varName;
             }
         }

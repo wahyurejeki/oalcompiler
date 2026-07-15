@@ -198,7 +198,11 @@ class BaseCompiler extends OALBaseVisitor
         if (isset($this->imports[$firstName])) {
             $out = $firstName;
         } else {
-            $out = '$' . $firstName;
+            if ($firstName === 'req' || $firstName === 'request') {
+                $out = '$request';
+            } else {
+                $out = '$' . $firstName;
+            }
         }
         
         for ($i = 1; $i < $childCount; $i++) {

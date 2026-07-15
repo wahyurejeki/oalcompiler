@@ -83,8 +83,8 @@ controller BookController {
 // ================= Middleware =================
 middleware AuthMiddleware {
     function handleAction(Request req) {
-        if (!getSession("user")) {
-            return redirect("/login");
+        if (req.token != "123456") {
+            return json(["error" => "Token invalid"]);
         }
     }
 }

@@ -31,31 +31,7 @@
             <li class="nav-item active"><a class="nav-link" href="/"><i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span></a></li>
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Modules</div>
-<li class="nav-item"><a class="nav-link" href="/login"><i class="fas fa-fw fa-link"></i><span>Login</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/logout"><i class="fas fa-fw fa-link"></i><span>Logout</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fas fa-fw fa-link"></i><span>Dashboard</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/categories"><i class="fas fa-fw fa-link"></i><span>Categories</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/categories/create"><i class="fas fa-fw fa-link"></i><span>Categories/create</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/categories/{id}/edit"><i class="fas fa-fw fa-link"></i><span>Categories/{id}/edit</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/products"><i class="fas fa-fw fa-link"></i><span>Products</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/products/create"><i class="fas fa-fw fa-link"></i><span>Products/create</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/products/{id}/edit"><i class="fas fa-fw fa-link"></i><span>Products/{id}/edit</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/suppliers"><i class="fas fa-fw fa-link"></i><span>Suppliers</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/suppliers/create"><i class="fas fa-fw fa-link"></i><span>Suppliers/create</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/customers"><i class="fas fa-fw fa-link"></i><span>Customers</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/customers/create"><i class="fas fa-fw fa-link"></i><span>Customers/create</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/customers/{id}/edit"><i class="fas fa-fw fa-link"></i><span>Customers/{id}/edit</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/warehouses"><i class="fas fa-fw fa-link"></i><span>Warehouses</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/warehouses/create"><i class="fas fa-fw fa-link"></i><span>Warehouses/create</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/orders"><i class="fas fa-fw fa-link"></i><span>Orders</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/orders/create"><i class="fas fa-fw fa-link"></i><span>Orders/create</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/orders/report"><i class="fas fa-fw fa-link"></i><span>Orders/report</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/orderitems"><i class="fas fa-fw fa-link"></i><span>Orderitems</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/payments"><i class="fas fa-fw fa-link"></i><span>Payments</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/shipments"><i class="fas fa-fw fa-link"></i><span>Shipments</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/inventorylogs"><i class="fas fa-fw fa-link"></i><span>Inventorylogs</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/users"><i class="fas fa-fw fa-link"></i><span>Users</span></a></li>
-<li class="nav-item"><a class="nav-link" href="/users/create"><i class="fas fa-fw fa-link"></i><span>Users/create</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/books"><i class="fas fa-fw fa-link"></i><span>Books</span></a></li>
 
         </ul>
         <div id="content-wrapper" class="d-flex flex-column">

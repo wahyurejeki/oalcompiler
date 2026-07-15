@@ -36,6 +36,7 @@ PHP;
     public function visitMiddlewareMethod(\Context\MiddlewareMethodContext $ctx)
     {
         $bodyCode = $this->visit($ctx->block());
+        $bodyCode = preg_replace('/\}\s*$/', "    return \$next(\$request);\n    }", $bodyCode);
         return "    public function handle(Request \$request, Closure \$next) $bodyCode";
     }
 
