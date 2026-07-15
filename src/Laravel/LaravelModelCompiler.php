@@ -26,7 +26,16 @@ class LaravelModelCompiler extends OALBaseVisitor
                 $fields[] = $this->visit($f);
                 $metadata[$name] = $type;
             }
-            if ($body->relation()) $relations[] = $this->visit($body->relation());
+            if ($body->relation()) {
+                $relCtx = $body->relation();
+                $relType = $relCtx->getChild(0)->getText();
+                $related = $relCtx->getChild(1)->getText();
+                if ($relType === 'belongsTo') {
+                    $fkName = lcfirst($related) . '_id';
+                    $metadata[$fkName] = 'integer';
+                }
+                $relations[] = $this->visit($body->relation());
+            }
         }
 
         $this->modelMetadata[$modelName] = $metadata;
@@ -124,6 +133,13 @@ PHP;
         $tableName = strtolower($modelName) . 's';
         $className = 'Create'.$modelName.'sTable';
         $fields = [];
+        $declaredFields = [];
+
+        foreach ($modelBody as $body) {
+            if ($body->field()) {
+                $declaredFields[] = strtolower($body->field()->ID()->getText());
+            }
+        }
 
         foreach ($modelBody as $body) {
             if ($body->field()) {
@@ -153,6 +169,18 @@ PHP;
                 }
                 $col .= ";";
                 $fields[] = $col;
+            }
+
+            if ($body->relation()) {
+                $relCtx = $body->relation();
+                $relType = $relCtx->getChild(0)->getText();
+                $relatedModel = $relCtx->getChild(1)->getText();
+                if ($relType === 'belongsTo') {
+                    $fkName = lcfirst($relatedModel) . '_id';
+                    if (!in_array(strtolower($fkName), $declaredFields)) {
+                        $fields[] = "            \$table->unsignedBigInteger('{$fkName}')->nullable();";
+                    }
+                }
             }
         }
 

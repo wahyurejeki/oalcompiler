@@ -6,6 +6,7 @@ use Wahyurejeki\Oalcompiler\Laravel\LaravelModelCompiler;
 use Wahyurejeki\Oalcompiler\Laravel\LaravelControllerCompiler;
 use Wahyurejeki\Oalcompiler\Laravel\LaravelMiddlewareCompiler;
 use Wahyurejeki\Oalcompiler\Laravel\LaravelRouteCompiler;
+use Wahyurejeki\Oalcompiler\Laravel\LaravelTestCompiler;
 use Wahyurejeki\Oalcompiler\Express\ExpressControllerCompiler;
 use Antlr\Antlr4\Runtime\InputStream;
 
@@ -159,6 +160,7 @@ $dirPathControllers = $dirPathOutput . "/app/Http/Controllers";
 $dirPathMiddleware = $dirPathOutput . "/app/Http/Middleware";
 $dirPathRoute = $dirPathOutput . "/routes";
 $dirPathViews = $dirPathOutput . "/resources/views";
+$dirPathTests = $dirPathOutput . "/tests/Feature";
 
 echo "Cleaning up output directories...\n";
 clearDirectory($dirPathModels);
@@ -166,6 +168,7 @@ clearDirectory($dirPathMigrations);
 clearDirectory($dirPathControllers);
 clearDirectory($dirPathMiddleware);
 clearDirectory($dirPathViews);
+clearDirectory($dirPathTests);
 
 if (!is_dir($dirPathViews . "/layouts")) {
     mkdir($dirPathViews . "/layouts", 0755, true);
@@ -256,6 +259,11 @@ $middleware->visit($tree);
 $route = new LaravelRouteCompiler();
 $route->visit($tree);
 
+$testCompiler = new LaravelTestCompiler();
+$testCompiler->setModelMetadata($model->getModelMetadata());
+$testCompiler->setRouteData($route->getRouteData());
+$testCompiler->visit($tree);
+
 $allModels = array_keys($model->getModelMetadata());
 
 foreach ($model->getModels() as $name => $code) {
@@ -283,6 +291,11 @@ foreach ($middleware->getMiddlewares() as $name => $code) {
 
 $dirPathRouteName = $dirPathRoute . '/web.php';
 file_put_contents($dirPathRouteName, $route->getRoutes());
+
+foreach ($testCompiler->getTests() as $name => $code) {
+    if (!is_dir($dirPathTests)) mkdir($dirPathTests, 0755, true);
+    file_put_contents($dirPathTests . "/$name.php", $code);
+}
 
 $sidebarLinks = "";
 foreach ($route->getRouteData() as $r) {

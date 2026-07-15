@@ -30,11 +30,7 @@ model BorrowRecord {
 // ================= Controllers =================
 controller BookController {
     function listBooksAction(Request req) {
-        var books = Book.modelFindAll([
-          "Book_id" => req.bookId,
-          "Member_id" => [">",req.memberId],
-          "returnedAt" => null
-      ]);
+        var books = Book.modelFindAll();
         return json(books);
     }
 
@@ -85,6 +81,9 @@ middleware AuthMiddleware {
     function handleAction(Request req) {
         if (req.token != "123456") {
             return json(["error" => "Token invalid"]);
+        }
+        if (!getSession("user")) {
+            return redirect("/login");
         }
     }
 }

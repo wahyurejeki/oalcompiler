@@ -9,6 +9,7 @@ class LaravelRouteCompiler extends BaseCompiler
     private $routes = [];
     private $routeData = [];
     private $usedMiddlewares = [];
+    private $usedControllers = [];
 
     public function visitRouteStmt(\Context\RouteStmtContext $ctx)
     {
@@ -22,6 +23,11 @@ class LaravelRouteCompiler extends BaseCompiler
             'controller' => $controller
         ];
 
+        $parts = explode('@', $controller);
+        $controllerClass = $parts[0];
+        $controllerMethod = $parts[1] ?? 'index';
+        $this->usedControllers[$controllerClass] = true;
+
         $middleware = '';
         if ($ctx->middlewareList()) {
             $mws = [];
@@ -33,7 +39,7 @@ class LaravelRouteCompiler extends BaseCompiler
             $middleware = "->middleware([" . implode(', ', $mws) . "])";
         }
 
-        $routeCode = "Route::$method('$url', '$controller')$middleware;";
+        $routeCode = "Route::$method('$url', [{$controllerClass}::class, '{$controllerMethod}'])$middleware;";
         $this->routes[] = $routeCode;
         return $routeCode;
     }
@@ -41,6 +47,12 @@ class LaravelRouteCompiler extends BaseCompiler
     public function getRoutes()
     {
         $imports = ['use Illuminate\Support\Facades\Route;'];
+        if (!empty($this->usedControllers)) {
+            ksort($this->usedControllers);
+            foreach (array_keys($this->usedControllers) as $c) {
+                $imports[] = "use App\Http\Controllers\\$c;";
+            }
+        }
         if (!empty($this->usedMiddlewares)) {
             ksort($this->usedMiddlewares);
             foreach (array_keys($this->usedMiddlewares) as $mw) $imports[] = "use App\Http\Middleware\\$mw;";

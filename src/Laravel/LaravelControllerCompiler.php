@@ -318,9 +318,23 @@ PHP;
             $key = preg_replace('/["\']/', '', $key);
             if (is_array($value) && count($value) === 2 && is_string($value[0])) {
                 $op = preg_replace('/["\']/', '', $value[0]);
-                $where .= "->where('$key', '$op', " . $this->phpValue($value[1]) . ")";
+                $valPhp = $this->phpValue($value[1]);
+                if ($valPhp === 'null') {
+                    if ($op === '!=') {
+                        $where .= "->whereNotNull('$key')";
+                    } else {
+                        $where .= "->whereNull('$key')";
+                    }
+                } else {
+                    $where .= "->where('$key', '$op', $valPhp)";
+                }
             } else {
-                $where .= "->where('$key', " . $this->phpValue($value) . ")";
+                $valPhp = $this->phpValue($value);
+                if ($valPhp === 'null') {
+                    $where .= "->whereNull('$key')";
+                } else {
+                    $where .= "->where('$key', $valPhp)";
+                }
             }
         }
         return $where;
