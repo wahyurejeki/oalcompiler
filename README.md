@@ -65,10 +65,26 @@ This command will take the path to the `.oal` file as an argument, process it us
 *   `app/Console/Commands/`: The ideal location to place the Artisan command logic (e.g., `OalCompileCommand.php`).
 *   `examples/`: A directory containing example code in the OAL language for testing.
 
-## Contribution
+## Visual Editor Studio
 
-If you wish to contribute, please fork this repository and submit a pull request. For bugs or suggestions, please create a new issue.
+We have built a premium, web-based visual editor dashboard under the `editor/` directory that allows you to visually design your Class Diagram (models, attributes, relationships), map routes, configure middleware guards, and compile them to Laravel with a single click.
 
-## License
+### How to Run the Visual Editor:
 
-This project is licensed under the [MIT License](LICENSE).
+1. Start PHP's built-in local development server from the project root:
+   ```bash
+   php -S localhost:8000
+   ```
+2. Open your web browser and navigate to:
+   ```text
+   http://localhost:8000/editor/
+   ```
+
+### Key Features:
+* **Interactive Canvas**: Drag and drop models, define field names, set data types (`string`, `integer`, `boolean`, etc.), and toggle modifiers (`primary`, `unique`, `nullable`, `default`).
+* **Visual Relationships**: Connect models visually. Simply click the link anchor of Model A and target Model B to define `hasMany`, `belongsTo`, `hasOne`, or `belongsToMany` relationships.
+* **Route Manager**: Add/edit routes visually using a dynamic table, mapping HTTP methods and paths to controller actions, with easy middleware checkbox guards.
+* **Middleware Wizard**: Add middlewares using templates like API Token Check, Session Check, or Custom OAL logic.
+* **Real-time Code Preview**: View the generated OAL code in real-time as you build your diagrams.
+* **One-click Compiler**: Click "Compile to Laravel" to automatically generate the `.oal` code and run the ANTLR PHP compiler (`generate.php`) right from your browser, showing full compiler console output.
+

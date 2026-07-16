@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAL Visual Editor & Laravel Compiler</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css?v=3">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+        <div class="brand">
+            <div class="logo-icon">
+                <i data-lucide="blocks"></i>
+            </div>
+            <div class="brand-text">
+                <h1>OAL Compiler Studio</h1>
+                <span>xtUML Model & Laravel Generator</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button id="btn-load-sample" class="btn btn-secondary">
+                <i data-lucide="book-open"></i> Load Library Sample
+            </button>
+            <input type="file" id="file-import" accept=".oal" style="display: none;">
+            <button id="btn-import" class="btn btn-secondary">
+                <i data-lucide="upload"></i> Import .oal
+            </button>
+            <button id="btn-export" class="btn btn-secondary">
+                <i data-lucide="download"></i> Export .oal
+            </button>
+            <button id="btn-save" class="btn btn-secondary">
+                <i data-lucide="save"></i> Save Diagram
+            </button>
+            <button id="btn-compile" class="btn btn-primary">
+                <i data-lucide="play"></i> Compile to Laravel
+            </button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar Left: Elements Palette -->
+        <aside class="sidebar-left">
+            <div class="sidebar-section">
+                <h3><i data-lucide="database"></i> Models & Schema</h3>
+                <p class="section-desc">Create entity models and drag to position.</p>
+                <button id="btn-add-model" class="btn btn-add">
+                    <i data-lucide="plus-circle"></i> Add New Model
+                </button>
+            </div>
+
+            <div class="sidebar-section">
+                <h3><i data-lucide="shield-check"></i> Middlewares</h3>
+                <p class="section-desc">Add authorization or request guards.</p>
+                <button id="btn-add-middleware" class="btn btn-add">
+                    <i data-lucide="shield-alert"></i> Add Middleware
+                </button>
+                <div id="middleware-list" class="sidebar-list">
+                    <!-- Dynamic middleware items will go here -->
+                </div>
+            </div>
+
+            <div class="sidebar-section quick-help">
+                <h3><i data-lucide="help-circle"></i> How to Connect</h3>
+                <ul>
+                    <li>Double click canvas to add a Model</li>
+                    <li>Click <i data-lucide="git-commit"></i> output dot on Model A and click Model B to create a relationship.</li>
+                    <li>Drag models around to organize.</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Canvas Area (Center) -->
+        <main class="canvas-wrapper">
+            <div class="canvas-grid" id="canvas-container">
+                <!-- SVG layer for connection lines -->
+                <svg class="canvas-svg-layer" id="canvas-svg"></svg>
+                
+                <!-- Model nodes will be rendered dynamically here -->
+            </div>
+            <div class="canvas-controls">
+                <button id="btn-zoom-in" title="Zoom In"><i data-lucide="zoom-in"></i></button>
+                <button id="btn-zoom-out" title="Zoom Out"><i data-lucide="zoom-out"></i></button>
+                <button id="btn-reset-zoom" title="Reset View"><i data-lucide="maximize"></i></button>
+            </div>
+        </main>
+
+        <!-- Sidebar Right: Tabs & Configuration -->
+        <aside class="sidebar-right">
+            <!-- Tabs Navigation -->
+            <nav class="tabs-nav">
+                <button class="tab-btn active" data-tab="tab-routes">
+                    <i data-lucide="route"></i> Routes
+                </button>
+                <button class="tab-btn" data-tab="tab-oal">
+                    <i data-lucide="code-2"></i> Generated OAL
+                </button>
+                <button class="tab-btn" data-tab="tab-compiler">
+                    <i data-lucide="terminal"></i> Compiler Log
+                </button>
+            </nav>
+
+            <!-- Tabs Content -->
+            <div class="tabs-content">
+                <!-- Tab: Routes -->
+                <div id="tab-routes" class="tab-pane active">
+                    <div class="pane-header">
+                        <h2>HTTP Routing Manager</h2>
+                        <button id="btn-add-route" class="btn btn-sm btn-secondary">
+                            <i data-lucide="plus"></i> Add Route
+                        </button>
+                    </div>
+                    <p class="pane-desc">Map URLs to controller methods and secure them with middleware.</p>
+                    
+                    <div class="table-container">
+                        <table class="routes-table">
+                            <thead>
+                                <tr>
+                                    <th>HTTP Method</th>
+                                    <th>URL Path</th>
+                                    <th>Target Controller @ Action</th>
+                                    <th>Middleware</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="routes-table-body">
+                                <!-- Dynamic routes will go here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Generated OAL -->
+                <div id="tab-oal" class="tab-pane">
+                    <div class="pane-header">
+                        <h2>OAL Script Preview</h2>
+                        <button id="btn-copy-oal" class="btn btn-sm btn-secondary">
+                            <i data-lucide="copy"></i> Copy
+                        </button>
+                    </div>
+                    <p class="pane-desc">This is the code compiled to Laravel on the backend.</p>
+                    <div class="code-editor-container">
+                        <div class="editor-wrapper">
+                            <textarea id="oal-code-preview" class="code-textarea" spellcheck="false" placeholder="// OAL script will generate here..."></textarea>
+                            <pre id="oal-code-highlight" class="code-highlight"><code id="oal-code-content"></code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Compiler Log -->
+                <div id="tab-compiler" class="tab-pane">
+                    <div class="pane-header">
+                        <h2>Terminal Output</h2>
+                        <span id="compiler-status-badge" class="badge badge-idle">Idle</span>
+                    </div>
+                    <p class="pane-desc">Compilation logs from execution of <code>generate.php</code>.</p>
+                    <div class="console-log-container">
+                        <pre id="compiler-console-log" class="console-log">// Click "Compile to Laravel" to build the application...</pre>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modals -->
+    <!-- Modal: Add/Edit Relationship -->
+    <div id="modal-relationship" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Define Model Relationship</h3>
+                <button class="modal-close" id="modal-rel-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-relationship">
+                    <div class="form-group">
+                        <label>Source Model</label>
+                        <input type="text" id="rel-source" readonly class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Relationship Type</label>
+                        <select id="rel-type" class="form-select">
+                            <option value="hasMany">hasMany (One to Many)</option>
+                            <option value="belongsTo">belongsTo (Many to One / Inverse)</option>
+                            <option value="hasOne">hasOne (One to One)</option>
+                            <option value="belongsToMany">belongsToMany (Many to Many)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Model</label>
+                        <input type="text" id="rel-target" readonly class="form-control">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-rel-cancel">Cancel</button>
+                <button class="btn btn-primary" id="btn-rel-save">Save Relationship</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Middleware Logic Config -->
+    <div id="modal-middleware" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="mw-modal-title">Configure Middleware</h3>
+                <button class="modal-close" id="modal-mw-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-middleware">
+                    <input type="hidden" id="mw-id">
+                    <div class="form-group">
+                        <label>Middleware Class Name</label>
+                        <input type="text" id="mw-name" placeholder="e.g. AuthMiddleware" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Logic Template</label>
+                        <select id="mw-template" class="form-select">
+                            <option value="token_check">API Token Check Header</option>
+                            <option value="session_check">Simple Session Check</option>
+                            <option value="custom">Custom OAL Code</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Dynamic template options -->
+                    <div id="mw-template-token" class="template-options-panel">
+                        <div class="form-group">
+                            <label>Request Parameter/Header</label>
+                            <input type="text" id="mw-token-param" value="token" placeholder="e.g. token, api_key" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Expected Secret Value</label>
+                            <input type="text" id="mw-token-value" value="123456" class="form-control">
+                        </div>
+                    </div>
+
+                    <div id="mw-template-session" class="template-options-panel" style="display:none;">
+                        <div class="form-group">
+                            <label>Session Variable</label>
+                            <input type="text" id="mw-session-key" value="user_id" class="form-control">
+                        </div>
+                    </div>
+
+                    <div id="mw-template-custom" class="template-options-panel" style="display:none;">
+                        <div class="form-group">
+                            <label>Custom OAL Code Body (inside handleAction)</label>
+                            <div class="code-editor-container" style="height: 180px;">
+                                <div class="editor-wrapper">
+                                    <textarea id="mw-custom-code" class="code-textarea" spellcheck="false" placeholder="if (req.user == null) { return redirect(&quot;/login&quot;); }"></textarea>
+                                    <pre id="mw-custom-code-highlight" class="code-highlight"><code id="mw-custom-code-content"></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-mw-cancel">Cancel</button>
+                <button class="btn btn-primary" id="btn-mw-save">Save Middleware</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Method Logic -->
+    <div id="modal-method" class="modal-overlay">
+        <div class="modal-content" style="width: 600px; max-width: 95%;">
+            <div class="modal-header">
+                <h3 id="method-modal-title">Edit Model Method</h3>
+                <button class="modal-close" id="modal-method-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-method">
+                    <input type="hidden" id="method-model-id">
+                    <input type="hidden" id="method-index">
+                    <div style="display: flex; gap: 16px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Method Name ('Action' suffix is added automatically)</label>
+                            <input type="text" id="method-name" required class="form-control" placeholder="e.g. checkOut">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Parameters</label>
+                            <input type="text" id="method-params" class="form-control" value="Request req" placeholder="e.g. Request req">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label>OAL Logic Body</label>
+                        <div class="code-editor-container" style="height: 250px;">
+                            <div class="editor-wrapper">
+                                <textarea id="method-code-body" class="code-textarea" spellcheck="false" placeholder="// Write OAL code here..."></textarea>
+                                <pre id="method-code-highlight" class="code-highlight"><code id="method-code-content"></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-method-cancel">Cancel</button>
+                <button class="btn btn-primary" id="btn-method-save">Save Method</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script src="app.js?v=3"></script>
+</body>
+</html>
