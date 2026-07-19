@@ -506,6 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
             const targetPane = document.getElementById(btn.dataset.tab);
             if (targetPane) targetPane.classList.add('active');
+        });
     });
 
     // Hide context menu on left click anywhere
