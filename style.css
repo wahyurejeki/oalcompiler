@@ -307,12 +307,22 @@ aside {
     stroke: var(--primary);
     stroke-width: 2px;
     transition: stroke 0.1s;
+    pointer-events: stroke; /* Enable click/hover directly on lines */
 }
 
 .canvas-svg-layer path.relationship-line:hover {
     stroke: var(--info);
     stroke-width: 3px;
     cursor: pointer;
+}
+
+.relationship-label {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 700;
+    fill: var(--primary);
+    user-select: none;
+    pointer-events: none; /* Make sure labels don't block canvas dragging */
 }
 
 /* Canvas Controls */

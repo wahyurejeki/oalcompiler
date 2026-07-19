@@ -298,12 +298,29 @@ document.addEventListener('DOMContentLoaded', () => {
             btnDelMethod.innerHTML = `<i data-lucide="x" style="width: 10px; height: 10px;"></i>`;
             btnDelMethod.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (confirm(`Remove method ${method.name}?`)) {
-                    model.methods.splice(index, 1);
-                    renderMethods(model);
-                    generateOAL();
-                    updateControllerDropdownsInRoutes();
-                }
+                Swal.fire({
+                    title: 'Remove Method?',
+                    text: `Are you sure you want to remove method "${method.name}"?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'Yes, remove it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        model.methods.splice(index, 1);
+                        renderMethods(model);
+                        generateOAL();
+                        updateControllerDropdownsInRoutes();
+                        Swal.fire({
+                            title: 'Removed!',
+                            text: 'Method has been removed.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                });
             });
             row.appendChild(btnDelMethod);
 
@@ -409,7 +426,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save & Compile Events
     btnSave.addEventListener('click', saveDiagram);
     btnCompile.addEventListener('click', compileDiagram);
-    btnLoadSample.addEventListener('click', loadLibrarySample);
+    btnLoadSample.addEventListener('click', () => {
+        Swal.fire({
+            title: 'Load Library Sample?',
+            text: 'This will overwrite your current canvas and reset the diagram.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Yes, load it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                loadLibrarySample();
+            }
+        });
+    });
 
     // Import & Export Events
     btnExport.addEventListener('click', exportOALFile);
@@ -420,7 +451,14 @@ document.addEventListener('DOMContentLoaded', () => {
     btnCopyOal.addEventListener('click', () => {
         oalCodePreview.select();
         document.execCommand('copy');
-        alert('OAL Code copied to clipboard!');
+        
+        Swal.fire({
+            title: 'Copied!',
+            text: 'OAL Code copied to clipboard.',
+            icon: 'success',
+            timer: 1500,
+            showConfirmButton: false
+        });
     });
 
     // Tab Switching
@@ -438,49 +476,69 @@ document.addEventListener('DOMContentLoaded', () => {
     // === Model / Entity Logic ===
     
     function addNewModel(x, y) {
-        const name = prompt("Enter model name (e.g. Product, Category):");
-        if (!name) return;
-        
-        // Check for duplicate name
-        const cleanName = name.trim().replace(/[^a-zA-Z0-9_]/g, '');
-        if (!cleanName) return;
-        if (state.models.find(m => m.name.toLowerCase() === cleanName.toLowerCase())) {
-            alert("Model name already exists!");
-            return;
-        }
-
-        const newModel = {
-            id: 'm_' + Date.now(),
-            name: cleanName,
-            x: x || 100,
-            y: y || 100,
-            attributes: [
-                { name: 'id', type: 'integer', modifiers: ['primary'] }
-            ],
-            relations: [],
-            methods: [
-                {
-                    name: `list${cleanName}sAction`,
-                    params: 'Request req',
-                    body: `var result = ${cleanName}.modelFindAll();\nreturn json(result);`
-                },
-                {
-                    name: `create${cleanName}Action`,
-                    params: 'Request req',
-                    body: `var result = ${cleanName}.modelCreate([\n    // TODO: Map request parameters to model columns\n]);\nreturn json(["success" => true]);`
+        Swal.fire({
+            title: 'Create New Model',
+            input: 'text',
+            inputLabel: 'Model Name (e.g. Product, Category)',
+            inputPlaceholder: 'Enter model name...',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Create Model',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Model name cannot be empty!';
                 }
-            ]
-        };
+                const clean = value.trim().replace(/[^a-zA-Z0-9_]/g, '');
+                if (!clean) {
+                    return 'Invalid characters in model name!';
+                }
+                if (state.models.find(m => m.name.toLowerCase() === clean.toLowerCase())) {
+                    return 'Model name already exists!';
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed && result.value) {
+                const cleanName = result.value.trim().replace(/[^a-zA-Z0-9_]/g, '');
+                const newModel = {
+                    id: 'm_' + Date.now(),
+                    name: cleanName,
+                    x: x || 100,
+                    y: y || 100,
+                    attributes: [
+                        { name: 'id', type: 'integer', modifiers: ['primary'] }
+                    ],
+                    relations: [],
+                    methods: [
+                        {
+                            name: `list${cleanName}sAction`,
+                            params: 'Request req',
+                            body: `var result = ${cleanName}.modelFindAll();\nreturn json(result);`
+                        },
+                        {
+                            name: `create${cleanName}Action`,
+                            params: 'Request req',
+                            body: `var result = ${cleanName}.modelCreate([\n    // TODO: Map request parameters to model columns\n]);\nreturn json(["success" => true]);`
+                        }
+                    ]
+                };
 
-        state.models.push(newModel);
-        
-        // Auto create standard routes for this model
-        addCrudRoutesForModel(cleanName);
-        
-        renderModelNode(newModel);
-        updateLines();
-        generateOAL();
-        updateControllerDropdownsInRoutes();
+                state.models.push(newModel);
+                addCrudRoutesForModel(cleanName);
+                renderModelNode(newModel);
+                updateLines();
+                generateOAL();
+                updateControllerDropdownsInRoutes();
+
+                Swal.fire({
+                    title: 'Created!',
+                    text: `Model "${cleanName}" created successfully.`,
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
     }
 
     function renderModelNode(model) {
@@ -506,9 +564,26 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDelete.title = "Delete Model";
         btnDelete.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (confirm(`Delete model ${model.name}? This will remove its relations and default routes.`)) {
-                deleteModel(model.id);
-            }
+            Swal.fire({
+                title: 'Delete Model?',
+                text: `Are you sure you want to delete model "${model.name}"? This will remove all its attributes, relations, and default routes.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteModel(model.id);
+                    Swal.fire({
+                        title: 'Deleted!',
+                        text: 'Model has been deleted.',
+                        icon: 'success',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
+            });
         });
         
         actions.appendChild(btnDelete);
@@ -610,7 +685,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // check duplicate method name
             if (!model.methods) model.methods = [];
             if (model.methods.some(m => m.name === methodName)) {
-                alert("Method already exists!");
+                Swal.fire({
+                    title: 'Duplicate Method',
+                    text: `Method "${methodName}" already exists on model "${model.name}".`,
+                    icon: 'error',
+                    confirmButtonColor: '#4f46e5'
+                });
                 return;
             }
 
@@ -810,18 +890,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const relType = document.getElementById('rel-type').value;
 
         if (sourceModel && targetModel) {
-            // Check if relation already exists
-            const exists = sourceModel.relations.some(r => r.target === targetModel.name && r.type === relType);
-            if (!exists) {
+            // 1. Add relationship to Source Model
+            const existsSource = sourceModel.relations.some(r => r.target === targetModel.name && r.type === relType);
+            if (!existsSource) {
                 sourceModel.relations.push({
                     type: relType,
                     target: targetModel.name
                 });
-                
-                // Add reciprocal relation if fits
-                if (relType === 'belongsTo') {
-                    // Check if hasMany/hasOne target reciprocal exists, if not maybe suggest or automatically create it?
-                    // Let's just create relationships declared explicitly.
+            }
+
+            // 2. Add reciprocal relationship to Target Model
+            let reciprocalType = '';
+            if (relType === 'hasMany') {
+                reciprocalType = 'belongsTo';
+            } else if (relType === 'belongsTo') {
+                reciprocalType = 'hasMany';
+            } else if (relType === 'hasOne') {
+                reciprocalType = 'belongsTo';
+            } else if (relType === 'belongsToMany') {
+                reciprocalType = 'belongsToMany';
+            }
+
+            if (reciprocalType) {
+                const existsTarget = targetModel.relations.some(r => r.target === sourceModel.name && r.type === reciprocalType);
+                if (!existsTarget) {
+                    targetModel.relations.push({
+                        type: reciprocalType,
+                        target: sourceModel.name
+                    });
                 }
             }
         }
@@ -829,13 +925,23 @@ document.addEventListener('DOMContentLoaded', () => {
         hideRelationshipModal();
         updateLines();
         generateOAL();
+
+        Swal.fire({
+            title: 'Relationship Added!',
+            text: `Connected ${sourceModel.name} and ${targetModel.name} successfully.`,
+            icon: 'success',
+            timer: 1800,
+            showConfirmButton: false
+        });
     });
 
     // Redraw SVG relationship lines
     function updateLines() {
-        // Clear old paths
-        const oldPaths = canvasSvg.querySelectorAll('.relationship-line');
-        oldPaths.forEach(p => p.remove());
+        // Clear old paths and labels
+        const oldElements = canvasSvg.querySelectorAll('.relationship-line, .relationship-label');
+        oldElements.forEach(el => el.remove());
+
+        const drawnPairs = new Set();
 
         // Redraw lines
         state.models.forEach(model => {
@@ -848,6 +954,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const targetEl = document.getElementById(targetModel.id);
                 if (!targetEl) return;
+
+                // Ensure we only draw one line per pair of models to avoid overlapping lines/labels
+                const pairKey = [model.name, targetModel.name].sort().join('--');
+                if (drawnPairs.has(pairKey)) {
+                    return;
+                }
+                drawnPairs.add(pairKey);
+
+                // Determine cardinality labels
+                let sourceLabel = '';
+                let targetLabel = '';
+                
+                // Direct relationship (model -> targetModel)
+                const directRel = model.relations.find(r => r.target === targetModel.name);
+                // Inverse relationship (targetModel -> model)
+                const inverseRel = targetModel.relations.find(r => r.target === model.name);
+
+                if (directRel) {
+                    if (directRel.type === 'hasMany') {
+                        sourceLabel = '1';
+                        targetLabel = '*';
+                    } else if (directRel.type === 'belongsTo') {
+                        sourceLabel = '*';
+                        targetLabel = '1';
+                    } else if (directRel.type === 'hasOne') {
+                        sourceLabel = '1';
+                        targetLabel = '1';
+                    } else if (directRel.type === 'belongsToMany') {
+                        sourceLabel = '*';
+                        targetLabel = '*';
+                    }
+                } else if (inverseRel) {
+                    // Reverse the labels since targetModel is the source of inverseRel
+                    if (inverseRel.type === 'hasMany') {
+                        sourceLabel = '*';
+                        targetLabel = '1';
+                    } else if (inverseRel.type === 'belongsTo') {
+                        sourceLabel = '1';
+                        targetLabel = '*';
+                    } else if (inverseRel.type === 'hasOne') {
+                        sourceLabel = '1';
+                        targetLabel = '1';
+                    } else if (inverseRel.type === 'belongsToMany') {
+                        sourceLabel = '*';
+                        targetLabel = '*';
+                    }
+                }
 
                 // Coordinates
                 const x1 = model.x + 250; // output anchor right side
@@ -867,16 +1020,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 path.setAttribute('stroke-width', '2');
                 path.setAttribute('fill', 'none');
                 
-                // Add marker arrow or hover behavior if needed
+                // Double click to delete using SweetAlert2
                 path.addEventListener('dblclick', () => {
-                    if (confirm(`Remove relationship: ${model.name} ${rel.type} ${rel.target}?`)) {
-                        model.relations = model.relations.filter(r => !(r.target === rel.target && r.type === rel.type));
-                        updateLines();
-                        generateOAL();
-                    }
+                    Swal.fire({
+                        title: 'Delete Relationship?',
+                        text: `Are you sure you want to remove the relationship between ${model.name} and ${targetModel.name}?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Remove relationship from both models
+                            model.relations = model.relations.filter(r => r.target !== targetModel.name);
+                            targetModel.relations = targetModel.relations.filter(r => r.target !== model.name);
+                            
+                            updateLines();
+                            generateOAL();
+
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: 'Relationship has been deleted.',
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        }
+                    });
                 });
 
                 canvasSvg.appendChild(path);
+
+                // Add source cardinality text label
+                if (sourceLabel) {
+                    const textX1 = x2 > x1 ? x1 + 15 : x1 - 25;
+                    const textY1 = y1 - 8;
+                    const labelElement1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    labelElement1.setAttribute('x', textX1);
+                    labelElement1.setAttribute('y', textY1);
+                    labelElement1.setAttribute('class', 'relationship-label');
+                    labelElement1.textContent = sourceLabel;
+                    canvasSvg.appendChild(labelElement1);
+                }
+
+                // Add target cardinality text label
+                if (targetLabel) {
+                    const textX2 = x2 > x1 ? x2 - 25 : x2 + 15;
+                    const textY2 = y2 - 8;
+                    const labelElement2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    labelElement2.setAttribute('x', textX2);
+                    labelElement2.setAttribute('y', textY2);
+                    labelElement2.setAttribute('class', 'relationship-label');
+                    labelElement2.textContent = targetLabel;
+                    canvasSvg.appendChild(labelElement2);
+                }
             });
         });
     }
@@ -972,9 +1170,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const btnDel = document.createElement('button');
             btnDel.innerHTML = `<i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>`;
             btnDel.addEventListener('click', () => {
-                if (confirm(`Delete middleware ${mw.name}?`)) {
-                    deleteMiddleware(mw.id);
-                }
+                Swal.fire({
+                    title: 'Delete Middleware?',
+                    text: `Are you sure you want to delete middleware "${mw.name}"? This will remove it from all protected routes.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        deleteMiddleware(mw.id);
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Middleware has been deleted.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                });
             });
 
             actions.appendChild(btnEdit);
@@ -1384,16 +1599,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     }, 100);
                     generateOAL();
                     
-                    alert("OAL Project diagram and code imported successfully!");
+                    Swal.fire({
+                        title: 'Imported!',
+                        text: 'OAL Project diagram and code imported successfully!',
+                        icon: 'success',
+                        confirmButtonColor: '#4f46e5'
+                    });
                 } catch (err) {
                     console.error("Failed to parse visual state", err);
-                    alert("Failed to parse visual diagram state. Loaded code in raw text editor.");
+                    Swal.fire({
+                        title: 'Import Warning',
+                        text: 'Failed to parse visual diagram state. Loaded code in raw text editor.',
+                        icon: 'warning',
+                        confirmButtonColor: '#4f46e5'
+                    });
                     oalCodePreview.value = content;
                     updateHighlight();
                 }
             } else {
                 // No diagram state (raw OAL file)
-                alert("Raw OAL file imported. Visual diagram cannot be generated for raw files, but you can edit and compile the code directly.");
+                Swal.fire({
+                    title: 'Raw OAL File',
+                    text: 'Raw OAL file imported. Visual diagram cannot be generated for raw files, but you can edit and compile the code directly.',
+                    icon: 'info',
+                    confirmButtonColor: '#4f46e5'
+                });
                 oalCodePreview.value = content;
                 updateHighlight();
             }
@@ -1423,14 +1653,29 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                alert('Diagram state and OAL file saved successfully!');
+                Swal.fire({
+                    title: 'Saved!',
+                    text: 'Diagram state and OAL file saved successfully!',
+                    icon: 'success',
+                    confirmButtonColor: '#4f46e5'
+                });
             } else {
-                alert('Failed to save diagram: ' + data.error);
+                Swal.fire({
+                    title: 'Save Failed',
+                    text: 'Failed to save diagram: ' + data.error,
+                    icon: 'error',
+                    confirmButtonColor: '#4f46e5'
+                });
             }
         })
         .catch(err => {
             console.error(err);
-            alert('Error connecting to backend API.');
+            Swal.fire({
+                title: 'Connection Error',
+                text: 'Error connecting to backend API.',
+                icon: 'error',
+                confirmButtonColor: '#4f46e5'
+            });
         });
     }
 
@@ -1480,8 +1725,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // === Sample Loader (Library.oal Sample) ===
     
     function loadLibrarySample() {
-        if (!confirm("Load the Library sample? This will overwrite your current canvas.")) return;
-
         // Clear existing nodes from DOM
         state.models.forEach(m => {
             const el = document.getElementById(m.id);
