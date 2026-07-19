@@ -1103,3 +1103,54 @@ aside {
     background-color: var(--primary-hover);
 }
 
+/* Custom Floating Context Menu */
+.context-menu {
+    position: absolute;
+    z-index: 10000;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    padding: 6px 0;
+    min-width: 170px;
+    user-select: none;
+}
+
+.context-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.context-menu li {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.context-menu li:hover {
+    background-color: var(--bg-element);
+    color: var(--primary);
+}
+
+.context-menu li i {
+    width: 14px;
+    height: 14px;
+    color: inherit;
+}
+
+.context-menu li.delete-item {
+    color: var(--error);
+}
+
+.context-menu li.delete-item:hover {
+    background-color: rgba(239, 68, 68, 0.08);
+    color: var(--error);
+}
+

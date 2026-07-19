@@ -61,6 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnMwCancel = document.getElementById('btn-mw-cancel');
     const btnMwSave = document.getElementById('btn-mw-save');
     const modalMwClose = document.getElementById('modal-mw-close');
+    const contextMenu = document.getElementById('context-menu');
+    const contextMenuList = document.getElementById('context-menu-list');
     const mwCustomCode = document.getElementById('mw-custom-code');
     const mwCustomCodeContent = document.getElementById('mw-custom-code-content');
     const mwCustomCodeHighlight = document.getElementById('mw-custom-code-highlight');
@@ -470,7 +472,47 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
             const targetPane = document.getElementById(btn.dataset.tab);
             if (targetPane) targetPane.classList.add('active');
-        });
+    });
+
+    // Hide context menu on left click anywhere
+    document.addEventListener('click', hideContextMenu);
+    
+    // Prevent default context menu on right click on canvas/models
+    document.addEventListener('contextmenu', (e) => {
+        // If clicking the canvas background
+        if (e.target === canvasContainer || e.target === canvasSvg || e.target.classList.contains('canvas-wrapper')) {
+            e.preventDefault();
+            e.stopPropagation();
+            showContextMenu(e, [
+                {
+                    label: 'Add New Model',
+                    icon: 'plus-circle',
+                    action: () => {
+                        const rect = canvasContainer.getBoundingClientRect();
+                        const x = (e.clientX - rect.left - panX) / zoomLevel;
+                        const y = (e.clientY - rect.top - panY) / zoomLevel;
+                        addNewModel(x, y);
+                    }
+                },
+                {
+                    label: 'Reset Zoom (100%)',
+                    icon: 'zoom-in',
+                    action: () => {
+                        zoomLevel = 1.0;
+                        panX = 0;
+                        panY = 0;
+                        updateCanvasTransform();
+                    }
+                },
+                {
+                    label: 'Load Library Sample',
+                    icon: 'book-open',
+                    action: () => {
+                        btnLoadSample.click();
+                    }
+                }
+            ]);
+        }
     });
 
     // === Model / Entity Logic ===
@@ -743,6 +785,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Trigger Relationship Modal
                 showRelationshipModal(lineStartModelId, model.id);
             }
+        });
+
+        // Right-click context menu on Model Card
+        node.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            showContextMenu(e, [
+                {
+                    label: 'Add Attribute',
+                    icon: 'plus',
+                    action: () => {
+                        attrInput.focus();
+                    }
+                },
+                {
+                    label: 'Add Method',
+                    icon: 'code-2',
+                    action: () => {
+                        methodInput.focus();
+                    }
+                },
+                {
+                    label: 'Delete Model',
+                    icon: 'trash-2',
+                    className: 'delete-item',
+                    action: () => {
+                        btnDelete.click();
+                    }
+                }
+            ]);
         });
 
         canvasContainer.appendChild(node);
@@ -1020,34 +1093,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 path.setAttribute('stroke-width', '2');
                 path.setAttribute('fill', 'none');
                 
-                // Double click to delete using SweetAlert2
-                path.addEventListener('dblclick', () => {
-                    Swal.fire({
-                        title: 'Delete Relationship?',
-                        text: `Are you sure you want to remove the relationship between ${model.name} and ${targetModel.name}?`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#ef4444',
-                        cancelButtonColor: '#94a3b8',
-                        confirmButtonText: 'Yes, delete it!'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Remove relationship from both models
-                            model.relations = model.relations.filter(r => r.target !== targetModel.name);
-                            targetModel.relations = targetModel.relations.filter(r => r.target !== model.name);
-                            
-                            updateLines();
-                            generateOAL();
+                // Right click to delete via Context Menu
+                path.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showContextMenu(e, [
+                        {
+                            label: 'Delete Relationship',
+                            icon: 'trash-2',
+                            className: 'delete-item',
+                            action: () => {
+                                Swal.fire({
+                                    title: 'Delete Relationship?',
+                                    text: `Are you sure you want to remove the relationship between ${model.name} and ${targetModel.name}?`,
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#ef4444',
+                                    cancelButtonColor: '#94a3b8',
+                                    confirmButtonText: 'Yes, delete it!'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        // Remove relationship from both models
+                                        model.relations = model.relations.filter(r => r.target !== targetModel.name);
+                                        targetModel.relations = targetModel.relations.filter(r => r.target !== model.name);
+                                        
+                                        updateLines();
+                                        generateOAL();
 
-                            Swal.fire({
-                                title: 'Deleted!',
-                                text: 'Relationship has been deleted.',
-                                icon: 'success',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
+                                        Swal.fire({
+                                            title: 'Deleted!',
+                                            text: 'Relationship has been deleted.',
+                                            icon: 'success',
+                                            timer: 1500,
+                                            showConfirmButton: false
+                                        });
+                                    }
+                                });
+                            }
                         }
-                    });
+                    ]);
                 });
 
                 canvasSvg.appendChild(path);
@@ -1913,4 +1997,44 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn('Failed to load saved state, loading default sample.', err);
             loadLibrarySample();
         });
+
+    // === Context Menu Helper Functions ===
+    function showContextMenu(e, items) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        contextMenuList.innerHTML = '';
+        items.forEach(item => {
+            const li = document.createElement('li');
+            if (item.className) li.className = item.className;
+            li.innerHTML = `${item.icon ? `<i data-lucide="${item.icon}"></i>` : ''} <span>${item.label}</span>`;
+            li.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                hideContextMenu();
+                item.action();
+            });
+            contextMenuList.appendChild(li);
+        });
+
+        // Initialize lucide icons in the menu
+        lucide.createIcons();
+
+        // Position the menu at mouse coordinates
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.top = `${e.pageY}px`;
+        contextMenu.style.display = 'block';
+
+        // Boundary safety check (keep menu on-screen)
+        const rect = contextMenu.getBoundingClientRect();
+        if (rect.right > window.innerWidth) {
+            contextMenu.style.left = `${e.pageX - rect.width}px`;
+        }
+        if (rect.bottom > window.innerHeight) {
+            contextMenu.style.top = `${e.pageY - rect.height}px`;
+        }
+    }
+
+    function hideContextMenu() {
+        contextMenu.style.display = 'none';
+    }
 });
