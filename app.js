@@ -351,8 +351,9 @@ document.addEventListener('DOMContentLoaded', () => {
             panY = e.clientY - startPanY;
             updateCanvasTransform();
         } else if (activeDragNode) {
-            const x = (e.clientX - dragOffsetX - panX) / zoomLevel;
-            const y = (e.clientY - dragOffsetY - panY) / zoomLevel;
+            const rect = canvasContainer.getBoundingClientRect();
+            const x = (e.clientX - rect.left - panX) / zoomLevel - dragOffsetX;
+            const y = (e.clientY - rect.top - panY) / zoomLevel - dragOffsetY;
             activeDragNode.style.left = `${Math.max(0, x)}px`;
             activeDragNode.style.top = `${Math.max(0, y)}px`;
             
@@ -679,9 +680,9 @@ document.addEventListener('DOMContentLoaded', () => {
         header.addEventListener('mousedown', (e) => {
             if (e.target.closest('button')) return; // Avoid drag on delete button
             activeDragNode = node;
-            const rect = node.getBoundingClientRect();
-            dragOffsetX = e.clientX - rect.left;
-            dragOffsetY = e.clientY - rect.top;
+            const containerRect = canvasContainer.getBoundingClientRect();
+            dragOffsetX = (e.clientX - containerRect.left - panX) / zoomLevel - model.x;
+            dragOffsetY = (e.clientY - containerRect.top - panY) / zoomLevel - model.y;
             
             // Mark selected
             document.querySelectorAll('.model-node').forEach(n => n.classList.remove('selected'));
