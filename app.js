@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnCompile = document.getElementById('btn-compile');
     const loadSampleLibrary = document.getElementById('load-sample-library');
     const loadSampleErp = document.getElementById('load-sample-erp');
+    const btnSampleDropdown = document.getElementById('btn-sample-dropdown');
+    const sampleDropdownContent = document.querySelector('.dropdown-content');
     const btnCopyOal = document.getElementById('btn-copy-oal');
     const btnImport = document.getElementById('btn-import');
     const btnExport = document.getElementById('btn-export');
@@ -429,8 +431,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save & Compile Events
     btnSave.addEventListener('click', saveDiagram);
     btnCompile.addEventListener('click', compileDiagram);
+    // Toggle Sample Dropdown Click
+    btnSampleDropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sampleDropdownContent.classList.toggle('show');
+    });
+
+    // Close sample dropdown when clicking anywhere else
+    document.addEventListener('click', () => {
+        sampleDropdownContent.classList.remove('show');
+    });
+
     loadSampleLibrary.addEventListener('click', (e) => {
         e.preventDefault();
+        sampleDropdownContent.classList.remove('show');
         Swal.fire({
             title: 'Load Library Sample?',
             text: 'This will overwrite your current canvas and reset the diagram.',
@@ -448,6 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadSampleErp.addEventListener('click', (e) => {
         e.preventDefault();
+        sampleDropdownContent.classList.remove('show');
         Swal.fire({
             title: 'Load Enterprise ERP Sample?',
             text: 'This will overwrite your current canvas and reset the diagram.',

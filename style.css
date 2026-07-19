@@ -133,7 +133,7 @@ body {
     color: var(--primary);
 }
 
-.dropdown:hover .dropdown-content {
+.dropdown-content.show {
     display: block;
 }
 
