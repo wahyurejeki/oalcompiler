@@ -1194,3 +1194,33 @@ aside {
     color: var(--error);
 }
 
+/* SweetAlert2 Button & Spacing Fixes */
+.swal2-popup {
+    font-family: var(--font-sans) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 24px !important;
+}
+
+.swal2-actions {
+    margin-top: 20px !important;
+    gap: 10px !important;
+}
+
+.swal2-styled.swal2-confirm, .swal2-styled.swal2-cancel {
+    padding: 10px 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-sm) !important;
+    height: 40px !important; /* Prevents "gepeng" (flattening) */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.swal2-styled.swal2-confirm:focus, .swal2-styled.swal2-cancel:focus {
+    box-shadow: 0 0 0 2px var(--primary-glow) !important;
+}
+
