@@ -67,7 +67,7 @@ This command will take the path to the `.oal` file as an argument, process it us
 
 ## Visual Editor Studio
 
-We have built a premium, web-based visual editor dashboard under the `editor/` directory that allows you to visually design your Class Diagram (models, attributes, relationships), map routes, configure middleware guards, and compile them to Laravel with a single click.
+We have built a premium, web-based visual editor dashboard directly at the root directory that allows you to visually design your Class Diagram (models, attributes, relationships), map routes, configure middleware guards, and compile them to Laravel with a single click.
 
 ### How to Run the Visual Editor:
 
@@ -77,7 +77,7 @@ We have built a premium, web-based visual editor dashboard under the `editor/` d
    ```
 2. Open your web browser and navigate to:
    ```text
-   http://localhost:8000/editor/
+   http://localhost:8000/
    ```
 
 ### Key Features:

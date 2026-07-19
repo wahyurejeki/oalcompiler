@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $diagramFile = __DIR__ . '/diagram.json';
-$oalFile = __DIR__ . '/../examples/generated.oal';
+$oalFile = __DIR__ . '/examples/generated.oal';
 
 $action = $_GET['action'] ?? '';
 
@@ -42,7 +42,7 @@ switch ($action) {
         $oalCode = $input['oal_code'] ?? '';
         if ($oalCode) {
             // Ensure examples directory exists
-            $examplesDir = __DIR__ . '/../examples';
+            $examplesDir = __DIR__ . '/examples';
             if (!is_dir($examplesDir)) {
                 mkdir($examplesDir, 0755, true);
             }
@@ -64,7 +64,7 @@ switch ($action) {
         file_put_contents($diagramFile, json_encode($input, JSON_PRETTY_PRINT));
         $oalCode = $input['oal_code'] ?? '';
         if ($oalCode) {
-            $examplesDir = __DIR__ . '/../examples';
+            $examplesDir = __DIR__ . '/examples';
             if (!is_dir($examplesDir)) {
                 mkdir($examplesDir, 0755, true);
             }
@@ -75,7 +75,7 @@ switch ($action) {
         }
 
         // 2. Change directory to project root and run compiler
-        $projectRoot = dirname(__DIR__);
+        $projectRoot = __DIR__;
         $compilerScript = $projectRoot . '/generate.php';
         $relativeOalPath = 'examples/generated.oal';
 
