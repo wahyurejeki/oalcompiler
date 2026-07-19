@@ -40,7 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const compilerStatusBadge = document.getElementById('compiler-status-badge');
     const btnSave = document.getElementById('btn-save');
     const btnCompile = document.getElementById('btn-compile');
-    const btnLoadSample = document.getElementById('btn-load-sample');
+    const loadSampleLibrary = document.getElementById('load-sample-library');
+    const loadSampleErp = document.getElementById('load-sample-erp');
     const btnCopyOal = document.getElementById('btn-copy-oal');
     const btnImport = document.getElementById('btn-import');
     const btnExport = document.getElementById('btn-export');
@@ -428,7 +429,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Save & Compile Events
     btnSave.addEventListener('click', saveDiagram);
     btnCompile.addEventListener('click', compileDiagram);
-    btnLoadSample.addEventListener('click', () => {
+    loadSampleLibrary.addEventListener('click', (e) => {
+        e.preventDefault();
         Swal.fire({
             title: 'Load Library Sample?',
             text: 'This will overwrite your current canvas and reset the diagram.',
@@ -440,6 +442,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 loadLibrarySample();
+            }
+        });
+    });
+
+    loadSampleErp.addEventListener('click', (e) => {
+        e.preventDefault();
+        Swal.fire({
+            title: 'Load Enterprise ERP Sample?',
+            text: 'This will overwrite your current canvas and reset the diagram.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Yes, load it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                loadErpSample();
             }
         });
     });
@@ -506,9 +525,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 {
                     label: 'Load Library Sample',
-                    icon: 'book-open',
+                    icon: 'book',
                     action: () => {
-                        btnLoadSample.click();
+                        loadSampleLibrary.click();
+                    }
+                },
+                {
+                    label: 'Load ERP Sample',
+                    icon: 'briefcase',
+                    action: () => {
+                        loadSampleErp.click();
                     }
                 }
             ]);
@@ -1973,6 +1999,205 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCanvasTransform();
     }
 
+    // === Sample Loader (Enterprise ERP Sample) ===
+    
+    function loadErpSample() {
+        // Clear existing nodes from DOM
+        state.models.forEach(m => {
+            const el = document.getElementById(m.id);
+            if (el) el.remove();
+        });
+
+        // Set state to match enterprise_erp.oal
+        state = {
+            models: [
+                {
+                    id: 'm_customer',
+                    name: 'Customer',
+                    x: 80,
+                    y: 100,
+                    attributes: [
+                        { name: 'id', type: 'integer', modifiers: ['primary'] },
+                        { name: 'name', type: 'string', modifiers: [] },
+                        { name: 'email', type: 'string', modifiers: ['unique'] },
+                        { name: 'balance', type: 'decimal', modifiers: ['default(0.00)'] }
+                    ],
+                    relations: [
+                        { type: 'hasMany', target: 'Order' }
+                    ],
+                    methods: [
+                        {
+                            name: 'listCustomersAction',
+                            params: 'Request req',
+                            body: 'var list = Customer.modelFindAll();\nreturn json(list);'
+                        }
+                    ]
+                },
+                {
+                    id: 'm_product',
+                    name: 'Product',
+                    x: 80,
+                    y: 420,
+                    attributes: [
+                        { name: 'id', type: 'integer', modifiers: ['primary'] },
+                        { name: 'sku', type: 'string', modifiers: ['unique'] },
+                        { name: 'name', type: 'string', modifiers: [] },
+                        { name: 'price', type: 'decimal', modifiers: [] },
+                        { name: 'stock', type: 'integer', modifiers: [] }
+                    ],
+                    relations: [
+                        { type: 'hasMany', target: 'OrderItem' }
+                    ],
+                    methods: [
+                        {
+                            name: 'listProductsAction',
+                            params: 'Request req',
+                            body: 'var list = Product.modelFindAll();\nreturn json(list);'
+                        }
+                    ]
+                },
+                {
+                    id: 'm_order',
+                    name: 'Order',
+                    x: 520,
+                    y: 80,
+                    attributes: [
+                        { name: 'id', type: 'integer', modifiers: ['primary'] },
+                        { name: 'Customer_id', type: 'integer', modifiers: [] },
+                        { name: 'orderDate', type: 'datetime', modifiers: [] },
+                        { name: 'totalAmount', type: 'decimal', modifiers: [] },
+                        { name: 'status', type: 'string', modifiers: [] }
+                    ],
+                    relations: [
+                        { type: 'belongsTo', target: 'Customer' },
+                        { type: 'hasMany', target: 'OrderItem' },
+                        { type: 'hasOne', target: 'Invoice' }
+                    ],
+                    methods: [
+                        {
+                            name: 'createOrderAction',
+                            params: 'Request req',
+                            body: 'var cust = Customer.modelFindOne(["id" => req.customerId]);\nif (cust) {\n    var order = Order.modelCreate([\n        "Customer_id" => cust.id,\n        "orderDate" => req.orderDate,\n        "totalAmount" => req.totalAmount,\n        "status" => "pending"\n    ]);\n    return json(["success" => true, "orderId" => order.id]);\n}\nreturn json(["error" => "Customer not found"]);'
+                        }
+                    ]
+                },
+                {
+                    id: 'm_orderitem',
+                    name: 'OrderItem',
+                    x: 520,
+                    y: 460,
+                    attributes: [
+                        { name: 'id', type: 'integer', modifiers: ['primary'] },
+                        { name: 'Order_id', type: 'integer', modifiers: [] },
+                        { name: 'Product_id', type: 'integer', modifiers: [] },
+                        { name: 'quantity', type: 'integer', modifiers: [] },
+                        { name: 'unitPrice', type: 'decimal', modifiers: [] }
+                    ],
+                    relations: [
+                        { type: 'belongsTo', target: 'Order' },
+                        { type: 'belongsTo', target: 'Product' }
+                    ],
+                    methods: [
+                        {
+                            name: 'addItemAction',
+                            params: 'Request req',
+                            body: 'var order = Order.modelFindOne(["id" => req.orderId]);\nvar prod = Product.modelFindOne(["id" => req.productId]);\nif (order && prod && prod.stock >= req.quantity) {\n    var item = OrderItem.modelCreate([\n        "Order_id" => order.id,\n        "Product_id" => prod.id,\n        "quantity" => req.quantity,\n        "unitPrice" => prod.price\n    ]);\n    Product.modelUpdate(["id" => prod.id], ["stock" => prod.stock - req.quantity]);\n    return json(["success" => true]);\n}\nreturn json(["error" => "Insufficient stock or invalid order"]);'
+                        }
+                    ]
+                },
+                {
+                    id: 'm_invoice',
+                    name: 'Invoice',
+                    x: 940,
+                    y: 200,
+                    attributes: [
+                        { name: 'id', type: 'integer', modifiers: ['primary'] },
+                        { name: 'Order_id', type: 'integer', modifiers: [] },
+                        { name: 'invoiceNumber', type: 'string', modifiers: ['unique'] },
+                        { name: 'dueDate', type: 'date', modifiers: [] },
+                        { name: 'isPaid', type: 'boolean', modifiers: ['default(false)'] }
+                    ],
+                    relations: [
+                        { type: 'belongsTo', target: 'Order' }
+                    ],
+                    methods: [
+                        {
+                            name: 'payInvoiceAction',
+                            params: 'Request req',
+                            body: 'var inv = Invoice.modelFindOne(["invoiceNumber" => req.invoiceNumber]);\nif (inv && !inv.isPaid) {\n    Invoice.modelUpdate(["id" => inv.id], ["isPaid" => true]);\n    return json(["success" => true]);\n}\nreturn json(["error" => "Invoice not found or already paid"]);'
+                        }
+                    ]
+                }
+            ],
+            middlewares: [
+                {
+                    id: 'mw_apiauth',
+                    name: 'ApiAuthMiddleware',
+                    template: 'custom',
+                    config: {
+                        customCode: 'if (req.header("X-API-Key") != "secret123") {\n    return json(["error" => "Unauthorized"], 401);\n}'
+                    }
+                }
+            ],
+            controllers: [],
+            routes: [
+                {
+                    id: 'r_erp_1',
+                    method: 'get',
+                    path: '/api/customers',
+                    controller: 'CustomerController',
+                    action: 'listCustomersAction',
+                    middlewares: ['ApiAuthMiddleware']
+                },
+                {
+                    id: 'r_erp_2',
+                    method: 'get',
+                    path: '/api/products',
+                    controller: 'ProductController',
+                    action: 'listProductsAction',
+                    middlewares: []
+                },
+                {
+                    id: 'r_erp_3',
+                    method: 'post',
+                    path: '/api/orders',
+                    controller: 'OrderController',
+                    action: 'createOrderAction',
+                    middlewares: ['ApiAuthMiddleware']
+                },
+                {
+                    id: 'r_erp_4',
+                    method: 'post',
+                    path: '/api/orders/items',
+                    controller: 'OrderItemController',
+                    action: 'addItemAction',
+                    middlewares: ['ApiAuthMiddleware']
+                },
+                {
+                    id: 'r_erp_5',
+                    method: 'post',
+                    path: '/api/invoices/pay',
+                    controller: 'InvoiceController',
+                    action: 'payInvoiceAction',
+                    middlewares: ['ApiAuthMiddleware']
+                }
+            ]
+        };
+
+        // Render everything
+        state.models.forEach(m => renderModelNode(m));
+        renderMiddlewares();
+        renderRoutesTable();
+        updateLines();
+        generateOAL();
+        
+        // Reset zoom
+        zoomLevel = 1.0;
+        panX = 0;
+        panY = 0;
+        updateCanvasTransform();
+    }
+
     // === Startup Initialization ===
     
     // Attempt to load previously saved diagram
@@ -1989,13 +2214,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 100);
                 generateOAL();
             } else {
-                // If empty, auto load sample as starting point
-                loadLibrarySample();
+                // If empty, keep it empty
+                generateOAL();
             }
         })
         .catch(err => {
-            console.warn('Failed to load saved state, loading default sample.', err);
-            loadLibrarySample();
+            console.warn('Failed to load saved state.', err);
+            generateOAL();
         });
 
     // === Context Menu Helper Functions ===

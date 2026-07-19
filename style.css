@@ -97,6 +97,46 @@ body {
     gap: 12px;
 }
 
+/* Dropdown Menu Styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--bg-surface);
+    min-width: 180px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    z-index: 1000;
+    margin-top: 4px;
+    overflow: hidden;
+}
+
+.dropdown-content a {
+    color: var(--text-primary);
+    padding: 10px 14px;
+    text-decoration: none;
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    transition: background-color 0.15s, color 0.15s;
+}
+
+.dropdown-content a:hover {
+    background-color: var(--bg-element);
+    color: var(--primary);
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;
