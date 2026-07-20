@@ -415,11 +415,11 @@ function generateDatabaseSeeder($modelMetadata) {
                 $valStr = "";
 
                 if ($lowerModel === 'category' && $lowerField === 'name') {
-                    $valStr = "[\"Novel & Fiksi\", \"Komputer & Pemrograman\", \"Sains & Teknologi\", \"Sejarah & Budaya\", \"Filsafat & Agama\", \"Biografi & Otobiografi\", \"Sastra & Bahasa\", \"Komik & Manga\"][(\$i - 1) % 8]";
+                    $valStr = "[\"Novel & Fiksi\", \"Komputer & Pemrograman\", \"Sains & Teknologi\", \"Sejarah & Budaya\", \"Filsafat & Agama\", \"Biografi & Otobiografi\", \"Sastra & Bahasa\", \"Komik & Manga\", \"Ekonomi & Bisnis\", \"Kesehatan & Kedokteran\"][(\$i - 1) % 10]";
                 } elseif ($lowerModel === 'publisher' && $lowerField === 'name') {
-                    $valStr = "[\"Gramedia Pustaka Utama\", \"Elex Media Komputindo\", \"Mizan Publishing\", \"Penerbit Andi\", \"Bentang Pustaka\", \"Republika Penerbit\"][(\$i - 1) % 6]";
+                    $valStr = "[\"Gramedia Pustaka Utama\", \"Elex Media Komputindo\", \"Mizan Publishing\", \"Penerbit Andi\", \"Bentang Pustaka\", \"Republika Penerbit\", \"Pustaka Al-Kautsar\", \"GagasMedia\", \"Penerbit Haru\", \"Bukune\"][(\$i - 1) % 10]";
                 } elseif ($lowerModel === 'author' && $lowerField === 'name') {
-                    $valStr = "[\"Andrea Hirata\", \"Tere Liye\", \"Pramoedya Ananta Toer\", \"Dee Lestari\", \"Eka Kurniawan\", \"Habiburrahman El Shirazy\", \"Sapardi Djoko Damono\"][(\$i - 1) % 7]";
+                    $valStr = "[\"Andrea Hirata\", \"Tere Liye\", \"Pramoedya Ananta Toer\", \"Dee Lestari\", \"Eka Kurniawan\", \"Habiburrahman El Shirazy\", \"Sapardi Djoko Damono\", \"Ahmad Fuadi\", \"Seno Gumira Ajidarma\", \"Dewi Sartika\"][(\$i - 1) % 10]";
                 } elseif ($lowerModel === 'book' && $lowerField === 'title') {
                     $valStr = "[\"Laskar Pelangi\", \"Bumi Manusia\", \"Perahu Kertas\", \"Cantik itu Luka\", \"Negeri 5 Menara\", \"Belajar Laravel 11\", \"Dasar-Dasar Database MySQL\", \"Clean Code dan Arsitektur Clean\", \"Kosmos\", \"Sejarah Singkat Waktu\"][(\$i - 1) % 10]";
                 } elseif (($lowerModel === 'member' || $lowerModel === 'user' || $lowerModel === 'customer') && $lowerField === 'name') {
