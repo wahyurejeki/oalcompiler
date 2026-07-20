@@ -6,12 +6,33 @@
             "x": 80,
             "y": 80,
             "attributes": [
-                { "name": "id", "type": "integer", "modifiers": ["primary"] },
-                { "name": "name", "type": "string", "modifiers": ["unique"] },
-                { "name": "description", "type": "string", "modifiers": ["nullable"] }
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "modifiers": [
+                        "unique"
+                    ]
+                },
+                {
+                    "name": "description",
+                    "type": "string",
+                    "modifiers": [
+                        "nullable"
+                    ]
+                }
             ],
             "relations": [
-                { "type": "hasMany", "target": "Book" }
+                {
+                    "type": "hasMany",
+                    "target": "Book"
+                }
             ],
             "methods": [
                 {
@@ -47,13 +68,40 @@
             "x": 80,
             "y": 420,
             "attributes": [
-                { "name": "id", "type": "integer", "modifiers": ["primary"] },
-                { "name": "name", "type": "string", "modifiers": ["unique"] },
-                { "name": "address", "type": "string", "modifiers": ["nullable"] },
-                { "name": "phone", "type": "string", "modifiers": ["nullable"] }
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "modifiers": [
+                        "unique"
+                    ]
+                },
+                {
+                    "name": "address",
+                    "type": "string",
+                    "modifiers": [
+                        "nullable"
+                    ]
+                },
+                {
+                    "name": "phone",
+                    "type": "string",
+                    "modifiers": [
+                        "nullable"
+                    ]
+                }
             ],
             "relations": [
-                { "type": "hasMany", "target": "Book" }
+                {
+                    "type": "hasMany",
+                    "target": "Book"
+                }
             ],
             "methods": [
                 {
@@ -89,13 +137,38 @@
             "x": 80,
             "y": 780,
             "attributes": [
-                { "name": "id", "type": "integer", "modifiers": ["primary"] },
-                { "name": "name", "type": "string", "modifiers": [] },
-                { "name": "biography", "type": "text", "modifiers": ["nullable"] },
-                { "name": "birthDate", "type": "date", "modifiers": ["nullable"] }
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "modifiers": []
+                },
+                {
+                    "name": "biography",
+                    "type": "text",
+                    "modifiers": [
+                        "nullable"
+                    ]
+                },
+                {
+                    "name": "birthDate",
+                    "type": "date",
+                    "modifiers": [
+                        "nullable"
+                    ]
+                }
             ],
             "relations": [
-                { "type": "belongsToMany", "target": "Book" }
+                {
+                    "type": "belongsToMany",
+                    "target": "Book"
+                }
             ],
             "methods": [
                 {
@@ -131,20 +204,69 @@
             "x": 480,
             "y": 280,
             "attributes": [
-                { "name": "id", "type": "integer", "modifiers": ["primary"] },
-                { "name": "title", "type": "string", "modifiers": [] },
-                { "name": "isbn", "type": "string", "modifiers": ["unique"] },
-                { "name": "year", "type": "integer", "modifiers": [] },
-                { "name": "Category_id", "type": "integer", "modifiers": [] },
-                { "name": "Publisher_id", "type": "integer", "modifiers": [] },
-                { "name": "available", "type": "boolean", "modifiers": ["default(true)"] }
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "title",
+                    "type": "string",
+                    "modifiers": []
+                },
+                {
+                    "name": "isbn",
+                    "type": "string",
+                    "modifiers": [
+                        "unique"
+                    ]
+                },
+                {
+                    "name": "year",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "Category_id",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "Publisher_id",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "available",
+                    "type": "boolean",
+                    "modifiers": [
+                        "default(true)"
+                    ]
+                }
             ],
             "relations": [
-                { "type": "belongsTo", "target": "Category" },
-                { "type": "belongsTo", "target": "Publisher" },
-                { "type": "belongsToMany", "target": "Author" },
-                { "type": "hasMany", "target": "BorrowRecord" },
-                { "type": "hasMany", "target": "Reservation" }
+                {
+                    "type": "belongsTo",
+                    "target": "Category"
+                },
+                {
+                    "type": "belongsTo",
+                    "target": "Publisher"
+                },
+                {
+                    "type": "belongsToMany",
+                    "target": "Author"
+                },
+                {
+                    "type": "hasMany",
+                    "target": "BorrowRecord"
+                },
+                {
+                    "type": "hasMany",
+                    "target": "Reservation"
+                }
             ],
             "methods": [
                 {
@@ -180,7 +302,7 @@
                 {
                     "name": "borrowBookAction",
                     "params": "Request req",
-                    "body": "var book = Book.modelFindOne([\"id\" => req.bookId]);\nif (book.available) {\n    var due = req.dueDate;\n    var record = BorrowRecord.modelCreate([\n        \"Book_id\" => book.id,\n        \"Member_id\" => req.memberId,\n        \"borrowedAt\" => req.borrowedAt,\n        \"dueDate\" => due\n    ]);\n    Book.modelUpdate([\"id\" => book.id], [\"available\" => false]);\n    return json([\"success\" => true, \"borrowId\" => record.id]);\n} else {\n    return json([\"error\" => \"Book is currently unavailable\"]);\n}"
+                    "body": "var book = Book.modelFindOne([\"id\" => req.bookId]);\nif (book) {\n    if (book.available) {\n        var activeLoans = BorrowRecord.modelCount([\"Member_id\" => req.memberId, \"returnedAt\" => null]);\n        if (activeLoans >= 3) {\n            return json([\"error\" => \"Member has reached the maximum borrowing limit of 3 books\"]);\n        }\n\n        var due = req.dueDate;\n        var record = BorrowRecord.modelCreate([\n            \"Book_id\" => book.id,\n            \"Member_id\" => req.memberId,\n            \"borrowedAt\" => req.borrowedAt,\n            \"dueDate\" => due\n        ]);\n        Book.modelUpdate([\"id\" => book.id], [\"available\" => false]);\n        return json([\"success\" => true, \"borrowId\" => record.id]);\n    } else {\n        return json([\"error\" => \"Book is currently unavailable\"]);\n    }\n}\nreturn json([\"error\" => \"Book not found\"]);"
                 },
                 {
                     "name": "returnBookAction",
@@ -195,13 +317,33 @@
             "x": 480,
             "y": 840,
             "attributes": [
-                { "name": "id", "type": "integer", "modifiers": ["primary"] },
-                { "name": "Book_id", "type": "integer", "modifiers": [] },
-                { "name": "Author_id", "type": "integer", "modifiers": [] }
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "Book_id",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "Author_id",
+                    "type": "integer",
+                    "modifiers": []
+                }
             ],
             "relations": [
-                { "type": "belongsTo", "target": "Book" },
-                { "type": "belongsTo", "target": "Author" }
+                {
+                    "type": "belongsTo",
+                    "target": "Book"
+                },
+                {
+                    "type": "belongsTo",
+                    "target": "Author"
+                }
             ],
             "methods": []
         },
@@ -211,17 +353,58 @@
             "x": 880,
             "y": 80,
             "attributes": [
-                { "name": "id", "type": "integer", "modifiers": ["primary"] },
-                { "name": "name", "type": "string", "modifiers": [] },
-                { "name": "email", "type": "string", "modifiers": ["unique"] },
-                { "name": "phone", "type": "string", "modifiers": ["nullable"] },
-                { "name": "membershipDate", "type": "date", "modifiers": [] },
-                { "name": "status", "type": "string", "modifiers": ["default(\"active\")"] }
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "modifiers": []
+                },
+                {
+                    "name": "email",
+                    "type": "string",
+                    "modifiers": [
+                        "unique"
+                    ]
+                },
+                {
+                    "name": "phone",
+                    "type": "string",
+                    "modifiers": [
+                        "nullable"
+                    ]
+                },
+                {
+                    "name": "membershipDate",
+                    "type": "date",
+                    "modifiers": []
+                },
+                {
+                    "name": "status",
+                    "type": "string",
+                    "modifiers": [
+                        "default(\"active\")"
+                    ]
+                }
             ],
             "relations": [
-                { "type": "hasMany", "target": "BorrowRecord" },
-                { "type": "hasMany", "target": "Reservation" },
-                { "type": "hasMany", "target": "Fine" }
+                {
+                    "type": "hasMany",
+                    "target": "BorrowRecord"
+                },
+                {
+                    "type": "hasMany",
+                    "target": "Reservation"
+                },
+                {
+                    "type": "hasMany",
+                    "target": "Fine"
+                }
             ],
             "methods": [
                 {
@@ -257,17 +440,54 @@
             "x": 880,
             "y": 460,
             "attributes": [
-                { "name": "id", "type": "integer", "modifiers": ["primary"] },
-                { "name": "Book_id", "type": "integer", "modifiers": [] },
-                { "name": "Member_id", "type": "integer", "modifiers": [] },
-                { "name": "borrowedAt", "type": "datetime", "modifiers": [] },
-                { "name": "dueDate", "type": "datetime", "modifiers": [] },
-                { "name": "returnedAt", "type": "datetime", "modifiers": ["nullable"] }
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "Book_id",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "Member_id",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "borrowedAt",
+                    "type": "datetime",
+                    "modifiers": []
+                },
+                {
+                    "name": "dueDate",
+                    "type": "datetime",
+                    "modifiers": []
+                },
+                {
+                    "name": "returnedAt",
+                    "type": "datetime",
+                    "modifiers": [
+                        "nullable"
+                    ]
+                }
             ],
             "relations": [
-                { "type": "belongsTo", "target": "Book" },
-                { "type": "belongsTo", "target": "Member" },
-                { "type": "hasOne", "target": "Fine" }
+                {
+                    "type": "belongsTo",
+                    "target": "Book"
+                },
+                {
+                    "type": "belongsTo",
+                    "target": "Member"
+                },
+                {
+                    "type": "hasOne",
+                    "target": "Fine"
+                }
             ],
             "methods": []
         },
@@ -277,15 +497,45 @@
             "x": 1280,
             "y": 200,
             "attributes": [
-                { "name": "id", "type": "integer", "modifiers": ["primary"] },
-                { "name": "Book_id", "type": "integer", "modifiers": [] },
-                { "name": "Member_id", "type": "integer", "modifiers": [] },
-                { "name": "reservedAt", "type": "datetime", "modifiers": [] },
-                { "name": "status", "type": "string", "modifiers": ["default(\"pending\")"] }
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "Book_id",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "Member_id",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "reservedAt",
+                    "type": "datetime",
+                    "modifiers": []
+                },
+                {
+                    "name": "status",
+                    "type": "string",
+                    "modifiers": [
+                        "default(\"pending\")"
+                    ]
+                }
             ],
             "relations": [
-                { "type": "belongsTo", "target": "Book" },
-                { "type": "belongsTo", "target": "Member" }
+                {
+                    "type": "belongsTo",
+                    "target": "Book"
+                },
+                {
+                    "type": "belongsTo",
+                    "target": "Member"
+                }
             ],
             "methods": [
                 {
@@ -316,15 +566,45 @@
             "x": 1280,
             "y": 600,
             "attributes": [
-                { "name": "id", "type": "integer", "modifiers": ["primary"] },
-                { "name": "BorrowRecord_id", "type": "integer", "modifiers": [] },
-                { "name": "Member_id", "type": "integer", "modifiers": [] },
-                { "name": "amount", "type": "decimal", "modifiers": [] },
-                { "name": "isPaid", "type": "boolean", "modifiers": ["default(false)"] }
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "BorrowRecord_id",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "Member_id",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "amount",
+                    "type": "decimal",
+                    "modifiers": []
+                },
+                {
+                    "name": "isPaid",
+                    "type": "boolean",
+                    "modifiers": [
+                        "default(false)"
+                    ]
+                }
             ],
             "relations": [
-                { "type": "belongsTo", "target": "BorrowRecord" },
-                { "type": "belongsTo", "target": "Member" }
+                {
+                    "type": "belongsTo",
+                    "target": "BorrowRecord"
+                },
+                {
+                    "type": "belongsTo",
+                    "target": "Member"
+                }
             ],
             "methods": [
                 {
@@ -345,6 +625,316 @@
             ]
         }
     ],
+    "routes": [
+        {
+            "id": "r_0",
+            "method": "get",
+            "path": "\/",
+            "controller": "BookController",
+            "action": "indexAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_1",
+            "method": "get",
+            "path": "\/books",
+            "controller": "BookController",
+            "action": "listBooksAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_2",
+            "method": "get",
+            "path": "\/books\/{id}",
+            "controller": "BookController",
+            "action": "showBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_3",
+            "method": "post",
+            "path": "\/books",
+            "controller": "BookController",
+            "action": "createBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_4",
+            "method": "put",
+            "path": "\/books\/{id}",
+            "controller": "BookController",
+            "action": "updateBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_5",
+            "method": "delete",
+            "path": "\/books\/{id}",
+            "controller": "BookController",
+            "action": "deleteBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_6",
+            "method": "post",
+            "path": "\/books\/borrow",
+            "controller": "BookController",
+            "action": "borrowBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_7",
+            "method": "post",
+            "path": "\/books\/return",
+            "controller": "BookController",
+            "action": "returnBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_8",
+            "method": "get",
+            "path": "\/categories",
+            "controller": "CategoryController",
+            "action": "listCategoriesAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_9",
+            "method": "get",
+            "path": "\/categories\/{id}",
+            "controller": "CategoryController",
+            "action": "showCategoryAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_10",
+            "method": "post",
+            "path": "\/categories",
+            "controller": "CategoryController",
+            "action": "createCategoryAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_11",
+            "method": "put",
+            "path": "\/categories\/{id}",
+            "controller": "CategoryController",
+            "action": "updateCategoryAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_12",
+            "method": "delete",
+            "path": "\/categories\/{id}",
+            "controller": "CategoryController",
+            "action": "deleteCategoryAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_13",
+            "method": "get",
+            "path": "\/publishers",
+            "controller": "PublisherController",
+            "action": "listPublishersAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_14",
+            "method": "get",
+            "path": "\/publishers\/{id}",
+            "controller": "PublisherController",
+            "action": "showPublisherAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_15",
+            "method": "post",
+            "path": "\/publishers",
+            "controller": "PublisherController",
+            "action": "createPublisherAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_16",
+            "method": "put",
+            "path": "\/publishers\/{id}",
+            "controller": "PublisherController",
+            "action": "updatePublisherAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_17",
+            "method": "delete",
+            "path": "\/publishers\/{id}",
+            "controller": "PublisherController",
+            "action": "deletePublisherAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_18",
+            "method": "get",
+            "path": "\/authors",
+            "controller": "AuthorController",
+            "action": "listAuthorsAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_19",
+            "method": "get",
+            "path": "\/authors\/{id}",
+            "controller": "AuthorController",
+            "action": "showAuthorAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_20",
+            "method": "post",
+            "path": "\/authors",
+            "controller": "AuthorController",
+            "action": "createAuthorAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_21",
+            "method": "put",
+            "path": "\/authors\/{id}",
+            "controller": "AuthorController",
+            "action": "updateAuthorAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_22",
+            "method": "delete",
+            "path": "\/authors\/{id}",
+            "controller": "AuthorController",
+            "action": "deleteAuthorAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_23",
+            "method": "get",
+            "path": "\/members",
+            "controller": "MemberController",
+            "action": "listMembersAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_24",
+            "method": "get",
+            "path": "\/members\/{id}",
+            "controller": "MemberController",
+            "action": "showMemberAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_25",
+            "method": "post",
+            "path": "\/members",
+            "controller": "MemberController",
+            "action": "registerMemberAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_26",
+            "method": "put",
+            "path": "\/members\/{id}",
+            "controller": "MemberController",
+            "action": "updateMemberAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_27",
+            "method": "delete",
+            "path": "\/members\/{id}",
+            "controller": "MemberController",
+            "action": "deleteMemberAction",
+            "middlewares": []
+        },
+        {
+            "id": "r_28",
+            "method": "get",
+            "path": "\/reservations",
+            "controller": "ReservationController",
+            "action": "listReservationsAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_29",
+            "method": "get",
+            "path": "\/reservations\/{id}",
+            "controller": "ReservationController",
+            "action": "showReservationAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_30",
+            "method": "post",
+            "path": "\/reservations",
+            "controller": "ReservationController",
+            "action": "reserveBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_31",
+            "method": "delete",
+            "path": "\/reservations\/{id}",
+            "controller": "ReservationController",
+            "action": "cancelReservationAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_32",
+            "method": "get",
+            "path": "\/fines",
+            "controller": "FineController",
+            "action": "listFinesAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_33",
+            "method": "get",
+            "path": "\/fines\/{id}",
+            "controller": "FineController",
+            "action": "showFineAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_34",
+            "method": "post",
+            "path": "\/fines\/pay",
+            "controller": "FineController",
+            "action": "payFineAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        }
+    ],
     "middlewares": [
         {
             "id": "mw_auth",
@@ -356,41 +946,5 @@
         }
     ],
     "controllers": [],
-    "routes": [
-        { "id": "r_0", "method": "get", "path": "/", "controller": "BookController", "action": "indexAction", "middlewares": [] },
-        { "id": "r_1", "method": "get", "path": "/books", "controller": "BookController", "action": "listBooksAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_2", "method": "get", "path": "/books/{id}", "controller": "BookController", "action": "showBookAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_3", "method": "post", "path": "/books", "controller": "BookController", "action": "createBookAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_4", "method": "put", "path": "/books/{id}", "controller": "BookController", "action": "updateBookAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_5", "method": "delete", "path": "/books/{id}", "controller": "BookController", "action": "deleteBookAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_6", "method": "post", "path": "/books/borrow", "controller": "BookController", "action": "borrowBookAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_7", "method": "post", "path": "/books/return", "controller": "BookController", "action": "returnBookAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_8", "method": "get", "path": "/categories", "controller": "CategoryController", "action": "listCategoriesAction", "middlewares": [] },
-        { "id": "r_9", "method": "get", "path": "/categories/{id}", "controller": "CategoryController", "action": "showCategoryAction", "middlewares": [] },
-        { "id": "r_10", "method": "post", "path": "/categories", "controller": "CategoryController", "action": "createCategoryAction", "middlewares": [] },
-        { "id": "r_11", "method": "put", "path": "/categories/{id}", "controller": "CategoryController", "action": "updateCategoryAction", "middlewares": [] },
-        { "id": "r_12", "method": "delete", "path": "/categories/{id}", "controller": "CategoryController", "action": "deleteCategoryAction", "middlewares": [] },
-        { "id": "r_13", "method": "get", "path": "/publishers", "controller": "PublisherController", "action": "listPublishersAction", "middlewares": [] },
-        { "id": "r_14", "method": "get", "path": "/publishers/{id}", "controller": "PublisherController", "action": "showPublisherAction", "middlewares": [] },
-        { "id": "r_15", "method": "post", "path": "/publishers", "controller": "PublisherController", "action": "createPublisherAction", "middlewares": [] },
-        { "id": "r_16", "method": "put", "path": "/publishers/{id}", "controller": "PublisherController", "action": "updatePublisherAction", "middlewares": [] },
-        { "id": "r_17", "method": "delete", "path": "/publishers/{id}", "controller": "PublisherController", "action": "deletePublisherAction", "middlewares": [] },
-        { "id": "r_18", "method": "get", "path": "/authors", "controller": "AuthorController", "action": "listAuthorsAction", "middlewares": [] },
-        { "id": "r_19", "method": "get", "path": "/authors/{id}", "controller": "AuthorController", "action": "showAuthorAction", "middlewares": [] },
-        { "id": "r_20", "method": "post", "path": "/authors", "controller": "AuthorController", "action": "createAuthorAction", "middlewares": [] },
-        { "id": "r_21", "method": "put", "path": "/authors/{id}", "controller": "AuthorController", "action": "updateAuthorAction", "middlewares": [] },
-        { "id": "r_22", "method": "delete", "path": "/authors/{id}", "controller": "AuthorController", "action": "deleteAuthorAction", "middlewares": [] },
-        { "id": "r_23", "method": "get", "path": "/members", "controller": "MemberController", "action": "listMembersAction", "middlewares": [] },
-        { "id": "r_24", "method": "get", "path": "/members/{id}", "controller": "MemberController", "action": "showMemberAction", "middlewares": [] },
-        { "id": "r_25", "method": "post", "path": "/members", "controller": "MemberController", "action": "registerMemberAction", "middlewares": [] },
-        { "id": "r_26", "method": "put", "path": "/members/{id}", "controller": "MemberController", "action": "updateMemberAction", "middlewares": [] },
-        { "id": "r_27", "method": "delete", "path": "/members/{id}", "controller": "MemberController", "action": "deleteMemberAction", "middlewares": [] },
-        { "id": "r_28", "method": "get", "path": "/reservations", "controller": "ReservationController", "action": "listReservationsAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_29", "method": "get", "path": "/reservations/{id}", "controller": "ReservationController", "action": "showReservationAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_30", "method": "post", "path": "/reservations", "controller": "ReservationController", "action": "reserveBookAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_31", "method": "delete", "path": "/reservations/{id}", "controller": "ReservationController", "action": "cancelReservationAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_32", "method": "get", "path": "/fines", "controller": "FineController", "action": "listFinesAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_33", "method": "get", "path": "/fines/{id}", "controller": "FineController", "action": "showFineAction", "middlewares": ["AuthMiddleware"] },
-        { "id": "r_34", "method": "post", "path": "/fines/pay", "controller": "FineController", "action": "payFineAction", "middlewares": ["AuthMiddleware"] }
-    ]
+    "oal_code": "\/\/ ================= Models =================\nmodel Category {\n    integer id primary;\n    string name unique;\n    string description nullable;\n\n    hasMany Book;\n}\n\nmodel Publisher {\n    integer id primary;\n    string name unique;\n    string address nullable;\n    string phone nullable;\n\n    hasMany Book;\n}\n\nmodel Author {\n    integer id primary;\n    string name;\n    text biography nullable;\n    date birthDate nullable;\n\n    belongsToMany Book;\n}\n\nmodel Book {\n    integer id primary;\n    string title;\n    string isbn unique;\n    integer year;\n    integer Category_id;\n    integer Publisher_id;\n    boolean available default(true);\n\n    belongsTo Category;\n    belongsTo Publisher;\n    belongsToMany Author;\n    hasMany BorrowRecord;\n    hasMany Reservation;\n}\n\nmodel AuthorBook {\n    integer id primary;\n    integer Book_id;\n    integer Author_id;\n\n    belongsTo Book;\n    belongsTo Author;\n}\n\nmodel Member {\n    integer id primary;\n    string name;\n    string email unique;\n    string phone nullable;\n    date membershipDate;\n    string status default(\"active\");\n\n    hasMany BorrowRecord;\n    hasMany Reservation;\n    hasMany Fine;\n}\n\nmodel BorrowRecord {\n    integer id primary;\n    integer Book_id;\n    integer Member_id;\n    datetime borrowedAt;\n    datetime dueDate;\n    datetime returnedAt nullable;\n\n    belongsTo Book;\n    belongsTo Member;\n    hasOne Fine;\n}\n\nmodel Reservation {\n    integer id primary;\n    integer Book_id;\n    integer Member_id;\n    datetime reservedAt;\n    string status default(\"pending\");\n\n    belongsTo Book;\n    belongsTo Member;\n}\n\nmodel Fine {\n    integer id primary;\n    integer BorrowRecord_id;\n    integer Member_id;\n    decimal amount;\n    boolean isPaid default(false);\n\n    belongsTo BorrowRecord;\n    belongsTo Member;\n}\n\n\/\/ ================= Controllers =================\ncontroller CategoryController {\n    function listCategoriesAction(Request req) {\n        var cats = Category.modelFindAll();\n        return json(cats);\n    }\n\n    function showCategoryAction(Request req) {\n        var cat = Category.modelFindOne([\"id\" => req.id]);\n        if (cat) {\n            return json(cat);\n        }\n        return json([\"error\" => \"Category not found\"]);\n    }\n\n    function createCategoryAction(Request req) {\n        var cat = Category.modelCreate([\n            \"name\" => req.name,\n            \"description\" => req.description\n        ]);\n        return json([\"success\" => true, \"category\" => cat]);\n    }\n\n    function updateCategoryAction(Request req) {\n        var cat = Category.modelFindOne([\"id\" => req.id]);\n        if (cat) {\n            Category.modelUpdate([\"id\" => req.id], [\n                \"name\" => req.name,\n                \"description\" => req.description\n            ]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Category not found\"]);\n    }\n\n    function deleteCategoryAction(Request req) {\n        var cat = Category.modelFindOne([\"id\" => req.id]);\n        if (cat) {\n            Category.modelDelete([\"id\" => req.id]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Category not found\"]);\n    }\n}\n\ncontroller PublisherController {\n    function listPublishersAction(Request req) {\n        var pubs = Publisher.modelFindAll();\n        return json(pubs);\n    }\n\n    function showPublisherAction(Request req) {\n        var pub = Publisher.modelFindOne([\"id\" => req.id]);\n        if (pub) {\n            return json(pub);\n        }\n        return json([\"error\" => \"Publisher not found\"]);\n    }\n\n    function createPublisherAction(Request req) {\n        var pub = Publisher.modelCreate([\n            \"name\" => req.name,\n            \"address\" => req.address,\n            \"phone\" => req.phone\n        ]);\n        return json([\"success\" => true, \"publisher\" => pub]);\n    }\n\n    function updatePublisherAction(Request req) {\n        var pub = Publisher.modelFindOne([\"id\" => req.id]);\n        if (pub) {\n            Publisher.modelUpdate([\"id\" => req.id], [\n                \"name\" => req.name,\n                \"address\" => req.address,\n                \"phone\" => req.phone\n            ]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Publisher not found\"]);\n    }\n\n    function deletePublisherAction(Request req) {\n        var pub = Publisher.modelFindOne([\"id\" => req.id]);\n        if (pub) {\n            Publisher.modelDelete([\"id\" => req.id]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Publisher not found\"]);\n    }\n}\n\ncontroller AuthorController {\n    function listAuthorsAction(Request req) {\n        var authors = Author.modelFindAll();\n        return json(authors);\n    }\n\n    function showAuthorAction(Request req) {\n        var author = Author.modelFindOne([\"id\" => req.id]);\n        if (author) {\n            return json(author);\n        }\n        return json([\"error\" => \"Author not found\"]);\n    }\n\n    function createAuthorAction(Request req) {\n        var author = Author.modelCreate([\n            \"name\" => req.name,\n            \"biography\" => req.biography,\n            \"birthDate\" => req.birthDate\n        ]);\n        return json([\"success\" => true, \"author\" => author]);\n    }\n\n    function updateAuthorAction(Request req) {\n        var author = Author.modelFindOne([\"id\" => req.id]);\n        if (author) {\n            Author.modelUpdate([\"id\" => req.id], [\n                \"name\" => req.name,\n                \"biography\" => req.biography,\n                \"birthDate\" => req.birthDate\n            ]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Author not found\"]);\n    }\n\n    function deleteAuthorAction(Request req) {\n        var author = Author.modelFindOne([\"id\" => req.id]);\n        if (author) {\n            Author.modelDelete([\"id\" => req.id]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Author not found\"]);\n    }\n}\n\ncontroller BookController {\n    function indexAction(Request req) {\n        return json([\"success\" => true]);\n    }\n\n    function listBooksAction(Request req) {\n        var books = Book.modelFindAll();\n        return json(books);\n    }\n\n    function showBookAction(Request req) {\n        var book = Book.modelFindOne([\"id\" => req.id]);\n        if (book) {\n            return json(book);\n        }\n        return json([\"error\" => \"Book not found\"]);\n    }\n\n    function createBookAction(Request req) {\n        var book = Book.modelCreate([\n            \"title\" => req.title,\n            \"isbn\" => req.isbn,\n            \"year\" => req.year,\n            \"Category_id\" => req.Category_id,\n            \"Publisher_id\" => req.Publisher_id,\n            \"available\" => true\n        ]);\n        return json([\"success\" => true, \"book\" => book]);\n    }\n\n    function updateBookAction(Request req) {\n        var book = Book.modelFindOne([\"id\" => req.id]);\n        if (book) {\n            Book.modelUpdate([\"id\" => req.id], [\n                \"title\" => req.title,\n                \"isbn\" => req.isbn,\n                \"year\" => req.year,\n                \"Category_id\" => req.Category_id,\n                \"Publisher_id\" => req.Publisher_id,\n                \"available\" => req.available\n            ]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Book not found\"]);\n    }\n\n    function deleteBookAction(Request req) {\n        var book = Book.modelFindOne([\"id\" => req.id]);\n        if (book) {\n            Book.modelDelete([\"id\" => req.id]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Book not found\"]);\n    }\n\n    function borrowBookAction(Request req) {\n        var book = Book.modelFindOne([\"id\" => req.bookId]);\n        if (book.available) {\n            var due = req.dueDate;\n            var record = BorrowRecord.modelCreate([\n                \"Book_id\" => book.id,\n                \"Member_id\" => req.memberId,\n                \"borrowedAt\" => req.borrowedAt,\n                \"dueDate\" => due\n            ]);\n            Book.modelUpdate([\"id\" => book.id], [\"available\" => false]);\n            return json([\"success\" => true, \"borrowId\" => record.id]);\n        } else {\n            return json([\"error\" => \"Book is currently unavailable\"]);\n        }\n    }\n\n    function returnBookAction(Request req) {\n        var record = BorrowRecord.modelFindOne([\"Book_id\" => req.bookId, \"returnedAt\" => null]);\n        if (record) {\n            var returnedTime = req.returnedAt;\n            BorrowRecord.modelUpdate([\"id\" => record.id], [\"returnedAt\" => returnedTime]);\n            Book.modelUpdate([\"id\" => req.bookId], [\"available\" => true]);\n        \n            if (returnedTime > record.dueDate) {\n                var denda = Fine.modelCreate([\n                    \"BorrowRecord_id\" => record.id,\n                    \"Member_id\" => record.Member_id,\n                    \"amount\" => 50000.00,\n                    \"isPaid\" => false\n                ]);\n                return json([\"success\" => true, \"status\" => \"returned_with_fine\", \"fineAmount\" => 50000.00]);\n            }\n            return json([\"success\" => true, \"status\" => \"returned_on_time\"]);\n        } else {\n            return json([\"error\" => \"No active borrow record found\"]);\n        }\n    }\n}\n\ncontroller AuthorBookController {\n}\n\ncontroller MemberController {\n    function listMembersAction(Request req) {\n        var members = Member.modelFindAll();\n        return json(members);\n    }\n\n    function showMemberAction(Request req) {\n        var m = Member.modelFindOne([\"id\" => req.id]);\n        if (m) {\n            return json(m);\n        }\n        return json([\"error\" => \"Member not found\"]);\n    }\n\n    function registerMemberAction(Request req) {\n        var m = Member.modelCreate([\n            \"name\" => req.name,\n            \"email\" => req.email,\n            \"phone\" => req.phone,\n            \"membershipDate\" => req.membershipDate,\n            \"status\" => \"active\"\n        ]);\n        return json([\"success\" => true, \"memberId\" => m.id]);\n    }\n\n    function updateMemberAction(Request req) {\n        var m = Member.modelFindOne([\"id\" => req.id]);\n        if (m) {\n            Member.modelUpdate([\"id\" => req.id], [\n                \"name\" => req.name,\n                \"email\" => req.email,\n                \"phone\" => req.phone,\n                \"status\" => req.status\n            ]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Member not found\"]);\n    }\n\n    function deleteMemberAction(Request req) {\n        var m = Member.modelFindOne([\"id\" => req.id]);\n        if (m) {\n            Member.modelDelete([\"id\" => req.id]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Member not found\"]);\n    }\n}\n\ncontroller BorrowRecordController {\n}\n\ncontroller ReservationController {\n    function listReservationsAction(Request req) {\n        var res = Reservation.modelFindAll();\n        return json(res);\n    }\n\n    function showReservationAction(Request req) {\n        var res = Reservation.modelFindOne([\"id\" => req.id]);\n        if (res) {\n            return json(res);\n        }\n        return json([\"error\" => \"Reservation not found\"]);\n    }\n\n    function reserveBookAction(Request req) {\n        var book = Book.modelFindOne([\"id\" => req.bookId]);\n        if (book) {\n            var res = Reservation.modelCreate([\n                \"Book_id\" => book.id,\n                \"Member_id\" => req.memberId,\n                \"reservedAt\" => req.reservedAt,\n                \"status\" => \"pending\"\n            ]);\n            return json([\"success\" => true, \"reservationId\" => res.id]);\n        }\n        return json([\"error\" => \"Book not found\"]);\n    }\n\n    function cancelReservationAction(Request req) {\n        var res = Reservation.modelFindOne([\"id\" => req.id]);\n        if (res) {\n            Reservation.modelDelete([\"id\" => req.id]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Reservation not found\"]);\n    }\n}\n\ncontroller FineController {\n    function listFinesAction(Request req) {\n        var fines = Fine.modelFindAll();\n        return json(fines);\n    }\n\n    function showFineAction(Request req) {\n        var fine = Fine.modelFindOne([\"id\" => req.id]);\n        if (fine) {\n            return json(fine);\n        }\n        return json([\"error\" => \"Fine record not found\"]);\n    }\n\n    function payFineAction(Request req) {\n        var fine = Fine.modelFindOne([\"id\" => req.fineId]);\n        if (fine) {\n            Fine.modelUpdate([\"id\" => fine.id], [\"isPaid\" => true]);\n            return json([\"success\" => true]);\n        }\n        return json([\"error\" => \"Fine record not found\"]);\n    }\n}\n\n\/\/ ================= Middleware =================\nmiddleware AuthMiddleware {\n    function handleAction(Request req) {\n        if (req.token != \"123456\") {\n            return json([\"error\" => \"Token invalid\"]);\n        }\n    }\n}\n\n\/\/ ================= Routes =================\nroute get \"\/\" -> BookController@indexAction;\nroute get \"\/books\" -> BookController@listBooksAction middleware AuthMiddleware;\nroute get \"\/books\/{id}\" -> BookController@showBookAction middleware AuthMiddleware;\nroute post \"\/books\" -> BookController@createBookAction middleware AuthMiddleware;\nroute put \"\/books\/{id}\" -> BookController@updateBookAction middleware AuthMiddleware;\nroute delete \"\/books\/{id}\" -> BookController@deleteBookAction middleware AuthMiddleware;\nroute post \"\/books\/borrow\" -> BookController@borrowBookAction middleware AuthMiddleware;\nroute post \"\/books\/return\" -> BookController@returnBookAction middleware AuthMiddleware;\nroute get \"\/categories\" -> CategoryController@listCategoriesAction;\nroute get \"\/categories\/{id}\" -> CategoryController@showCategoryAction;\nroute post \"\/categories\" -> CategoryController@createCategoryAction;\nroute put \"\/categories\/{id}\" -> CategoryController@updateCategoryAction;\nroute delete \"\/categories\/{id}\" -> CategoryController@deleteCategoryAction;\nroute get \"\/publishers\" -> PublisherController@listPublishersAction;\nroute get \"\/publishers\/{id}\" -> PublisherController@showPublisherAction;\nroute post \"\/publishers\" -> PublisherController@createPublisherAction;\nroute put \"\/publishers\/{id}\" -> PublisherController@updatePublisherAction;\nroute delete \"\/publishers\/{id}\" -> PublisherController@deletePublisherAction;\nroute get \"\/authors\" -> AuthorController@listAuthorsAction;\nroute get \"\/authors\/{id}\" -> AuthorController@showAuthorAction;\nroute post \"\/authors\" -> AuthorController@createAuthorAction;\nroute put \"\/authors\/{id}\" -> AuthorController@updateAuthorAction;\nroute delete \"\/authors\/{id}\" -> AuthorController@deleteAuthorAction;\nroute get \"\/members\" -> MemberController@listMembersAction;\nroute get \"\/members\/{id}\" -> MemberController@showMemberAction;\nroute post \"\/members\" -> MemberController@registerMemberAction;\nroute put \"\/members\/{id}\" -> MemberController@updateMemberAction;\nroute delete \"\/members\/{id}\" -> MemberController@deleteMemberAction;\nroute get \"\/reservations\" -> ReservationController@listReservationsAction middleware AuthMiddleware;\nroute get \"\/reservations\/{id}\" -> ReservationController@showReservationAction middleware AuthMiddleware;\nroute post \"\/reservations\" -> ReservationController@reserveBookAction middleware AuthMiddleware;\nroute delete \"\/reservations\/{id}\" -> ReservationController@cancelReservationAction middleware AuthMiddleware;\nroute get \"\/fines\" -> FineController@listFinesAction middleware AuthMiddleware;\nroute get \"\/fines\/{id}\" -> FineController@showFineAction middleware AuthMiddleware;\nroute post \"\/fines\/pay\" -> FineController@payFineAction middleware AuthMiddleware;\n"
 }

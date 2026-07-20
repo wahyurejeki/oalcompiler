@@ -292,19 +292,27 @@ controller BookController {
 
     function borrowBookAction(Request req) {
         var book = Book.modelFindOne(["id" => req.bookId]);
-        if (book.available) {
-            var due = req.dueDate;
-            var record = BorrowRecord.modelCreate([
-                "Book_id" => book.id,
-                "Member_id" => req.memberId,
-                "borrowedAt" => req.borrowedAt,
-                "dueDate" => due
-            ]);
-            Book.modelUpdate(["id" => book.id], ["available" => false]);
-            return json(["success" => true, "borrowId" => record.id]);
-        } else {
-            return json(["error" => "Book is currently unavailable"]);
+        if (book) {
+            if (book.available) {
+                var activeLoans = BorrowRecord.modelCount(["Member_id" => req.memberId, "returnedAt" => null]);
+                if (activeLoans >= 3) {
+                    return json(["error" => "Member has reached the maximum borrowing limit of 3 books"]);
+                }
+
+                var due = req.dueDate;
+                var record = BorrowRecord.modelCreate([
+                    "Book_id" => book.id,
+                    "Member_id" => req.memberId,
+                    "borrowedAt" => req.borrowedAt,
+                    "dueDate" => due
+                ]);
+                Book.modelUpdate(["id" => book.id], ["available" => false]);
+                return json(["success" => true, "borrowId" => record.id]);
+            } else {
+                return json(["error" => "Book is currently unavailable"]);
+            }
         }
+        return json(["error" => "Book not found"]);
     }
 
     function returnBookAction(Request req) {
