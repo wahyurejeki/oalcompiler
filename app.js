@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const oalCodeHighlight = document.getElementById('oal-code-highlight');
     const compilerConsoleLog = document.getElementById('compiler-console-log');
     const compilerStatusBadge = document.getElementById('compiler-status-badge');
-    const btnSave = document.getElementById('btn-save');
     const btnCompile = document.getElementById('btn-compile');
     const btnLoadSample = document.getElementById('btn-load-sample');
     const btnCopyOal = document.getElementById('btn-copy-oal');
@@ -427,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Save & Compile Events
-    btnSave.addEventListener('click', saveDiagram);
     btnCompile.addEventListener('click', compileDiagram);
     btnLoadSample.addEventListener('click', () => {
         Swal.fire({
@@ -1787,6 +1785,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         oalCodePreview.value = code;
         updateHighlight();
+
+        // Auto-save state to localStorage to prevent losing work and avoid server burden
+        localStorage.setItem('oal_diagram_state', JSON.stringify({
+            models: state.models,
+            routes: state.routes,
+            middlewares: state.middlewares,
+            controllers: state.controllers
+        }));
     }
 
     // === Import & Export Logic ===
@@ -1885,49 +1891,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // === API Backend Integration ===
-    
-    function saveDiagram() {
-        const payload = {
-            models: state.models,
-            routes: state.routes,
-            middlewares: state.middlewares,
-            controllers: state.controllers,
-            oal_code: oalCodePreview.value
-        };
-
-        fetch('api.php?action=save', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    title: 'Saved!',
-                    text: 'Diagram state and OAL file saved successfully!',
-                    icon: 'success',
-                    confirmButtonColor: '#4f46e5'
-                });
-            } else {
-                Swal.fire({
-                    title: 'Save Failed',
-                    text: 'Failed to save diagram: ' + data.error,
-                    icon: 'error',
-                    confirmButtonColor: '#4f46e5'
-                });
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            Swal.fire({
-                title: 'Connection Error',
-                text: 'Error connecting to backend API.',
-                icon: 'error',
-                confirmButtonColor: '#4f46e5'
-            });
-        });
-    }
 
     function compileDiagram() {
         compilerStatusBadge.textContent = 'Running';
@@ -2428,10 +2391,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === Startup Initialization ===
     
-    // Attempt to load previously saved diagram
-    fetch('api.php?action=load')
-        .then(res => res.json())
-        .then(data => {
+    // Attempt to load previously saved diagram from localStorage first
+    const savedState = localStorage.getItem('oal_diagram_state');
+    if (savedState) {
+        try {
+            const data = JSON.parse(savedState);
             if (data.models && data.models.length > 0) {
                 state = data;
                 state.models.forEach(m => renderModelNode(m));
@@ -2442,14 +2406,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 100);
                 generateOAL();
             } else {
-                // If empty, keep it empty
                 generateOAL();
             }
-        })
-        .catch(err => {
-            console.warn('Failed to load saved state.', err);
-            generateOAL();
-        });
+        } catch (e) {
+            console.warn('Failed to parse local storage state, falling back to server.', e);
+            loadSavedStateFromServer();
+        }
+    } else {
+        loadSavedStateFromServer();
+    }
+
+    function loadSavedStateFromServer() {
+        fetch('api.php?action=load')
+            .then(res => res.json())
+            .then(data => {
+                if (data.models && data.models.length > 0) {
+                    state = data;
+                    state.models.forEach(m => renderModelNode(m));
+                    renderMiddlewares();
+                    renderRoutesTable();
+                    setTimeout(() => {
+                        updateLines();
+                    }, 100);
+                    generateOAL();
+                } else {
+                    generateOAL();
+                }
+            })
+            .catch(err => {
+                console.warn('Failed to load saved state from server.', err);
+                generateOAL();
+            });
+    }
 
     // === Context Menu Helper Functions ===
     function showContextMenu(e, items) {

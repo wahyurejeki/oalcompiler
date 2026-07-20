@@ -27,30 +27,7 @@ switch ($action) {
         }
         break;
 
-    case 'save':
-        $input = json_decode(file_get_contents('php://input'), true);
-        if (!$input) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Invalid JSON input']);
-            exit;
-        }
 
-        // Save diagram state
-        file_put_contents($diagramFile, json_encode($input, JSON_PRETTY_PRINT));
-
-        // Save generated OAL text
-        $oalCode = $input['oal_code'] ?? '';
-        if ($oalCode) {
-            // Ensure examples directory exists
-            $examplesDir = __DIR__ . '/examples';
-            if (!is_dir($examplesDir)) {
-                mkdir($examplesDir, 0755, true);
-            }
-            file_put_contents($oalFile, $oalCode);
-        }
-
-        echo json_encode(['success' => true, 'message' => 'Diagram saved successfully']);
-        break;
 
     case 'compile':
         $input = json_decode(file_get_contents('php://input'), true);
