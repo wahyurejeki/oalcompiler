@@ -204,6 +204,11 @@ EOD;
             }
         }
 
+        // Clean up the temporary generated .oal file
+        if (file_exists($oalFile)) {
+            @unlink($oalFile);
+        }
+
         echo json_encode([
             'success' => $success,
             'code' => $returnVar,
