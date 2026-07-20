@@ -131,7 +131,6 @@ PHP;
     private function generateMigration($modelName, $modelBody)
     {
         $tableName = strtolower($this->pluralize($modelName));
-        $className = 'Create' . ucfirst($this->pluralize($modelName)) . 'Table';
         $fields = [];
         $declaredFields = [];
 
@@ -195,7 +194,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class $className extends Migration
+return new class extends Migration
 {
     public function up(): void
     {
