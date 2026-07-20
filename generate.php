@@ -156,7 +156,7 @@ TEXT;
     echo "Formatting code with Prettier...\n";
     exec("cd $dirPathOutput && npx prettier --write . --ignore-path .prettierignore");
 
-    echo "Generated Express.js code to $dirPathOutput\n";
+    echo "Generated Express.js code successfully\n";
     exit;
 }
 
@@ -337,9 +337,9 @@ if (!empty($requirements)) {
     }
 }
 
-echo "Prettier code $dirPathOutput \n";
+echo "Formatting generated Laravel code...\n";
 exec("composer format $dirPathOutput");
-echo "Generated Laravel PHP code to output directory \n";
+echo "Generated Laravel PHP code successfully\n";
 
 function generateDatabaseSeeder($modelMetadata) {
     // 1. Separate models into Independent (A) and Dependent (B)
