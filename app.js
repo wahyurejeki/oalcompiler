@@ -881,6 +881,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        node.appendChild(anchor);
+
         // Right-click context menu on Model Card
         node.addEventListener('contextmenu', (e) => {
             e.preventDefault();
