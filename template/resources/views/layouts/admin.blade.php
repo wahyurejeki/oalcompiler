@@ -33,7 +33,19 @@
             <div class="sidebar-heading">Modules</div>
 <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-fw fa-link"></i><span>Dashboard</span></a></li>
 <li class="nav-item"><a class="nav-link" href="/books"><i class="fas fa-fw fa-link"></i><span>Books</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/books/{id}"><i class="fas fa-fw fa-link"></i><span>Books/{id}</span></a></li>
 <li class="nav-item"><a class="nav-link" href="/categories"><i class="fas fa-fw fa-link"></i><span>Categories</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/categories/{id}"><i class="fas fa-fw fa-link"></i><span>Categories/{id}</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/publishers"><i class="fas fa-fw fa-link"></i><span>Publishers</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/publishers/{id}"><i class="fas fa-fw fa-link"></i><span>Publishers/{id}</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/authors"><i class="fas fa-fw fa-link"></i><span>Authors</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/authors/{id}"><i class="fas fa-fw fa-link"></i><span>Authors/{id}</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/members"><i class="fas fa-fw fa-link"></i><span>Members</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/members/{id}"><i class="fas fa-fw fa-link"></i><span>Members/{id}</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/reservations"><i class="fas fa-fw fa-link"></i><span>Reservations</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/reservations/{id}"><i class="fas fa-fw fa-link"></i><span>Reservations/{id}</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/fines"><i class="fas fa-fw fa-link"></i><span>Fines</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/fines/{id}"><i class="fas fa-fw fa-link"></i><span>Fines/{id}</span></a></li>
 
         </ul>
         <div id="content-wrapper" class="d-flex flex-column">
