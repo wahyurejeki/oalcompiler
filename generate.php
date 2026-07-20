@@ -398,46 +398,64 @@ function generateDatabaseSeeder($modelMetadata) {
                 $fkResolutions[] = "            \$" . $varName . " = \\App\\Models\\$relatedModelClass::query()->inRandomOrder()->first();";
                 $dataAssignments[] = "                '$fieldName' => \$" . $varName . " ? \$" . $varName . "->id : null,";
             } else {
-                // Standard attribute seeding
+                // Semantic dictionaries for realistic and context-aware seeding (e.g. Library Theme)
+                $lowerModel = strtolower($modelName);
+                $lowerField = strtolower($fieldName);
                 $valStr = "";
-                switch (strtolower($fieldType)) {
-                    case 'boolean':
-                        $valStr = "rand(0, 1) == 1";
-                        break;
-                    case 'integer':
-                    case 'biginteger':
-                        if (stripos($fieldName, 'year') !== false) {
-                            $valStr = "rand(2000, 2026)";
-                        } else {
-                            $valStr = "rand(1, 100)";
-                        }
-                        break;
-                    case 'decimal':
-                    case 'float':
-                    case 'double':
-                        $valStr = "rand(10, 1000) . '.50'";
-                        break;
-                    case 'date':
-                        $valStr = "now()->subDays(rand(1, 365))->format('Y-m-d')";
-                        break;
-                    case 'datetime':
-                    case 'timestamp':
-                        $valStr = "now()->subDays(rand(1, 365))->subHours(rand(1, 24))";
-                        break;
-                    case 'text':
-                        $valStr = "'Lorem ipsum dolor sit amet text description for ' . '$fieldName' . ' demo ' . \$i";
-                        break;
-                    default: // string
-                        if (strtolower($fieldName) === 'name') {
-                            $valStr = "'Demo Name ' . \$i";
-                        } elseif (strtolower($fieldName) === 'email') {
-                            $valStr = "'email.' . \$i . '@example.com'";
-                        } elseif (strtolower($fieldName) === 'phone') {
-                            $valStr = "'08' . rand(100000000, 999999999)";
-                        } else {
-                            $valStr = "'Demo ' . '$fieldName' . ' ' . \$i";
-                        }
-                        break;
+
+                if ($lowerModel === 'category' && $lowerField === 'name') {
+                    $valStr = "[\"Novel & Fiksi\", \"Komputer & Pemrograman\", \"Sains & Teknologi\", \"Sejarah & Budaya\", \"Filsafat & Agama\", \"Biografi & Otobiografi\", \"Sastra & Bahasa\", \"Komik & Manga\"][(\$i - 1) % 8]";
+                } elseif ($lowerModel === 'publisher' && $lowerField === 'name') {
+                    $valStr = "[\"Gramedia Pustaka Utama\", \"Elex Media Komputindo\", \"Mizan Publishing\", \"Penerbit Andi\", \"Bentang Pustaka\", \"Republika Penerbit\"][(\$i - 1) % 6]";
+                } elseif ($lowerModel === 'author' && $lowerField === 'name') {
+                    $valStr = "[\"Andrea Hirata\", \"Tere Liye\", \"Pramoedya Ananta Toer\", \"Dee Lestari\", \"Eka Kurniawan\", \"Habiburrahman El Shirazy\", \"Sapardi Djoko Damono\"][(\$i - 1) % 7]";
+                } elseif ($lowerModel === 'book' && $lowerField === 'title') {
+                    $valStr = "[\"Laskar Pelangi\", \"Bumi Manusia\", \"Perahu Kertas\", \"Cantik itu Luka\", \"Negeri 5 Menara\", \"Belajar Laravel 11\", \"Dasar-Dasar Database MySQL\", \"Clean Code dan Arsitektur Clean\", \"Kosmos\", \"Sejarah Singkat Waktu\"][(\$i - 1) % 10]";
+                } elseif (($lowerModel === 'member' || $lowerModel === 'user' || $lowerModel === 'customer') && $lowerField === 'name') {
+                    $valStr = "[\"Ahmad Fauzi\", \"Siti Aminah\", \"Budi Santoso\", \"Dewi Lestari\", \"Rian Hidayat\", \"Indah Permata\", \"Rizky Pratama\", \"Santi Wijaya\", \"Eko Prasetyo\", \"Mega Utami\"][(\$i - 1) % 10]";
+                } elseif ($lowerField === 'email' && ($lowerModel === 'member' || $lowerModel === 'user' || $lowerModel === 'customer')) {
+                    $valStr = "[\"ahmad.fauzi\", \"siti.aminah\", \"budi.santoso\", \"dewi.lestari\", \"rian.hidayat\", \"indah.permata\", \"rizky.pratama\", \"santi.wijaya\", \"eko.prasetyo\", \"mega.utami\"][(\$i - 1) % 10] . \$i . '@example.com'";
+                } else {
+                    // Fallback to standard type-based generation
+                    switch (strtolower($fieldType)) {
+                        case 'boolean':
+                            $valStr = "rand(0, 1) == 1";
+                            break;
+                        case 'integer':
+                        case 'biginteger':
+                            if (stripos($fieldName, 'year') !== false) {
+                                $valStr = "rand(2000, 2026)";
+                            } else {
+                                $valStr = "rand(1, 100)";
+                            }
+                            break;
+                        case 'decimal':
+                        case 'float':
+                        case 'double':
+                            $valStr = "rand(10, 1000) . '.50'";
+                            break;
+                        case 'date':
+                            $valStr = "now()->subDays(rand(1, 365))->format('Y-m-d')";
+                            break;
+                        case 'datetime':
+                        case 'timestamp':
+                            $valStr = "now()->subDays(rand(1, 365))->subHours(rand(1, 24))";
+                            break;
+                        case 'text':
+                            $valStr = "'Lorem ipsum dolor sit amet text description for ' . '$fieldName' . ' demo ' . \$i";
+                            break;
+                        default: // string
+                            if (strtolower($fieldName) === 'name') {
+                                $valStr = "'Demo Name ' . \$i";
+                            } elseif (strtolower($fieldName) === 'email') {
+                                $valStr = "'email.' . \$i . '@example.com'";
+                            } elseif (strtolower($fieldName) === 'phone') {
+                                $valStr = "'08' . rand(100000000, 999999999)";
+                            } else {
+                                $valStr = "'Demo ' . '$fieldName' . ' ' . \$i";
+                            }
+                            break;
+                    }
                 }
                 $dataAssignments[] = "                '$fieldName' => $valStr,";
             }
