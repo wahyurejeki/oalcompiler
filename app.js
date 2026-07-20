@@ -2409,34 +2409,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 generateOAL();
             }
         } catch (e) {
-            console.warn('Failed to parse local storage state, falling back to server.', e);
-            loadSavedStateFromServer();
+            console.warn('Failed to parse local storage state.', e);
+            generateOAL();
         }
     } else {
-        loadSavedStateFromServer();
-    }
-
-    function loadSavedStateFromServer() {
-        fetch('api.php?action=load')
-            .then(res => res.json())
-            .then(data => {
-                if (data.models && data.models.length > 0) {
-                    state = data;
-                    state.models.forEach(m => renderModelNode(m));
-                    renderMiddlewares();
-                    renderRoutesTable();
-                    setTimeout(() => {
-                        updateLines();
-                    }, 100);
-                    generateOAL();
-                } else {
-                    generateOAL();
-                }
-            })
-            .catch(err => {
-                console.warn('Failed to load saved state from server.', err);
-                generateOAL();
-            });
+        // Start with a clean blank canvas on fresh visits
+        generateOAL();
     }
 
     // === Context Menu Helper Functions ===

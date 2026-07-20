@@ -14,18 +14,7 @@ $oalFile = __DIR__ . '/examples/generated.oal';
 $action = $_GET['action'] ?? '';
 
 switch ($action) {
-    case 'load':
-        if (file_exists($diagramFile)) {
-            $data = file_get_contents($diagramFile);
-            echo $data;
-        } else {
-            echo json_encode([
-                'models' => [],
-                'routes' => [],
-                'middlewares' => []
-            ]);
-        }
-        break;
+
 
 
 
