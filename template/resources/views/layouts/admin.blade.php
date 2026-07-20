@@ -33,6 +33,7 @@
             <div class="sidebar-heading">Modules</div>
 <li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-fw fa-link"></i><span>Dashboard</span></a></li>
 <li class="nav-item"><a class="nav-link" href="/books"><i class="fas fa-fw fa-link"></i><span>Books</span></a></li>
+<li class="nav-item"><a class="nav-link" href="/categories"><i class="fas fa-fw fa-link"></i><span>Categories</span></a></li>
 
         </ul>
         <div id="content-wrapper" class="d-flex flex-column">
