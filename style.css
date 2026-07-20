@@ -407,7 +407,7 @@ aside {
     box-shadow: var(--shadow-lg);
     z-index: 5;
     user-select: none;
-    overflow: hidden;
+    overflow: visible;
     transition: box-shadow 0.2s, border-color 0.2s;
 }
 
@@ -429,6 +429,8 @@ aside {
     justify-content: space-between;
     align-items: center;
     cursor: move;
+    border-top-left-radius: calc(var(--radius-lg) - 2px);
+    border-top-right-radius: calc(var(--radius-lg) - 2px);
 }
 
 .model-header h4 {
@@ -1114,6 +1116,8 @@ aside {
     display: flex;
     gap: 6px;
     background-color: rgba(0,0,0,0.22);
+    border-bottom-left-radius: calc(var(--radius-lg) - 2px);
+    border-bottom-right-radius: calc(var(--radius-lg) - 2px);
 }
 
 .node-add-method input {
