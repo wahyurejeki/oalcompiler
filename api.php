@@ -189,6 +189,11 @@ EOD;
 
             file_put_contents($panduanFile, $panduanContent);
 
+            // Write postman_collection.json to template/postman_collection.json
+            $postmanFile = $projectRoot . '/template/postman_collection.json';
+            $postmanContent = generatePostmanCollection($input['routes'] ?? []);
+            file_put_contents($postmanFile, $postmanContent);
+
             // Zip the template directory excluding vendor/node_modules/.git
             $zipDestination = $projectRoot . '/project_laravel.zip';
             if (file_exists($zipDestination)) {
@@ -254,4 +259,97 @@ function zipDir($source, $destination) {
     }
 
     return $zip->close();
+}
+
+function generatePostmanCollection($routes) {
+    $items = [];
+    foreach ($routes as $route) {
+        $method = strtoupper($route['method'] ?? 'GET');
+        $path = $route['path'] ?? '/';
+        $cleanPath = ltrim($path, '/');
+        
+        $headers = [
+            [
+                'key' => 'Content-Type',
+                'value' => 'application/json',
+                'type' => 'text'
+            ]
+        ];
+
+        // Autodetect authentication middlewares to pre-configure tokens
+        $authMiddlewareActive = false;
+        $mwList = $route['middlewares'] ?? [];
+        foreach ($mwList as $mwName) {
+            if (stripos($mwName, 'auth') !== false) {
+                $authMiddlewareActive = true;
+                break;
+            }
+        }
+
+        if ($authMiddlewareActive) {
+            $headers[] = [
+                'key' => 'X-API-Key',
+                'value' => 'secret123',
+                'type' => 'text',
+                'description' => 'Pre-configured API Auth Token'
+            ];
+            $headers[] = [
+                'key' => 'token',
+                'value' => '123456',
+                'type' => 'text',
+                'description' => 'Token preset for default AuthMiddleware'
+            ];
+        }
+
+        // For POST/PUT, add a placeholder raw JSON body
+        $body = null;
+        if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
+            $body = [
+                'mode' => 'raw',
+                'raw' => "{\n    \"example_field\": \"example_value\"\n}",
+                'options' => [
+                    'raw' => [
+                        'language' => 'json'
+                    ]
+                ]
+            ];
+        }
+
+        // Parse path parts for Postman format
+        $pathParts = explode('/', $cleanPath);
+
+        $items[] = [
+            'name' => "$method $path",
+            'request' => array_filter([
+                'method' => $method,
+                'header' => $headers,
+                'body' => $body,
+                'url' => [
+                    'raw' => '{{base_url}}/' . $cleanPath,
+                    'host' => ['{{base_url}}'],
+                    'path' => $pathParts
+                ]
+            ]),
+            'response' => []
+        ];
+    }
+
+    $collection = [
+        'info' => [
+            '_postman_id' => uniqid(),
+            'name' => 'OAL Generated Laravel API',
+            'description' => 'Collection generated automatically by OAL Editor for local endpoint testing.',
+            'schema' => 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json'
+        ],
+        'item' => $items,
+        'variable' => [
+            [
+                'key' => 'base_url',
+                'value' => 'http://127.0.0.1:8000',
+                'type' => 'string'
+            ]
+        ]
+    ];
+
+    return json_encode($collection, JSON_PRETTY_PRINT);
 }
