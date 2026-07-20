@@ -157,11 +157,12 @@ php artisan key:generate
    ```
    *(Sesuaikan `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` sesuai server database lokal Anda).*
 
-3. **Jalankan Migrasi Database**:
-   Untuk membuat tabel database beserta kolom dan relasinya sesuai dengan model OAL yang telah Anda rancang, jalankan perintah berikut:
+3. **Jalankan Migrasi & Seeder Database**:
+   Untuk membuat tabel database beserta kolom, relasi, dan data uji coba (dummy) otomatis sesuai skema OAL Anda, jalankan perintah berikut:
    ```bash
-   php artisan migrate
+   php artisan migrate --seed
    ```
+   *(Catatan: DatabaseSeeder telah di-generate secara dinamis untuk mengisi data awal pada tabel independen maupun tabel relasi asing secara aman).*
 
 ---
 

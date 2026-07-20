@@ -292,6 +292,13 @@ foreach ($middleware->getMiddlewares() as $name => $code) {
 $dirPathRouteName = $dirPathRoute . '/web.php';
 file_put_contents($dirPathRouteName, $route->getRoutes());
 
+// Generate dynamic DatabaseSeeder.php
+$seederDir = $dirPathOutput . "/database/seeders";
+if (!is_dir($seederDir)) {
+    mkdir($seederDir, 0755, true);
+}
+file_put_contents($seederDir . "/DatabaseSeeder.php", generateDatabaseSeeder($model->getModelMetadata()));
+
 foreach ($testCompiler->getTests() as $name => $code) {
     if (!is_dir($dirPathTests)) mkdir($dirPathTests, 0755, true);
     file_put_contents($dirPathTests . "/$name.php", $code);
@@ -325,3 +332,136 @@ if (!empty($requirements)) {
 echo "Prettier code $dirPathOutput \n";
 exec("composer format $dirPathOutput");
 echo "Generated Laravel PHP code to output directory \n";
+
+function generateDatabaseSeeder($modelMetadata) {
+    // 1. Separate models into Independent (A) and Dependent (B)
+    $independent = [];
+    $dependent = [];
+
+    foreach ($modelMetadata as $modelName => $fields) {
+        $hasForeignKey = false;
+        foreach (array_keys($fields) as $field) {
+            if ($field !== 'id' && str_ends_with(strtolower($field), '_id')) {
+                $hasForeignKey = true;
+                break;
+            }
+        }
+        if ($hasForeignKey) {
+            $dependent[$modelName] = $fields;
+        } else {
+            $independent[$modelName] = $fields;
+        }
+    }
+
+    $seederLines = [];
+    $seederLines[] = "<?php\n";
+    $seederLines[] = "namespace Database\Seeders;\n";
+    $seederLines[] = "use Illuminate\Database\Seeder;";
+    
+    // Import all models
+    foreach (array_keys($modelMetadata) as $modelName) {
+        $seederLines[] = "use App\Models\\$modelName;";
+    }
+    
+    $seederLines[] = "\nclass DatabaseSeeder extends Seeder\n{";
+    $seederLines[] = "    public function run(): void\n    {";
+
+    // Helper to generate seed code for a model
+    $writeSeedCode = function($modelName, $fields) {
+        $code = [];
+        $code[] = "        // Seed $modelName";
+        $code[] = "        for (\$i = 1; \$i <= 10; \$i++) {";
+        
+        // Resolve foreign keys
+        $fkResolutions = [];
+        $dataAssignments = [];
+        
+        foreach ($fields as $fieldName => $fieldType) {
+            if ($fieldName === 'id') continue; // auto-increment
+            
+            // Check if foreign key
+            if (str_ends_with(strtolower($fieldName), '_id')) {
+                // Infer related model name (e.g. Category_id -> Category)
+                $relatedModel = substr($fieldName, 0, -3); // remove _id
+                // capitalize correctly to match model name (e.g. category -> Category)
+                $relatedModelClass = ucfirst($relatedModel);
+                
+                $varName = lcfirst($relatedModelClass);
+                $fkResolutions[] = "            \$" . $varName . " = \\App\\Models\\$relatedModelClass::query()->inRandomOrder()->first();";
+                $dataAssignments[] = "                '$fieldName' => \$" . $varName . " ? \$" . $varName . "->id : null,";
+            } else {
+                // Standard attribute seeding
+                $valStr = "";
+                switch (strtolower($fieldType)) {
+                    case 'boolean':
+                        $valStr = "rand(0, 1) == 1";
+                        break;
+                    case 'integer':
+                    case 'biginteger':
+                        if (stripos($fieldName, 'year') !== false) {
+                            $valStr = "rand(2000, 2026)";
+                        } else {
+                            $valStr = "rand(1, 100)";
+                        }
+                        break;
+                    case 'decimal':
+                    case 'float':
+                    case 'double':
+                        $valStr = "rand(10, 1000) . '.50'";
+                        break;
+                    case 'date':
+                        $valStr = "now()->subDays(rand(1, 365))->format('Y-m-d')";
+                        break;
+                    case 'datetime':
+                    case 'timestamp':
+                        $valStr = "now()->subDays(rand(1, 365))->subHours(rand(1, 24))";
+                        break;
+                    case 'text':
+                        $valStr = "'Lorem ipsum dolor sit amet text description for ' . '$fieldName' . ' demo ' . \$i";
+                        break;
+                    default: // string
+                        if (strtolower($fieldName) === 'name') {
+                            $valStr = "'Demo Name ' . \$i";
+                        } elseif (strtolower($fieldName) === 'email') {
+                            $valStr = "'email.' . \$i . '@example.com'";
+                        } elseif (strtolower($fieldName) === 'phone') {
+                            $valStr = "'08' . rand(100000000, 999999999)";
+                        } else {
+                            $valStr = "'Demo ' . '$fieldName' . ' ' . \$i";
+                        }
+                        break;
+                }
+                $dataAssignments[] = "                '$fieldName' => $valStr,";
+            }
+        }
+
+        $fkResolutions = array_unique($fkResolutions);
+        foreach ($fkResolutions as $line) {
+            $code[] = $line;
+        }
+
+        $code[] = "            $modelName::create([";
+        foreach ($dataAssignments as $line) {
+            $code[] = $line;
+        }
+        $code[] = "            ]);";
+        $code[] = "        }\n";
+        
+        return implode("\n", $code);
+    };
+
+    // Seed independent models first
+    foreach ($independent as $modelName => $fields) {
+        $seederLines[] = $writeSeedCode($modelName, $fields);
+    }
+
+    // Seed dependent models next
+    foreach ($dependent as $modelName => $fields) {
+        $seederLines[] = $writeSeedCode($modelName, $fields);
+    }
+
+    $seederLines[] = "    }";
+    $seederLines[] = "}";
+
+    return implode("\n", $seederLines);
+}
