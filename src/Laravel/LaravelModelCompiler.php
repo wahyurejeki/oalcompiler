@@ -32,7 +32,16 @@ class LaravelModelCompiler extends OALBaseVisitor
                 $related = $relCtx->getChild(1)->getText();
                 if ($relType === 'belongsTo') {
                     $fkName = lcfirst($related) . '_id';
-                    $metadata[$fkName] = 'integer';
+                    $exists = false;
+                    foreach (array_keys($metadata) as $existingField) {
+                        if (strtolower($existingField) === strtolower($fkName)) {
+                            $exists = true;
+                            break;
+                        }
+                    }
+                    if (!$exists) {
+                        $metadata[$fkName] = 'integer';
+                    }
                 }
                 $relations[] = $this->visit($body->relation());
             }
