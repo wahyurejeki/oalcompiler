@@ -388,7 +388,7 @@ PHP;
         
         if (!isset($this->modelMetadata[$modelGuess])) {
             foreach ($this->modelMetadata as $mName => $meta) {
-                if (strtolower($mName) === strtolower($modelGuess) || strtolower($mName) . 's' === strtolower($folderName)) {
+                if (strtolower($mName) === strtolower($modelGuess) || strtolower($this->pluralize($mName)) === strtolower($folderName)) {
                     $modelGuess = $mName;
                     break;
                 }

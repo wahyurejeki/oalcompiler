@@ -48,7 +48,7 @@ class ExpressModelCompiler extends OALBaseVisitor
         }
 
         $fieldsCode = implode(",\n", $fields);
-        $tableName = strtolower($modelName) . 's';
+        $tableName = strtolower($this->pluralize($modelName));
 
         $modelCode = <<<JS
 const { DataTypes } = require('sequelize');

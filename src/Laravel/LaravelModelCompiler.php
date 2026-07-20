@@ -43,7 +43,7 @@ class LaravelModelCompiler extends OALBaseVisitor
         $fieldsCode = implode("\n    ", $fields);
         $relationsCode = implode("\n\n    ", $relations);
 
-        $tableName = strtolower($modelName) . 's';
+        $tableName = strtolower($this->pluralize($modelName));
 
         $modelCode = <<<PHP
 <?php
@@ -130,8 +130,8 @@ PHP;
 
     private function generateMigration($modelName, $modelBody)
     {
-        $tableName = strtolower($modelName) . 's';
-        $className = 'Create'.$modelName.'sTable';
+        $tableName = strtolower($this->pluralize($modelName));
+        $className = 'Create' . ucfirst($this->pluralize($modelName)) . 'Table';
         $fields = [];
         $declaredFields = [];
 

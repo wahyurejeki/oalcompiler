@@ -423,7 +423,7 @@ PHP;
             $testCode .= "        \$response->assertStatus(200);\n";
 
             if (isset($this->modelMetadata[$mainModel]) && (str_contains($methodName, 'create') || str_contains($methodName, 'store'))) {
-                $tableName = strtolower($mainModel) . 's';
+                $tableName = strtolower($this->pluralize($mainModel));
                 $testCode .= "        \$this->assertDatabaseHas('{$tableName}', [\n";
                 foreach ($postData as $key => $val) {
                     if (is_string($val) && str_starts_with($val, 'DEPENDENCY_')) {
