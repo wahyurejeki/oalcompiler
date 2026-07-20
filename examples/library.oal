@@ -454,42 +454,42 @@ middleware AuthMiddleware {
 // ================= Routes =================
 route get "/" -> BookController@indexAction;
 route get "/books" -> BookController@listBooksAction middleware AuthMiddleware;
-route get "/books/detail" -> BookController@showBookAction middleware AuthMiddleware;
+route get "/books/{id}" -> BookController@showBookAction middleware AuthMiddleware;
 route post "/books" -> BookController@createBookAction middleware AuthMiddleware;
-route put "/books" -> BookController@updateBookAction middleware AuthMiddleware;
-route delete "/books" -> BookController@deleteBookAction middleware AuthMiddleware;
+route put "/books/{id}" -> BookController@updateBookAction middleware AuthMiddleware;
+route delete "/books/{id}" -> BookController@deleteBookAction middleware AuthMiddleware;
 route post "/books/borrow" -> BookController@borrowBookAction middleware AuthMiddleware;
 route post "/books/return" -> BookController@returnBookAction middleware AuthMiddleware;
 
 route get "/categories" -> CategoryController@listCategoriesAction;
-route get "/categories/detail" -> CategoryController@showCategoryAction;
+route get "/categories/{id}" -> CategoryController@showCategoryAction;
 route post "/categories" -> CategoryController@createCategoryAction;
-route put "/categories" -> CategoryController@updateCategoryAction;
-route delete "/categories" -> CategoryController@deleteCategoryAction;
+route put "/categories/{id}" -> CategoryController@updateCategoryAction;
+route delete "/categories/{id}" -> CategoryController@deleteCategoryAction;
 
 route get "/publishers" -> PublisherController@listPublishersAction;
-route get "/publishers/detail" -> PublisherController@showPublisherAction;
+route get "/publishers/{id}" -> PublisherController@showPublisherAction;
 route post "/publishers" -> PublisherController@createPublisherAction;
-route put "/publishers" -> PublisherController@updatePublisherAction;
-route delete "/publishers" -> PublisherController@deletePublisherAction;
+route put "/publishers/{id}" -> PublisherController@updatePublisherAction;
+route delete "/publishers/{id}" -> PublisherController@deletePublisherAction;
 
 route get "/authors" -> AuthorController@listAuthorsAction;
-route get "/authors/detail" -> AuthorController@showAuthorAction;
+route get "/authors/{id}" -> AuthorController@showAuthorAction;
 route post "/authors" -> AuthorController@createAuthorAction;
-route put "/authors" -> AuthorController@updateAuthorAction;
-route delete "/authors" -> AuthorController@deleteAuthorAction;
+route put "/authors/{id}" -> AuthorController@updateAuthorAction;
+route delete "/authors/{id}" -> AuthorController@deleteAuthorAction;
 
 route get "/members" -> MemberController@listMembersAction;
-route get "/members/detail" -> MemberController@showMemberAction;
+route get "/members/{id}" -> MemberController@showMemberAction;
 route post "/members" -> MemberController@registerMemberAction;
-route put "/members" -> MemberController@updateMemberAction;
-route delete "/members" -> MemberController@deleteMemberAction;
+route put "/members/{id}" -> MemberController@updateMemberAction;
+route delete "/members/{id}" -> MemberController@deleteMemberAction;
 
 route get "/reservations" -> ReservationController@listReservationsAction middleware AuthMiddleware;
-route get "/reservations/detail" -> ReservationController@showReservationAction middleware AuthMiddleware;
+route get "/reservations/{id}" -> ReservationController@showReservationAction middleware AuthMiddleware;
 route post "/reservations" -> ReservationController@reserveBookAction middleware AuthMiddleware;
-route delete "/reservations" -> ReservationController@cancelReservationAction middleware AuthMiddleware;
+route delete "/reservations/{id}" -> ReservationController@cancelReservationAction middleware AuthMiddleware;
 
 route get "/fines" -> FineController@listFinesAction middleware AuthMiddleware;
-route get "/fines/detail" -> FineController@showFineAction middleware AuthMiddleware;
+route get "/fines/{id}" -> FineController@showFineAction middleware AuthMiddleware;
 route post "/fines/pay" -> FineController@payFineAction middleware AuthMiddleware;
