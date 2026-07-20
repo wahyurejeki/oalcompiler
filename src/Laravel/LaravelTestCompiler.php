@@ -213,7 +213,7 @@ PHP;
     private function generateSeedingCodeInline($modelName, $varName, $postData, $seededVars = [])
     {
         $fields = $this->modelMetadata[$modelName] ?? [];
-        $code = "        {$varName} = new \\App\Models\\{$modelName}();\n";
+        $code = "        {$varName} = new {$modelName}();\n";
 
         foreach ($fields as $fieldName => $fieldType) {
             if ($fieldName === 'id') {
