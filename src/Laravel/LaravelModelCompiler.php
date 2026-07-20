@@ -210,7 +210,9 @@ return new class extends Migration
 };
 PHP;
 
-        $filename = date('Y_m_d_His') . "_create_{$tableName}_table.php";
+        $index = count($this->migrations) + 1;
+        $seconds = sprintf('%06d', $index);
+        $filename = "2026_01_01_{$seconds}_create_{$tableName}_table.php";
         $this->migrations[$filename] = $migrationCode;
     }
 
