@@ -1610,9 +1610,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const dropdown = document.createElement('div');
             dropdown.className = 'mw-checkbox-dropdown';
-            dropdown.textContent = route.middlewares.length > 0 
+            
+            const dropdownLabel = document.createElement('span');
+            dropdownLabel.className = 'mw-dropdown-label';
+            dropdownLabel.textContent = route.middlewares.length > 0 
                 ? `${route.middlewares.length} active`
                 : 'None';
+            dropdown.appendChild(dropdownLabel);
             
             const dropdownMenu = document.createElement('div');
             dropdownMenu.className = 'mw-dropdown-menu';
@@ -1635,7 +1639,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         } else {
                             route.middlewares = route.middlewares.filter(m => m !== mw.name);
                         }
-                        dropdown.textContent = route.middlewares.length > 0 
+                        dropdownLabel.textContent = route.middlewares.length > 0 
                             ? `${route.middlewares.length} active`
                             : 'None';
                         generateOAL();
