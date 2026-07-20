@@ -104,6 +104,135 @@ controller CategoryController {
         var cats = Category.modelFindAll();
         return json(cats);
     }
+
+    function showCategoryAction(Request req) {
+        var cat = Category.modelFindOne(["id" => req.id]);
+        if (cat) {
+            return json(cat);
+        }
+        return json(["error" => "Category not found"]);
+    }
+
+    function createCategoryAction(Request req) {
+        var cat = Category.modelCreate([
+            "name" => req.name,
+            "description" => req.description
+        ]);
+        return json(["success" => true, "category" => cat]);
+    }
+
+    function updateCategoryAction(Request req) {
+        var cat = Category.modelFindOne(["id" => req.id]);
+        if (cat) {
+            Category.modelUpdate(["id" => req.id], [
+                "name" => req.name,
+                "description" => req.description
+            ]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Category not found"]);
+    }
+
+    function deleteCategoryAction(Request req) {
+        var cat = Category.modelFindOne(["id" => req.id]);
+        if (cat) {
+            Category.modelDelete(["id" => req.id]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Category not found"]);
+    }
+}
+
+controller PublisherController {
+    function listPublishersAction(Request req) {
+        var pubs = Publisher.modelFindAll();
+        return json(pubs);
+    }
+
+    function showPublisherAction(Request req) {
+        var pub = Publisher.modelFindOne(["id" => req.id]);
+        if (pub) {
+            return json(pub);
+        }
+        return json(["error" => "Publisher not found"]);
+    }
+
+    function createPublisherAction(Request req) {
+        var pub = Publisher.modelCreate([
+            "name" => req.name,
+            "address" => req.address,
+            "phone" => req.phone
+        ]);
+        return json(["success" => true, "publisher" => pub]);
+    }
+
+    function updatePublisherAction(Request req) {
+        var pub = Publisher.modelFindOne(["id" => req.id]);
+        if (pub) {
+            Publisher.modelUpdate(["id" => req.id], [
+                "name" => req.name,
+                "address" => req.address,
+                "phone" => req.phone
+            ]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Publisher not found"]);
+    }
+
+    function deletePublisherAction(Request req) {
+        var pub = Publisher.modelFindOne(["id" => req.id]);
+        if (pub) {
+            Publisher.modelDelete(["id" => req.id]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Publisher not found"]);
+    }
+}
+
+controller AuthorController {
+    function listAuthorsAction(Request req) {
+        var authors = Author.modelFindAll();
+        return json(authors);
+    }
+
+    function showAuthorAction(Request req) {
+        var author = Author.modelFindOne(["id" => req.id]);
+        if (author) {
+            return json(author);
+        }
+        return json(["error" => "Author not found"]);
+    }
+
+    function createAuthorAction(Request req) {
+        var author = Author.modelCreate([
+            "name" => req.name,
+            "biography" => req.biography,
+            "birthDate" => req.birthDate
+        ]);
+        return json(["success" => true, "author" => author]);
+    }
+
+    function updateAuthorAction(Request req) {
+        var author = Author.modelFindOne(["id" => req.id]);
+        if (author) {
+            Author.modelUpdate(["id" => req.id], [
+                "name" => req.name,
+                "biography" => req.biography,
+                "birthDate" => req.birthDate
+            ]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Author not found"]);
+    }
+
+    function deleteAuthorAction(Request req) {
+        var author = Author.modelFindOne(["id" => req.id]);
+        if (author) {
+            Author.modelDelete(["id" => req.id]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Author not found"]);
+    }
 }
 
 controller BookController {
@@ -116,16 +245,49 @@ controller BookController {
         return json(books);
     }
 
+    function showBookAction(Request req) {
+        var book = Book.modelFindOne(["id" => req.id]);
+        if (book) {
+            return json(book);
+        }
+        return json(["error" => "Book not found"]);
+    }
+
     function createBookAction(Request req) {
         var book = Book.modelCreate([
             "title" => req.title,
             "isbn" => req.isbn,
             "year" => req.year,
-            "Category_id" => req.categoryId,
-            "Publisher_id" => req.publisherId,
+            "Category_id" => req.Category_id,
+            "Publisher_id" => req.Publisher_id,
             "available" => true
         ]);
-        return json(["success" => true]);
+        return json(["success" => true, "book" => book]);
+    }
+
+    function updateBookAction(Request req) {
+        var book = Book.modelFindOne(["id" => req.id]);
+        if (book) {
+            Book.modelUpdate(["id" => req.id], [
+                "title" => req.title,
+                "isbn" => req.isbn,
+                "year" => req.year,
+                "Category_id" => req.Category_id,
+                "Publisher_id" => req.Publisher_id,
+                "available" => req.available
+            ]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Book not found"]);
+    }
+
+    function deleteBookAction(Request req) {
+        var book = Book.modelFindOne(["id" => req.id]);
+        if (book) {
+            Book.modelDelete(["id" => req.id]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Book not found"]);
     }
 
     function borrowBookAction(Request req) {
@@ -170,6 +332,19 @@ controller BookController {
 }
 
 controller MemberController {
+    function listMembersAction(Request req) {
+        var members = Member.modelFindAll();
+        return json(members);
+    }
+
+    function showMemberAction(Request req) {
+        var m = Member.modelFindOne(["id" => req.id]);
+        if (m) {
+            return json(m);
+        }
+        return json(["error" => "Member not found"]);
+    }
+
     function registerMemberAction(Request req) {
         var m = Member.modelCreate([
             "name" => req.name,
@@ -180,9 +355,45 @@ controller MemberController {
         ]);
         return json(["success" => true, "memberId" => m.id]);
     }
+
+    function updateMemberAction(Request req) {
+        var m = Member.modelFindOne(["id" => req.id]);
+        if (m) {
+            Member.modelUpdate(["id" => req.id], [
+                "name" => req.name,
+                "email" => req.email,
+                "phone" => req.phone,
+                "status" => req.status
+            ]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Member not found"]);
+    }
+
+    function deleteMemberAction(Request req) {
+        var m = Member.modelFindOne(["id" => req.id]);
+        if (m) {
+            Member.modelDelete(["id" => req.id]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Member not found"]);
+    }
 }
 
 controller ReservationController {
+    function listReservationsAction(Request req) {
+        var res = Reservation.modelFindAll();
+        return json(res);
+    }
+
+    function showReservationAction(Request req) {
+        var res = Reservation.modelFindOne(["id" => req.id]);
+        if (res) {
+            return json(res);
+        }
+        return json(["error" => "Reservation not found"]);
+    }
+
     function reserveBookAction(Request req) {
         var book = Book.modelFindOne(["id" => req.bookId]);
         if (book) {
@@ -196,9 +407,31 @@ controller ReservationController {
         }
         return json(["error" => "Book not found"]);
     }
+
+    function cancelReservationAction(Request req) {
+        var res = Reservation.modelFindOne(["id" => req.id]);
+        if (res) {
+            Reservation.modelDelete(["id" => req.id]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Reservation not found"]);
+    }
 }
 
 controller FineController {
+    function listFinesAction(Request req) {
+        var fines = Fine.modelFindAll();
+        return json(fines);
+    }
+
+    function showFineAction(Request req) {
+        var fine = Fine.modelFindOne(["id" => req.id]);
+        if (fine) {
+            return json(fine);
+        }
+        return json(["error" => "Fine record not found"]);
+    }
+
     function payFineAction(Request req) {
         var fine = Fine.modelFindOne(["id" => req.fineId]);
         if (fine) {
@@ -221,10 +454,42 @@ middleware AuthMiddleware {
 // ================= Routes =================
 route get "/" -> BookController@indexAction;
 route get "/books" -> BookController@listBooksAction middleware AuthMiddleware;
+route get "/books/detail" -> BookController@showBookAction middleware AuthMiddleware;
 route post "/books" -> BookController@createBookAction middleware AuthMiddleware;
+route put "/books" -> BookController@updateBookAction middleware AuthMiddleware;
+route delete "/books" -> BookController@deleteBookAction middleware AuthMiddleware;
 route post "/books/borrow" -> BookController@borrowBookAction middleware AuthMiddleware;
 route post "/books/return" -> BookController@returnBookAction middleware AuthMiddleware;
-route post "/members" -> MemberController@registerMemberAction;
-route post "/reservations" -> ReservationController@reserveBookAction middleware AuthMiddleware;
-route post "/fines/pay" -> FineController@payFineAction middleware AuthMiddleware;
+
 route get "/categories" -> CategoryController@listCategoriesAction;
+route get "/categories/detail" -> CategoryController@showCategoryAction;
+route post "/categories" -> CategoryController@createCategoryAction;
+route put "/categories" -> CategoryController@updateCategoryAction;
+route delete "/categories" -> CategoryController@deleteCategoryAction;
+
+route get "/publishers" -> PublisherController@listPublishersAction;
+route get "/publishers/detail" -> PublisherController@showPublisherAction;
+route post "/publishers" -> PublisherController@createPublisherAction;
+route put "/publishers" -> PublisherController@updatePublisherAction;
+route delete "/publishers" -> PublisherController@deletePublisherAction;
+
+route get "/authors" -> AuthorController@listAuthorsAction;
+route get "/authors/detail" -> AuthorController@showAuthorAction;
+route post "/authors" -> AuthorController@createAuthorAction;
+route put "/authors" -> AuthorController@updateAuthorAction;
+route delete "/authors" -> AuthorController@deleteAuthorAction;
+
+route get "/members" -> MemberController@listMembersAction;
+route get "/members/detail" -> MemberController@showMemberAction;
+route post "/members" -> MemberController@registerMemberAction;
+route put "/members" -> MemberController@updateMemberAction;
+route delete "/members" -> MemberController@deleteMemberAction;
+
+route get "/reservations" -> ReservationController@listReservationsAction middleware AuthMiddleware;
+route get "/reservations/detail" -> ReservationController@showReservationAction middleware AuthMiddleware;
+route post "/reservations" -> ReservationController@reserveBookAction middleware AuthMiddleware;
+route delete "/reservations" -> ReservationController@cancelReservationAction middleware AuthMiddleware;
+
+route get "/fines" -> FineController@listFinesAction middleware AuthMiddleware;
+route get "/fines/detail" -> FineController@showFineAction middleware AuthMiddleware;
+route post "/fines/pay" -> FineController@payFineAction middleware AuthMiddleware;
