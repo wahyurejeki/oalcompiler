@@ -1608,65 +1608,35 @@ document.addEventListener('DOMContentLoaded', () => {
             fieldMw.className = 'route-field';
             fieldMw.innerHTML = `<label>Middleware</label>`;
             
-            const dropdown = document.createElement('div');
-            dropdown.className = 'mw-checkbox-dropdown';
+            const selectMw = document.createElement('select');
             
-            const dropdownLabel = document.createElement('span');
-            dropdownLabel.className = 'mw-dropdown-label';
-            dropdownLabel.textContent = route.middlewares.length > 0 
-                ? `${route.middlewares.length} active`
-                : 'None';
-            dropdown.appendChild(dropdownLabel);
+            // "None" option
+            const optNone = document.createElement('option');
+            optNone.value = '';
+            optNone.textContent = 'None';
+            if (route.middlewares.length === 0) optNone.selected = true;
+            selectMw.appendChild(optNone);
             
-            const dropdownMenu = document.createElement('div');
-            dropdownMenu.className = 'mw-dropdown-menu';
-            
-            if (state.middlewares.length === 0) {
-                dropdownMenu.innerHTML = '<div style="color:var(--text-muted); font-size:10px;">No middlewares created</div>';
-            } else {
-                state.middlewares.forEach(mw => {
-                    const label = document.createElement('label');
-                    label.className = 'mw-item';
-                    
-                    const chk = document.createElement('input');
-                    chk.type = 'checkbox';
-                    chk.value = mw.name;
-                    if (route.middlewares.includes(mw.name)) chk.checked = true;
-                    
-                    chk.addEventListener('change', () => {
-                        if (chk.checked) {
-                            if (!route.middlewares.includes(mw.name)) route.middlewares.push(mw.name);
-                        } else {
-                            route.middlewares = route.middlewares.filter(m => m !== mw.name);
-                        }
-                        dropdownLabel.textContent = route.middlewares.length > 0 
-                            ? `${route.middlewares.length} active`
-                            : 'None';
-                        generateOAL();
-                    });
-
-                    label.appendChild(chk);
-                    label.appendChild(document.createTextNode(` ${mw.name}`));
-                    dropdownMenu.appendChild(label);
-                });
-            }
-            
-            dropdown.appendChild(dropdownMenu);
-
-            // Click-to-toggle dropdown active state
-            dropdown.addEventListener('click', (e) => {
-                e.stopPropagation();
-                document.querySelectorAll('.mw-checkbox-dropdown.active').forEach(d => {
-                    if (d !== dropdown) d.classList.remove('active');
-                });
-                dropdown.classList.toggle('active');
+            // Middlewares options
+            state.middlewares.forEach(mw => {
+                const opt = document.createElement('option');
+                opt.value = mw.name;
+                opt.textContent = mw.name;
+                if (route.middlewares.includes(mw.name)) opt.selected = true;
+                selectMw.appendChild(opt);
             });
-
-            dropdownMenu.addEventListener('click', (e) => {
-                e.stopPropagation();
+            
+            selectMw.addEventListener('change', (e) => {
+                const val = e.target.value;
+                if (val === '') {
+                    route.middlewares = [];
+                } else {
+                    route.middlewares = [val];
+                }
+                generateOAL();
             });
-
-            fieldMw.appendChild(dropdown);
+            
+            fieldMw.appendChild(selectMw);
             
             row2.appendChild(fieldTarget);
             row2.appendChild(fieldMw);
