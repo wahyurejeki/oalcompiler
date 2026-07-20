@@ -886,25 +886,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function editAttributeModifiers(model, index) {
         const attr = model.attributes[index];
-        const modifiers = ['primary', 'unique', 'nullable'];
-        const input = prompt(
-            `Edit Modifiers for attribute "${attr.name}".\nEnter comma-separated options (${modifiers.join(', ')}):\nLeave empty for none.`,
-            attr.modifiers.join(', ')
-        );
         
-        if (input !== null) {
-            const rawMods = input.split(',').map(m => m.trim().toLowerCase());
-            attr.modifiers = rawMods.filter(m => modifiers.includes(m));
-            
-            // check for default(value) format
-            const defaultMatch = input.match(/default\(([^)]+)\)/);
-            if (defaultMatch) {
-                attr.modifiers.push(`default(${defaultMatch[1].trim()})`);
-            }
-            
-            renderAttributes(model);
-            generateOAL();
+        // Parse current modifiers
+        const isPrimary = attr.modifiers.includes('primary');
+        const isUnique = attr.modifiers.includes('unique');
+        const isNullable = attr.modifiers.includes('nullable');
+        const isIndex = attr.modifiers.includes('index');
+        
+        let defaultValue = '';
+        const defaultMod = attr.modifiers.find(m => m.startsWith('default('));
+        if (defaultMod) {
+            const match = defaultMod.match(/default\(([^)]+)\)/);
+            if (match) defaultValue = match[1];
         }
+
+        Swal.fire({
+            title: `Modifiers for "${attr.name}"`,
+            html: `
+                <div style="text-align: left; font-family: var(--font-sans); margin-top: 10px;">
+                    <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="swal-mod-primary" ${isPrimary ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                        <label for="swal-mod-primary" style="margin: 0; font-size: 14px; font-weight: 500; cursor: pointer;">Primary Key</label>
+                    </div>
+                    <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="swal-mod-unique" ${isUnique ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                        <label for="swal-mod-unique" style="margin: 0; font-size: 14px; font-weight: 500; cursor: pointer;">Unique</label>
+                    </div>
+                    <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="swal-mod-nullable" ${isNullable ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                        <label for="swal-mod-nullable" style="margin: 0; font-size: 14px; font-weight: 500; cursor: pointer;">Nullable</label>
+                    </div>
+                    <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="swal-mod-index" ${isIndex ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                        <label for="swal-mod-index" style="margin: 0; font-size: 14px; font-weight: 500; cursor: pointer;">Index</label>
+                    </div>
+                    <div style="margin-bottom: 6px;">
+                        <label for="swal-mod-default" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Default Value (Optional)</label>
+                        <input type="text" id="swal-mod-default" class="form-control" value="${defaultValue}" placeholder="e.g. true, 'active', 0.00" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none;">
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonColor: '#4f46e5',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Save Modifiers',
+            preConfirm: () => {
+                return {
+                    primary: document.getElementById('swal-mod-primary').checked,
+                    unique: document.getElementById('swal-mod-unique').checked,
+                    nullable: document.getElementById('swal-mod-nullable').checked,
+                    index: document.getElementById('swal-mod-index').checked,
+                    defaultValue: document.getElementById('swal-mod-default').value.trim()
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const data = result.value;
+                const newMods = [];
+                
+                if (data.primary) newMods.push('primary');
+                if (data.unique) newMods.push('unique');
+                if (data.nullable) newMods.push('nullable');
+                if (data.index) newMods.push('index');
+                if (data.defaultValue) {
+                    newMods.push(`default(${data.defaultValue})`);
+                }
+                
+                attr.modifiers = newMods;
+                renderAttributes(model);
+                generateOAL();
+            }
+        });
     }
 
     function deleteModel(modelId) {

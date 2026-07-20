@@ -65,6 +65,7 @@ fieldModifier
     : 'primary'
     | 'unique'
     | 'nullable'
+    | 'index'
     | 'default' '(' expression ')'
     ;
 

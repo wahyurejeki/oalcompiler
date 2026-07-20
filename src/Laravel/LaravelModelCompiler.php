@@ -162,6 +162,7 @@ PHP;
                     if ($modText === 'primary') $col .= "->primary()";
                     if ($modText === 'unique') $col .= "->unique()";
                     if ($modText === 'nullable') $col .= "->nullable()";
+                    if ($modText === 'index') $col .= "->index()";
                     if (str_starts_with($modText, 'default')) {
                         preg_match('/default\((.*)\)/', $modText, $matches);
                         if (isset($matches[1])) $col .= "->default(" . $matches[1] . ")";
