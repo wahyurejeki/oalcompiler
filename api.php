@@ -54,7 +54,7 @@ switch ($action) {
         $currentDir = getcwd();
         chdir($projectRoot);
         
-        $command = "php generate.php " . escapeshellarg($relativeOalPath) . " --no-format 2>&1";
+        $command = "php generate.php " . escapeshellarg($relativeOalPath) . " 2>&1";
         $output = [];
         $returnVar = 0;
         exec($command, $output, $returnVar);
@@ -235,11 +235,11 @@ function zipDir($source, $destination) {
             if (is_dir($file)) {
                 $zip->addEmptyDir($relativePath);
             } else if (is_file($file)) {
-                $zip->addFromString($relativePath, file_get_contents($file));
+                $zip->addFile($file, $relativePath);
             }
         }
     } else if (is_file($source)) {
-        $zip->addFromString(basename($source), file_get_contents($source));
+        $zip->addFile($source, basename($source));
     }
 
     return $zip->close();
