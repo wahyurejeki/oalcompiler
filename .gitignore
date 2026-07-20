@@ -8,4 +8,5 @@
 /template/routes
 /template/node_modules
 /template/vendor
+/template/tests
 /project_laravel.zip
