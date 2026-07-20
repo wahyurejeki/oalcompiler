@@ -1,143 +1,231 @@
 {
-  "models": [
-    {
-      "id": "m_book",
-      "name": "Book",
-      "x": 100,
-      "y": 80,
-      "attributes": [
-        { "name": "id", "type": "integer", "modifiers": ["primary"] },
-        { "name": "title", "type": "string", "modifiers": [] },
-        { "name": "author", "type": "string", "modifiers": [] },
-        { "name": "year", "type": "integer", "modifiers": [] },
-        { "name": "isbn", "type": "string", "modifiers": ["unique"] },
-        { "name": "available", "type": "boolean", "modifiers": ["default(true)"] }
-      ],
-      "relations": [
-        { "type": "hasMany", "target": "BorrowRecord" }
-      ],
-      "methods": [
+    "models": [
         {
-          "name": "listBooksAction",
-          "params": "Request req",
-          "body": "var books = Book.modelFindAll();\nreturn json(books);"
+            "id": "m_book",
+            "name": "Book",
+            "x": 205,
+            "y": 0,
+            "attributes": [
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "title",
+                    "type": "string",
+                    "modifiers": []
+                },
+                {
+                    "name": "author",
+                    "type": "string",
+                    "modifiers": []
+                },
+                {
+                    "name": "year",
+                    "type": "integer",
+                    "modifiers": []
+                },
+                {
+                    "name": "isbn",
+                    "type": "string",
+                    "modifiers": [
+                        "unique"
+                    ]
+                },
+                {
+                    "name": "available",
+                    "type": "boolean",
+                    "modifiers": [
+                        "default(true)"
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "type": "hasMany",
+                    "target": "BorrowRecord"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "listBooksAction",
+                    "params": "Request req",
+                    "body": "var books = Book.modelFindAll();\nreturn json(books);"
+                },
+                {
+                    "name": "createBookAction",
+                    "params": "Request req",
+                    "body": "var book = Book.modelCreate([\n    \"title\" => req.title,\n    \"author\" => req.author,\n    \"year\" => req.year,\n    \"isbn\" => req.isbn,\n    \"available\" => true\n]);\nreturn json([\"success\" => true]);"
+                },
+                {
+                    "name": "borrowBookAction",
+                    "params": "Request req",
+                    "body": "var book = Book.modelFindOne([\"isbn\" => req.isbn]);\nif (book.available) {\n    var pinjam = BorrowRecord.modelCreate([\n        \"Book_id\" => book.id,\n        \"Member_id\" => req.memberId,\n        \"borrowedAt\" => req.borrowedAt\n    ]);\n    var updatePinjam = Book.modelUpdate([\"id\" => book.id], [\"available\" => false]);\n    return json([\"success\" => true]);\n} else {\n    return json([\"error\" => \"Book not available\"]);\n}"
+                },
+                {
+                    "name": "returnBookAction",
+                    "params": "Request req",
+                    "body": "var record = BorrowRecord.modelFindOne([\n    \"Book_id\" => req.bookId,\n    \"Member_id\" => [\">\",req.memberId],\n    \"returnedAt\" => null\n]);\nif (record) {\n    var update = BorrowRecord.modelUpdate([\"id\" => record.id], [\"returnedAt\" => req.returnedAt]);\n    Book.modelUpdate([\"id\" => req.bookId], [\"available\" => true]);\n    return json([\"success\" => true]);\n} else {\n    return json([\"error\" => \"No active borrow record\"]);\n}"
+                }
+            ]
         },
         {
-          "name": "createBookAction",
-          "params": "Request req",
-          "body": "var book = Book.modelCreate([\n    \"title\" => req.title,\n    \"author\" => req.author,\n    \"year\" => req.year,\n    \"isbn\" => req.isbn,\n    \"available\" => true\n]);\nreturn json([\"success\" => true]);"
+            "id": "m_member",
+            "name": "Member",
+            "x": 521,
+            "y": 469,
+            "attributes": [
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "name",
+                    "type": "string",
+                    "modifiers": []
+                },
+                {
+                    "name": "email",
+                    "type": "string",
+                    "modifiers": [
+                        "unique"
+                    ]
+                },
+                {
+                    "name": "phone",
+                    "type": "string",
+                    "modifiers": [
+                        "nullable"
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "type": "hasMany",
+                    "target": "BorrowRecord"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "listMembersAction",
+                    "params": "Request req",
+                    "body": "var members = Member.modelFindAll();\nreturn json(members);"
+                },
+                {
+                    "name": "createMemberAction",
+                    "params": "Request req",
+                    "body": "var member = Member.modelCreate([\n    \"name\" => req.name,\n    \"email\" => req.email,\n    \"phone\" => req.phone\n]);\nreturn json([\"success\" => true]);"
+                }
+            ]
         },
         {
-          "name": "borrowBookAction",
-          "params": "Request req",
-          "body": "var book = Book.modelFindOne([\"isbn\" => req.isbn]);\nif (book.available) {\n    var pinjam = BorrowRecord.modelCreate([\n        \"Book_id\" => book.id,\n        \"Member_id\" => req.memberId,\n        \"borrowedAt\" => req.borrowedAt\n    ]);\n    var updatePinjam = Book.modelUpdate([\"id\" => book.id], [\"available\" => false]);\n    return json([\"success\" => true]);\n} else {\n    return json([\"error\" => \"Book not available\"]);\n}"
-        },
-        {
-          "name": "returnBookAction",
-          "params": "Request req",
-          "body": "var record = BorrowRecord.modelFindOne([\n    \"Book_id\" => req.bookId,\n    \"Member_id\" => [\">\",req.memberId],\n    \"returnedAt\" => null\n]);\nif (record) {\n    var update = BorrowRecord.modelUpdate([\"id\" => record.id], [\"returnedAt\" => req.returnedAt]);\n    Book.modelUpdate([\"id\" => req.bookId], [\"available\" => true]);\n    return json([\"success\" => true]);\n} else {\n    return json([\"error\" => \"No active borrow record\"]);\n}"
+            "id": "m_record",
+            "name": "BorrowRecord",
+            "x": 679,
+            "y": 47,
+            "attributes": [
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "modifiers": [
+                        "primary"
+                    ]
+                },
+                {
+                    "name": "borrowedAt",
+                    "type": "datetime",
+                    "modifiers": []
+                },
+                {
+                    "name": "returnedAt",
+                    "type": "datetime",
+                    "modifiers": [
+                        "nullable"
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "type": "belongsTo",
+                    "target": "Book"
+                },
+                {
+                    "type": "belongsTo",
+                    "target": "Member"
+                }
+            ],
+            "methods": [
+                {
+                    "name": "listBorrowRecordsAction",
+                    "params": "Request req",
+                    "body": "var records = BorrowRecord.modelFindAll();\nreturn json(records);"
+                },
+                {
+                    "name": "createBorrowRecordAction",
+                    "params": "Request req",
+                    "body": "var record = BorrowRecord.modelCreate([\n    \"Book_id\" => req.bookId,\n    \"Member_id\" => req.memberId,\n    \"borrowedAt\" => req.borrowedAt,\n    \"returnedAt\" => req.returnedAt\n]);\nreturn json([\"success\" => true]);"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "id": "m_member",
-      "name": "Member",
-      "x": 100,
-      "y": 420,
-      "attributes": [
-        { "name": "id", "type": "integer", "modifiers": ["primary"] },
-        { "name": "name", "type": "string", "modifiers": [] },
-        { "name": "email", "type": "string", "modifiers": ["unique"] },
-        { "name": "phone", "type": "string", "modifiers": ["nullable"] }
-      ],
-      "relations": [
-        { "type": "hasMany", "target": "BorrowRecord" }
-      ],
-      "methods": [
+    ],
+    "routes": [
         {
-          "name": "listMembersAction",
-          "params": "Request req",
-          "body": "var members = Member.modelFindAll();\nreturn json(members);"
+            "id": "r_1",
+            "method": "get",
+            "path": "\/books",
+            "controller": "BookController",
+            "action": "listBooksAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
         },
         {
-          "name": "createMemberAction",
-          "params": "Request req",
-          "body": "var member = Member.modelCreate([\n    \"name\" => req.name,\n    \"email\" => req.email,\n    \"phone\" => req.phone\n]);\nreturn json([\"success\" => true]);"
-        }
-      ]
-    },
-    {
-      "id": "m_record",
-      "name": "BorrowRecord",
-      "x": 520,
-      "y": 220,
-      "attributes": [
-        { "name": "id", "type": "integer", "modifiers": ["primary"] },
-        { "name": "borrowedAt", "type": "datetime", "modifiers": [] },
-        { "name": "returnedAt", "type": "datetime", "modifiers": ["nullable"] }
-      ],
-      "relations": [
-        { "type": "belongsTo", "target": "Book" },
-        { "type": "belongsTo", "target": "Member" }
-      ],
-      "methods": [
-        {
-          "name": "listBorrowRecordsAction",
-          "params": "Request req",
-          "body": "var records = BorrowRecord.modelFindAll();\nreturn json(records);"
+            "id": "r_2",
+            "method": "post",
+            "path": "\/books",
+            "controller": "BookController",
+            "action": "createBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
         },
         {
-          "name": "createBorrowRecordAction",
-          "params": "Request req",
-          "body": "var record = BorrowRecord.modelCreate([\n    \"Book_id\" => req.bookId,\n    \"Member_id\" => req.memberId,\n    \"borrowedAt\" => req.borrowedAt,\n    \"returnedAt\" => req.returnedAt\n]);\nreturn json([\"success\" => true]);"
+            "id": "r_3",
+            "method": "post",
+            "path": "\/books\/borrow",
+            "controller": "BookController",
+            "action": "borrowBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
+        },
+        {
+            "id": "r_4",
+            "method": "post",
+            "path": "\/books\/return",
+            "controller": "BookController",
+            "action": "returnBookAction",
+            "middlewares": [
+                "AuthMiddleware"
+            ]
         }
-      ]
-    }
-  ],
-  "middlewares": [
-    {
-      "id": "mw_auth",
-      "name": "AuthMiddleware",
-      "template": "custom",
-      "config": {
-        "customCode": "if (req.token != \"123456\") {\n    return json([\"error\" => \"Token invalid\"]);\n}"
-      }
-    }
-  ],
-  "controllers": [],
-  "routes": [
-    {
-      "id": "r_1",
-      "method": "get",
-      "path": "/books",
-      "controller": "BookController",
-      "action": "listBooksAction",
-      "middlewares": ["AuthMiddleware"]
-    },
-    {
-      "id": "r_2",
-      "method": "post",
-      "path": "/books",
-      "controller": "BookController",
-      "action": "createBookAction",
-      "middlewares": ["AuthMiddleware"]
-    },
-    {
-      "id": "r_3",
-      "method": "post",
-      "path": "/books/borrow",
-      "controller": "BookController",
-      "action": "borrowBookAction",
-      "middlewares": ["AuthMiddleware"]
-    },
-    {
-      "id": "r_4",
-      "method": "post",
-      "path": "/books/return",
-      "controller": "BookController",
-      "action": "returnBookAction",
-      "middlewares": ["AuthMiddleware"]
-    }
-  ],
-  "oal_code": "// ================= Models =================\nmodel Book {\n    integer id primary;\n    string title;\n    string author;\n    integer year;\n    string isbn unique;\n    boolean available default(true);\n\n    hasMany BorrowRecord;\n}\n\nmodel Member {\n    integer id primary;\n    string name;\n    string email unique;\n    string phone nullable;\n\n    hasMany BorrowRecord;\n}\n\nmodel BorrowRecord {\n    integer id primary;\n    belongsTo Book;\n    belongsTo Member;\n    datetime borrowedAt;\n    datetime returnedAt nullable;\n}\n\n// ================= Controllers =================\ncontroller BookController {\n    function listBooksAction(Request req) {\n        var books = Book.modelFindAll();\n        return json(books);\n    }\n\n    function createBookAction(Request req) {\n        var book = Book.modelCreate([\n            \"title\" => req.title,\n            \"author\" => req.author,\n            \"year\" => req.year,\n            \"isbn\" => req.isbn,\n            \"available\" => true\n        ]);\n        return json([\"success\" => true]);\n    }\n\n    function borrowBookAction(Request req) {\n        var book = Book.modelFindOne([\"isbn\" => req.isbn]);\n        if (book.available) {\n            var pinjam = BorrowRecord.modelCreate([\n                \"Book_id\" => book.id,\n                \"Member_id\" => req.memberId,\n                \"borrowedAt\" => req.borrowedAt\n            ]);\n            var updatePinjam = Book.modelUpdate([\"id\" => book.id], [\"available\" => false]);\n            return json([\"success\" => true]);\n        } else {\n            return json([\"error\" => \"Book not available\"]);\n        }\n    }\n\n    function returnBookAction(Request req) {\n        var record = BorrowRecord.modelFindOne([\n            \"Book_id\" => req.bookId,\n            \"Member_id\" => [\">\",req.memberId],\n            \"returnedAt\" => null\n        ]);\n        if (record) {\n            var update = BorrowRecord.modelUpdate([\"id\" => record.id], [\"returnedAt\" => req.returnedAt]);\n            Book.modelUpdate([\"id\" => req.bookId], [\"available\" => true]);\n            return json([\"success\" => true]);\n        } else {\n            return json([\"error\" => \"No active borrow record\"]);\n        }\n    }\n}\n\n// ================= Middleware =================\nmiddleware AuthMiddleware {\n    function handleAction(Request req) {\n        if (req.token != \"123456\") {\n            return json([\"error\" => \"Token invalid\"]);\n        }\n    }\n}\n\n// ================= Routes =================\nroute get \"/books\" -> BookController@listBooksAction middleware AuthMiddleware;\nroute post \"/books\" -> BookController@createBookAction middleware AuthMiddleware;\nroute post \"/books/borrow\" -> BookController@borrowBookAction middleware AuthMiddleware;\nroute post \"/books/return\" -> BookController@returnBookAction middleware AuthMiddleware;\n"
+    ],
+    "middlewares": [
+        {
+            "id": "mw_auth",
+            "name": "AuthMiddleware",
+            "template": "custom",
+            "config": {
+                "customCode": "if (req.token != \"123456\") {\n    return json([\"error\" => \"Token invalid\"]);\n}"
+            }
+        }
+    ],
+    "controllers": [],
+    "oal_code": "\/\/ ================= Models =================\nmodel Book {\n    integer id primary;\n    string title;\n    string author;\n    integer year;\n    string isbn unique;\n    boolean available default(true);\n\n    hasMany BorrowRecord;\n}\n\nmodel Member {\n    integer id primary;\n    string name;\n    string email unique;\n    string phone nullable;\n\n    hasMany BorrowRecord;\n}\n\nmodel BorrowRecord {\n    integer id primary;\n    datetime borrowedAt;\n    datetime returnedAt nullable;\n\n    belongsTo Book;\n    belongsTo Member;\n}\n\n\/\/ ================= Controllers =================\ncontroller BookController {\n    function listBooksAction(Request req) {\n        var books = Book.modelFindAll();\n        return json(books);\n    }\n\n    function createBookAction(Request req) {\n        var book = Book.modelCreate([\n            \"title\" => req.title,\n            \"author\" => req.author,\n            \"year\" => req.year,\n            \"isbn\" => req.isbn,\n            \"available\" => true\n        ]);\n        return json([\"success\" => true]);\n    }\n\n    function borrowBookAction(Request req) {\n        var book = Book.modelFindOne([\"isbn\" => req.isbn]);\n        if (book.available) {\n            var pinjam = BorrowRecord.modelCreate([\n                \"Book_id\" => book.id,\n                \"Member_id\" => req.memberId,\n                \"borrowedAt\" => req.borrowedAt\n            ]);\n            var updatePinjam = Book.modelUpdate([\"id\" => book.id], [\"available\" => false]);\n            return json([\"success\" => true]);\n        } else {\n            return json([\"error\" => \"Book not available\"]);\n        }\n    }\n\n    function returnBookAction(Request req) {\n        var record = BorrowRecord.modelFindOne([\n            \"Book_id\" => req.bookId,\n            \"Member_id\" => [\">\",req.memberId],\n            \"returnedAt\" => null\n        ]);\n        if (record) {\n            var update = BorrowRecord.modelUpdate([\"id\" => record.id], [\"returnedAt\" => req.returnedAt]);\n            Book.modelUpdate([\"id\" => req.bookId], [\"available\" => true]);\n            return json([\"success\" => true]);\n        } else {\n            return json([\"error\" => \"No active borrow record\"]);\n        }\n    }\n}\n\ncontroller MemberController {\n    function listMembersAction(Request req) {\n        var members = Member.modelFindAll();\n        return json(members);\n    }\n\n    function createMemberAction(Request req) {\n        var member = Member.modelCreate([\n            \"name\" => req.name,\n            \"email\" => req.email,\n            \"phone\" => req.phone\n        ]);\n        return json([\"success\" => true]);\n    }\n}\n\ncontroller BorrowRecordController {\n    function listBorrowRecordsAction(Request req) {\n        var records = BorrowRecord.modelFindAll();\n        return json(records);\n    }\n\n    function createBorrowRecordAction(Request req) {\n        var record = BorrowRecord.modelCreate([\n            \"Book_id\" => req.bookId,\n            \"Member_id\" => req.memberId,\n            \"borrowedAt\" => req.borrowedAt,\n            \"returnedAt\" => req.returnedAt\n        ]);\n        return json([\"success\" => true]);\n    }\n}\n\n\/\/ ================= Middleware =================\nmiddleware AuthMiddleware {\n    function handleAction(Request req) {\n        if (req.token != \"123456\") {\n            return json([\"error\" => \"Token invalid\"]);\n        }\n    }\n}\n\n\/\/ ================= Routes =================\nroute get \"\/books\" -> BookController@listBooksAction middleware AuthMiddleware;\nroute post \"\/books\" -> BookController@createBookAction middleware AuthMiddleware;\nroute post \"\/books\/borrow\" -> BookController@borrowBookAction middleware AuthMiddleware;\nroute post \"\/books\/return\" -> BookController@returnBookAction middleware AuthMiddleware;\n"
 }

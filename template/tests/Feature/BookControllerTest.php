@@ -12,6 +12,14 @@ class BookControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_index_success(): void
+    {
+        $response = $this
+                         ->getJson('/?token=123456');
+
+        $response->assertStatus(200);
+    }
+
     public function test_list_books_success(): void
     {
 

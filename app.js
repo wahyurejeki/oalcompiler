@@ -1869,6 +1869,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ],
                     methods: [
                         {
+                            name: 'indexAction',
+                            params: 'Request req',
+                            body: 'return json(["success" => true]);'
+                        },
+                        {
                             name: 'listBooksAction',
                             params: 'Request req',
                             body: 'var books = Book.modelFindAll();\nreturn json(books);'
@@ -1957,6 +1962,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             controllers: [],
             routes: [
+                {
+                    id: 'r_0',
+                    method: 'get',
+                    path: '/',
+                    controller: 'BookController',
+                    action: 'indexAction',
+                    middlewares: []
+                },
                 {
                     id: 'r_1',
                     method: 'get',

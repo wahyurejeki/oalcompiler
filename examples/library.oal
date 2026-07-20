@@ -29,6 +29,10 @@ model BorrowRecord {
 
 // ================= Controllers =================
 controller BookController {
+    function indexAction(Request req) {
+        return json(["success" => true]);
+    }
+
     function listBooksAction(Request req) {
         var books = Book.modelFindAll();
         return json(books);
@@ -86,6 +90,7 @@ middleware AuthMiddleware {
 }
 
 // ================= Routes =================
+route get "/" -> BookController@indexAction;
 route get "/books" -> BookController@listBooksAction middleware AuthMiddleware;
 route post "/books" -> BookController@createBookAction middleware AuthMiddleware;
 route post "/books/borrow" -> BookController@borrowBookAction middleware AuthMiddleware;
