@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnAddModel = document.getElementById('btn-add-model');
     const btnAddMiddleware = document.getElementById('btn-add-middleware');
     const middlewareList = document.getElementById('middleware-list');
-    const routesTableBody = document.getElementById('routes-table-body');
+    const routesList = document.getElementById('routes-list');
     const btnAddRoute = document.getElementById('btn-add-route');
     const oalCodePreview = document.getElementById('oal-code-preview');
     const oalCodeContent = document.getElementById('oal-code-content');
@@ -1511,18 +1511,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function renderRoutesTable() {
-        routesTableBody.innerHTML = '';
+        routesList.innerHTML = '';
         
         if (state.routes.length === 0) {
-            routesTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No routes defined yet. Add some models or click "Add Route".</td></tr>`;
+            routesList.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;">No routes defined yet. Add some models or click "Add Route".</div>`;
             return;
         }
 
         state.routes.forEach((route, index) => {
-            const tr = document.createElement('tr');
+            const card = document.createElement('div');
+            card.className = 'route-card';
             
-            // 1. HTTP Method select
-            const tdMethod = document.createElement('td');
+            // Card Header
+            const header = document.createElement('div');
+            header.className = 'route-card-header';
+            
+            const title = document.createElement('div');
+            title.className = 'route-card-title';
+            title.textContent = `Route #${index + 1}`;
+            
+            const btnDel = document.createElement('button');
+            btnDel.className = 'route-card-delete';
+            btnDel.innerHTML = `<i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>`;
+            btnDel.addEventListener('click', () => {
+                state.routes.splice(index, 1);
+                renderRoutesTable();
+                generateOAL();
+            });
+            
+            header.appendChild(title);
+            header.appendChild(btnDel);
+            card.appendChild(header);
+
+            // Row 1: Method and Path
+            const row1 = document.createElement('div');
+            row1.className = 'route-card-row';
+            
+            // HTTP Method
+            const fieldMethod = document.createElement('div');
+            fieldMethod.className = 'route-field narrow';
+            fieldMethod.innerHTML = `<label>Method</label>`;
+            
             const selectMethod = document.createElement('select');
             ['get', 'post', 'put', 'delete', 'patch'].forEach(m => {
                 const opt = document.createElement('option');
@@ -1535,10 +1564,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 route.method = e.target.value;
                 generateOAL();
             });
-            tdMethod.appendChild(selectMethod);
-
-            // 2. URI Path input
-            const tdPath = document.createElement('td');
+            fieldMethod.appendChild(selectMethod);
+            
+            // Path
+            const fieldPath = document.createElement('div');
+            fieldPath.className = 'route-field';
+            fieldPath.innerHTML = `<label>URL Path</label>`;
+            
             const inputPath = document.createElement('input');
             inputPath.type = 'text';
             inputPath.value = route.path;
@@ -1546,25 +1578,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 route.path = e.target.value;
                 generateOAL();
             });
-            tdPath.appendChild(inputPath);
+            fieldPath.appendChild(inputPath);
+            
+            row1.appendChild(fieldMethod);
+            row1.appendChild(fieldPath);
+            card.appendChild(row1);
 
-            // 3. Target Controller@Action selector
-            const tdTarget = document.createElement('td');
+            // Row 2: Target Controller and Middleware
+            const row2 = document.createElement('div');
+            row2.className = 'route-card-row';
+            
+            // Target Controller
+            const fieldTarget = document.createElement('div');
+            fieldTarget.className = 'route-field';
+            fieldTarget.innerHTML = `<label>Target Action</label>`;
+            
             const selectTarget = document.createElement('select');
-            
-            // Build list of options: Controller@Action
             populateControllerActionDropdown(selectTarget, route);
-            
             selectTarget.addEventListener('change', (e) => {
                 const parts = e.target.value.split('@');
                 route.controller = parts[0] || '';
                 route.action = parts[1] || '';
                 generateOAL();
             });
-            tdTarget.appendChild(selectTarget);
-
-            // 4. Middlewares checklist dropdown
-            const tdMw = document.createElement('td');
+            fieldTarget.appendChild(selectTarget);
+            
+            // Middleware
+            const fieldMw = document.createElement('div');
+            fieldMw.className = 'route-field';
+            fieldMw.innerHTML = `<label>Middleware</label>`;
+            
             const dropdown = document.createElement('div');
             dropdown.className = 'mw-checkbox-dropdown';
             dropdown.textContent = route.middlewares.length > 0 
@@ -1605,26 +1648,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             dropdown.appendChild(dropdownMenu);
-            tdMw.appendChild(dropdown);
-
-            // 5. Delete button
-            const tdAction = document.createElement('td');
-            const btnDel = document.createElement('button');
-            btnDel.className = 'btn-delete';
-            btnDel.innerHTML = `<i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>`;
-            btnDel.addEventListener('click', () => {
-                state.routes.splice(index, 1);
-                renderRoutesTable();
-                generateOAL();
-            });
-            tdAction.appendChild(btnDel);
-
-            tr.appendChild(tdMethod);
-            tr.appendChild(tdPath);
-            tr.appendChild(tdTarget);
-            tr.appendChild(tdMw);
-            tr.appendChild(tdAction);
-            routesTableBody.appendChild(tr);
+            fieldMw.appendChild(dropdown);
+            
+            row2.appendChild(fieldTarget);
+            row2.appendChild(fieldMw);
+            card.appendChild(row2);
+            
+            routesList.appendChild(card);
         });
 
         lucide.createIcons();

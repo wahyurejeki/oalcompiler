@@ -121,21 +121,10 @@
                     </div>
                     <p class="pane-desc">Map URLs to controller methods and secure them with middleware.</p>
                     
-                    <div class="table-container">
-                        <table class="routes-table">
-                            <thead>
-                                <tr>
-                                    <th>HTTP Method</th>
-                                    <th>URL Path</th>
-                                    <th>Target Controller @ Action</th>
-                                    <th>Middleware</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody id="routes-table-body">
-                                <!-- Dynamic routes will go here -->
-                            </tbody>
-                        </table>
+                    <div class="routes-list-container" style="max-height: calc(100vh - 180px); overflow-y: auto; padding-right: 4px;">
+                        <div id="routes-list">
+                            <!-- Dynamic routes list cards will go here -->
+                        </div>
                     </div>
                 </div>
 
