@@ -1648,6 +1648,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             dropdown.appendChild(dropdownMenu);
+
+            // Click-to-toggle dropdown active state
+            dropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.mw-checkbox-dropdown.active').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('active');
+                });
+                dropdown.classList.toggle('active');
+            });
+
+            dropdownMenu.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
             fieldMw.appendChild(dropdown);
             
             row2.appendChild(fieldTarget);
@@ -2498,6 +2512,13 @@ document.addEventListener('DOMContentLoaded', () => {
             contextMenu.style.top = `${e.pageY - rect.height}px`;
         }
     }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.mw-checkbox-dropdown.active').forEach(d => {
+            d.classList.remove('active');
+        });
+    });
 
     function hideContextMenu() {
         contextMenu.style.display = 'none';
