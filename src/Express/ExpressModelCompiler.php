@@ -87,6 +87,18 @@ JS;
         };
     }
 
+    private function pluralize(string $word): string
+    {
+        $word = trim($word);
+        if (str_ends_with(strtolower($word), 'y')) {
+            return substr($word, 0, -1) . 'ies';
+        }
+        if (str_ends_with(strtolower($word), 's')) {
+            return $word;
+        }
+        return $word . 's';
+    }
+
     public function getModels() { return $this->models; }
 
     public function getDatabaseConfig()
