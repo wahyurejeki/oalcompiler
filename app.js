@@ -1998,302 +1998,397 @@ document.addEventListener('DOMContentLoaded', () => {
         state = {
             models: [
                 {
-                    id: 'm_category',
-                    name: 'Category',
+                    id: "m_category",
+                    name: "Category",
                     x: 80,
                     y: 80,
                     attributes: [
-                        { name: 'id', type: 'integer', modifiers: ['primary'] },
-                        { name: 'name', type: 'string', modifiers: ['unique'] },
-                        { name: 'description', type: 'string', modifiers: ['nullable'] }
+                        { name: "id", type: "integer", modifiers: ["primary"] },
+                        { name: "name", type: "string", modifiers: ["unique"] },
+                        { name: "description", type: "string", modifiers: ["nullable"] }
                     ],
                     relations: [
-                        { type: 'hasMany', target: 'Book' }
+                        { type: "hasMany", target: "Book" }
                     ],
                     methods: [
                         {
-                            name: 'listCategoriesAction',
-                            params: 'Request req',
-                            body: 'var cats = Category.modelFindAll();\nreturn json(cats);'
+                            name: "listCategoriesAction",
+                            params: "Request req",
+                            body: "var cats = Category.modelFindAll();\nreturn json(cats);"
+                        },
+                        {
+                            name: "showCategoryAction",
+                            params: "Request req",
+                            body: "var cat = Category.modelFindOne([\"id\" => req.id]);\nif (cat) {\n    return json(cat);\n}\nreturn json([\"error\" => \"Category not found\"]);"
+                        },
+                        {
+                            name: "createCategoryAction",
+                            params: "Request req",
+                            body: "var cat = Category.modelCreate([\n    \"name\" => req.name,\n    \"description\" => req.description\n]);\nreturn json([\"success\" => true, \"category\" => cat]);"
+                        },
+                        {
+                            name: "updateCategoryAction",
+                            params: "Request req",
+                            body: "var cat = Category.modelFindOne([\"id\" => req.id]);\nif (cat) {\n    Category.modelUpdate([\"id\" => req.id], [\n        \"name\" => req.name,\n        \"description\" => req.description\n    ]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Category not found\"]);"
+                        },
+                        {
+                            name: "deleteCategoryAction",
+                            params: "Request req",
+                            body: "var cat = Category.modelFindOne([\"id\" => req.id]);\nif (cat) {\n    Category.modelDelete([\"id\" => req.id]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Category not found\"]);"
                         }
                     ]
                 },
                 {
-                    id: 'm_publisher',
-                    name: 'Publisher',
+                    id: "m_publisher",
+                    name: "Publisher",
                     x: 80,
                     y: 420,
                     attributes: [
-                        { name: 'id', type: 'integer', modifiers: ['primary'] },
-                        { name: 'name', type: 'string', modifiers: ['unique'] },
-                        { name: 'address', type: 'string', modifiers: ['nullable'] },
-                        { name: 'phone', type: 'string', modifiers: ['nullable'] }
+                        { name: "id", type: "integer", modifiers: ["primary"] },
+                        { name: "name", type: "string", modifiers: ["unique"] },
+                        { name: "address", type: "string", modifiers: ["nullable"] },
+                        { name: "phone", type: "string", modifiers: ["nullable"] }
                     ],
                     relations: [
-                        { type: 'hasMany', target: 'Book' }
+                        { type: "hasMany", target: "Book" }
                     ],
-                    methods: []
+                    methods: [
+                        {
+                            name: "listPublishersAction",
+                            params: "Request req",
+                            body: "var pubs = Publisher.modelFindAll();\nreturn json(pubs);"
+                        },
+                        {
+                            name: "showPublisherAction",
+                            params: "Request req",
+                            body: "var pub = Publisher.modelFindOne([\"id\" => req.id]);\nif (pub) {\n    return json(pub);\n}\nreturn json([\"error\" => \"Publisher not found\"]);"
+                        },
+                        {
+                            name: "createPublisherAction",
+                            params: "Request req",
+                            body: "var pub = Publisher.modelCreate([\n    \"name\" => req.name,\n    \"address\" => req.address,\n    \"phone\" => req.phone\n]);\nreturn json([\"success\" => true, \"publisher\" => pub]);"
+                        },
+                        {
+                            name: "updatePublisherAction",
+                            params: "Request req",
+                            body: "var pub = Publisher.modelFindOne([\"id\" => req.id]);\nif (pub) {\n    Publisher.modelUpdate([\"id\" => req.id], [\n        \"name\" => req.name,\n        \"address\" => req.address,\n        \"phone\" => req.phone\n    ]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Publisher not found\"]);"
+                        },
+                        {
+                            name: "deletePublisherAction",
+                            params: "Request req",
+                            body: "var pub = Publisher.modelFindOne([\"id\" => req.id]);\nif (pub) {\n    Publisher.modelDelete([\"id\" => req.id]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Publisher not found\"]);"
+                        }
+                    ]
                 },
                 {
-                    id: 'm_author',
-                    name: 'Author',
+                    id: "m_author",
+                    name: "Author",
                     x: 80,
                     y: 780,
                     attributes: [
-                        { name: 'id', type: 'integer', modifiers: ['primary'] },
-                        { name: 'name', type: 'string', modifiers: [] },
-                        { name: 'biography', type: 'text', modifiers: ['nullable'] },
-                        { name: 'birthDate', type: 'date', modifiers: ['nullable'] }
+                        { name: "id", type: "integer", modifiers: ["primary"] },
+                        { name: "name", type: "string", modifiers: [] },
+                        { name: "biography", type: "text", modifiers: ["nullable"] },
+                        { name: "birthDate", type: "date", modifiers: ["nullable"] }
                     ],
                     relations: [
-                        { type: 'belongsToMany', target: 'Book' }
+                        { type: "belongsToMany", target: "Book" }
                     ],
-                    methods: []
+                    methods: [
+                        {
+                            name: "listAuthorsAction",
+                            params: "Request req",
+                            body: "var authors = Author.modelFindAll();\nreturn json(authors);"
+                        },
+                        {
+                            name: "showAuthorAction",
+                            params: "Request req",
+                            body: "var author = Author.modelFindOne([\"id\" => req.id]);\nif (author) {\n    return json(author);\n}\nreturn json([\"error\" => \"Author not found\"]);"
+                        },
+                        {
+                            name: "createAuthorAction",
+                            params: "Request req",
+                            body: "var author = Author.modelCreate([\n    \"name\" => req.name,\n    \"biography\" => req.biography,\n    \"birthDate\" => req.birthDate\n]);\nreturn json([\"success\" => true, \"author\" => author]);"
+                        },
+                        {
+                            name: "updateAuthorAction",
+                            params: "Request req",
+                            body: "var author = Author.modelFindOne([\"id\" => req.id]);\nif (author) {\n    Author.modelUpdate([\"id\" => req.id], [\n        \"name\" => req.name,\n        \"biography\" => req.biography,\n        \"birthDate\" => req.birthDate\n    ]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Author not found\"]);"
+                        },
+                        {
+                            name: "deleteAuthorAction",
+                            params: "Request req",
+                            body: "var author = Author.modelFindOne([\"id\" => req.id]);\nif (author) {\n    Author.modelDelete([\"id\" => req.id]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Author not found\"]);"
+                        }
+                    ]
                 },
                 {
-                    id: 'm_book',
-                    name: 'Book',
+                    id: "m_book",
+                    name: "Book",
                     x: 480,
                     y: 280,
                     attributes: [
-                        { name: 'id', type: 'integer', modifiers: ['primary'] },
-                        { name: 'title', type: 'string', modifiers: [] },
-                        { name: 'isbn', type: 'string', modifiers: ['unique'] },
-                        { name: 'year', type: 'integer', modifiers: [] },
-                        { name: 'Category_id', type: 'integer', modifiers: [] },
-                        { name: 'Publisher_id', type: 'integer', modifiers: [] },
-                        { name: 'available', type: 'boolean', modifiers: ['default(true)'] }
+                        { name: "id", type: "integer", modifiers: ["primary"] },
+                        { name: "title", type: "string", modifiers: [] },
+                        { name: "isbn", type: "string", modifiers: ["unique"] },
+                        { name: "year", type: "integer", modifiers: [] },
+                        { name: "Category_id", type: "integer", modifiers: [] },
+                        { name: "Publisher_id", type: "integer", modifiers: [] },
+                        { name: "available", type: "boolean", modifiers: ["default(true)"] }
                     ],
                     relations: [
-                        { type: 'belongsTo', target: 'Category' },
-                        { type: 'belongsTo', target: 'Publisher' },
-                        { type: 'belongsToMany', target: 'Author' },
-                        { type: 'hasMany', target: 'BorrowRecord' },
-                        { type: 'hasMany', target: 'Reservation' }
+                        { type: "belongsTo", target: "Category" },
+                        { type: "belongsTo", target: "Publisher" },
+                        { type: "belongsToMany", target: "Author" },
+                        { type: "hasMany", target: "BorrowRecord" },
+                        { type: "hasMany", target: "Reservation" }
                     ],
                     methods: [
                         {
-                            name: 'indexAction',
-                            params: 'Request req',
-                            body: 'return json(["success" => true]);'
+                            name: "indexAction",
+                            params: "Request req",
+                            body: "return json([\"success\" => true]);"
                         },
                         {
-                            name: 'listBooksAction',
-                            params: 'Request req',
-                            body: 'var books = Book.modelFindAll();\nreturn json(books);'
+                            name: "listBooksAction",
+                            params: "Request req",
+                            body: "var books = Book.modelFindAll();\nreturn json(books);"
                         },
                         {
-                            name: 'createBookAction',
-                            params: 'Request req',
-                            body: 'var book = Book.modelCreate([\n    "title" => req.title,\n    "isbn" => req.isbn,\n    "year" => req.year,\n    "Category_id" => req.categoryId,\n    "Publisher_id" => req.publisherId,\n    "available" => true\n]);\nreturn json(["success" => true]);'
+                            name: "showBookAction",
+                            params: "Request req",
+                            body: "var book = Book.modelFindOne([\"id\" => req.id]);\nif (book) {\n    return json(book);\n}\nreturn json([\"error\" => \"Book not found\"]);"
                         },
                         {
-                            name: 'borrowBookAction',
-                            params: 'Request req',
-                            body: 'var book = Book.modelFindOne(["id" => req.bookId]);\nif (book.available) {\n    var due = req.dueDate;\n    var record = BorrowRecord.modelCreate([\n        "Book_id" => book.id,\n        "Member_id" => req.memberId,\n        "borrowedAt" => req.borrowedAt,\n        "dueDate" => due\n    ]);\n    Book.modelUpdate(["id" => book.id], ["available" => false]);\n    return json(["success" => true, "borrowId" => record.id]);\n} else {\n    return json(["error" => "Book is currently unavailable"]);\n}'
+                            name: "createBookAction",
+                            params: "Request req",
+                            body: "var book = Book.modelCreate([\n    \"title\" => req.title,\n    \"isbn\" => req.isbn,\n    \"year\" => req.year,\n    \"Category_id\" => req.Category_id,\n    \"Publisher_id\" => req.Publisher_id,\n    \"available\" => true\n]);\nreturn json([\"success\" => true, \"book\" => book]);"
                         },
                         {
-                            name: 'returnBookAction',
-                            params: 'Request req',
-                            body: 'var record = BorrowRecord.modelFindOne(["Book_id" => req.bookId, "returnedAt" => null]);\nif (record) {\n    var returnedTime = req.returnedAt;\n    BorrowRecord.modelUpdate(["id" => record.id], ["returnedAt" => returnedTime]);\n    Book.modelUpdate(["id" => req.bookId], ["available" => true]);\n\n    if (returnedTime > record.dueDate) {\n        var denda = Fine.modelCreate([\n            "BorrowRecord_id" => record.id,\n            "Member_id" => record.Member_id,\n            "amount" => 50000.00,\n            "isPaid" => false\n        ]);\n        return json(["success" => true, "status" => "returned_with_fine", "fineAmount" => 50000.00]);\n    }\n    return json(["success" => true, "status" => "returned_on_time"]);\n} else {\n    return json(["error" => "No active borrow record found"]);\n}'
+                            name: "updateBookAction",
+                            params: "Request req",
+                            body: "var book = Book.modelFindOne([\"id\" => req.id]);\nif (book) {\n    Book.modelUpdate([\"id\" => req.id], [\n        \"title\" => req.title,\n        \"isbn\" => req.isbn,\n        \"year\" => req.year,\n        \"Category_id\" => req.Category_id,\n        \"Publisher_id\" => req.Publisher_id,\n        \"available\" => req.available\n    ]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Book not found\"]);"
+                        },
+                        {
+                            name: "deleteBookAction",
+                            params: "Request req",
+                            body: "var book = Book.modelFindOne([\"id\" => req.id]);\nif (book) {\n    Book.modelDelete([\"id\" => req.id]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Book not found\"]);"
+                        },
+                        {
+                            name: "borrowBookAction",
+                            params: "Request req",
+                            body: "var book = Book.modelFindOne([\"id\" => req.bookId]);\nif (book.available) {\n    var due = req.dueDate;\n    var record = BorrowRecord.modelCreate([\n        \"Book_id\" => book.id,\n        \"Member_id\" => req.memberId,\n        \"borrowedAt\" => req.borrowedAt,\n        \"dueDate\" => due\n    ]);\n    Book.modelUpdate([\"id\" => book.id], [\"available\" => false]);\n    return json([\"success\" => true, \"borrowId\" => record.id]);\n} else {\n    return json([\"error\" => \"Book is currently unavailable\"]);\n}"
+                        },
+                        {
+                            name: "returnBookAction",
+                            params: "Request req",
+                            body: "var record = BorrowRecord.modelFindOne([\"Book_id\" => req.bookId, \"returnedAt\" => null]);\nif (record) {\n    var returnedTime = req.returnedAt;\n    BorrowRecord.modelUpdate([\"id\" => record.id], [\"returnedAt\" => returnedTime]);\n    Book.modelUpdate([\"id\" => req.bookId], [\"available\" => true]);\n\n    if (returnedTime > record.dueDate) {\n        var denda = Fine.modelCreate([\n            \"BorrowRecord_id\" => record.id,\n            \"Member_id\" => record.Member_id,\n            \"amount\" => 50000.00,\n            \"isPaid\" => false\n        ]);\n        return json([\"success\" => true, \"status\" => \"returned_with_fine\", \"fineAmount\" => 50000.00]);\n    }\n    return json([\"success\" => true, \"status\" => \"returned_on_time\"]);\n} else {\n    return json([\"error\" => \"No active borrow record found\"]);\n}"
                         }
                     ]
                 },
                 {
-                    id: 'm_authorbook',
-                    name: 'AuthorBook',
+                    id: "m_authorbook",
+                    name: "AuthorBook",
                     x: 480,
                     y: 840,
                     attributes: [
-                        { name: 'id', type: 'integer', modifiers: ['primary'] },
-                        { name: 'Book_id', type: 'integer', modifiers: [] },
-                        { name: 'Author_id', type: 'integer', modifiers: [] }
+                        { name: "id", type: "integer", modifiers: ["primary"] },
+                        { name: "Book_id", type: "integer", modifiers: [] },
+                        { name: "Author_id", type: "integer", modifiers: [] }
                     ],
                     relations: [
-                        { type: 'belongsTo', target: 'Book' },
-                        { type: 'belongsTo', target: 'Author' }
+                        { type: "belongsTo", target: "Book" },
+                        { type: "belongsTo", target: "Author" }
                     ],
                     methods: []
                 },
                 {
-                    id: 'm_member',
-                    name: 'Member',
+                    id: "m_member",
+                    name: "Member",
                     x: 880,
                     y: 80,
                     attributes: [
-                        { name: 'id', type: 'integer', modifiers: ['primary'] },
-                        { name: 'name', type: 'string', modifiers: [] },
-                        { name: 'email', type: 'string', modifiers: ['unique'] },
-                        { name: 'phone', type: 'string', modifiers: ['nullable'] },
-                        { name: 'membershipDate', type: 'date', modifiers: [] },
-                        { name: 'status', type: 'string', modifiers: ['default("active")'] }
+                        { name: "id", type: "integer", modifiers: ["primary"] },
+                        { name: "name", type: "string", modifiers: [] },
+                        { name: "email", type: "string", modifiers: ["unique"] },
+                        { name: "phone", type: "string", modifiers: ["nullable"] },
+                        { name: "membershipDate", type: "date", modifiers: [] },
+                        { name: "status", type: "string", modifiers: ["default(\"active\")"] }
                     ],
                     relations: [
-                        { type: 'hasMany', target: 'BorrowRecord' },
-                        { type: 'hasMany', target: 'Reservation' },
-                        { type: 'hasMany', target: 'Fine' }
+                        { type: "hasMany", target: "BorrowRecord" },
+                        { type: "hasMany", target: "Reservation" },
+                        { type: "hasMany", target: "Fine" }
                     ],
                     methods: [
                         {
-                            name: 'registerMemberAction',
-                            params: 'Request req',
-                            body: 'var m = Member.modelCreate([\n    "name" => req.name,\n    "email" => req.email,\n    "phone" => req.phone,\n    "membershipDate" => req.membershipDate,\n    "status" => "active"\n]);\nreturn json(["success" => true, "memberId" => m.id]);'
+                            name: "listMembersAction",
+                            params: "Request req",
+                            body: "var members = Member.modelFindAll();\nreturn json(members);"
+                        },
+                        {
+                            name: "showMemberAction",
+                            params: "Request req",
+                            body: "var m = Member.modelFindOne([\"id\" => req.id]);\nif (m) {\n    return json(m);\n}\nreturn json([\"error\" => \"Member not found\"]);"
+                        },
+                        {
+                            name: "registerMemberAction",
+                            params: "Request req",
+                            body: "var m = Member.modelCreate([\n    \"name\" => req.name,\n    \"email\" => req.email,\n    \"phone\" => req.phone,\n    \"membershipDate\" => req.membershipDate,\n    \"status\" => \"active\"\n]);\nreturn json([\"success\" => true, \"memberId\" => m.id]);"
+                        },
+                        {
+                            name: "updateMemberAction",
+                            params: "Request req",
+                            body: "var m = Member.modelFindOne([\"id\" => req.id]);\nif (m) {\n    Member.modelUpdate([\"id\" => req.id], [\n        \"name\" => req.name,\n        \"email\" => req.email,\n        \"phone\" => req.phone,\n        \"status\" => req.status\n    ]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Member not found\"]);"
+                        },
+                        {
+                            name: "deleteMemberAction",
+                            params: "Request req",
+                            body: "var m = Member.modelFindOne([\"id\" => req.id]);\nif (m) {\n    Member.modelDelete([\"id\" => req.id]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Member not found\"]);"
                         }
                     ]
                 },
                 {
-                    id: 'm_borrowrecord',
-                    name: 'BorrowRecord',
+                    id: "m_borrowrecord",
+                    name: "BorrowRecord",
                     x: 880,
                     y: 460,
                     attributes: [
-                        { name: 'id', type: 'integer', modifiers: ['primary'] },
-                        { name: 'Book_id', type: 'integer', modifiers: [] },
-                        { name: 'Member_id', type: 'integer', modifiers: [] },
-                        { name: 'borrowedAt', type: 'datetime', modifiers: [] },
-                        { name: 'dueDate', type: 'datetime', modifiers: [] },
-                        { name: 'returnedAt', type: 'datetime', modifiers: ['nullable'] }
+                        { name: "id", type: "integer", modifiers: ["primary"] },
+                        { name: "Book_id", type: "integer", modifiers: [] },
+                        { name: "Member_id", type: "integer", modifiers: [] },
+                        { name: "borrowedAt", type: "datetime", modifiers: [] },
+                        { name: "dueDate", type: "datetime", modifiers: [] },
+                        { name: "returnedAt", type: "datetime", modifiers: ["nullable"] }
                     ],
                     relations: [
-                        { type: 'belongsTo', target: 'Book' },
-                        { type: 'belongsTo', target: 'Member' },
-                        { type: 'hasOne', target: 'Fine' }
+                        { type: "belongsTo", target: "Book" },
+                        { type: "belongsTo", target: "Member" },
+                        { type: "hasOne", target: "Fine" }
                     ],
                     methods: []
                 },
                 {
-                    id: 'm_reservation',
-                    name: 'Reservation',
+                    id: "m_reservation",
+                    name: "Reservation",
                     x: 1280,
                     y: 200,
                     attributes: [
-                        { name: 'id', type: 'integer', modifiers: ['primary'] },
-                        { name: 'Book_id', type: 'integer', modifiers: [] },
-                        { name: 'Member_id', type: 'integer', modifiers: [] },
-                        { name: 'reservedAt', type: 'datetime', modifiers: [] },
-                        { name: 'status', type: 'string', modifiers: ['default("pending")'] }
+                        { name: "id", type: "integer", modifiers: ["primary"] },
+                        { name: "Book_id", type: "integer", modifiers: [] },
+                        { name: "Member_id", type: "integer", modifiers: [] },
+                        { name: "reservedAt", type: "datetime", modifiers: [] },
+                        { name: "status", type: "string", modifiers: ["default(\"pending\")"] }
                     ],
                     relations: [
-                        { type: 'belongsTo', target: 'Book' },
-                        { type: 'belongsTo', target: 'Member' }
+                        { type: "belongsTo", target: "Book" },
+                        { type: "belongsTo", target: "Member" }
                     ],
                     methods: [
                         {
-                            name: 'reserveBookAction',
-                            params: 'Request req',
-                            body: 'var book = Book.modelFindOne(["id" => req.bookId]);\nif (book) {\n    var res = Reservation.modelCreate([\n        "Book_id" => book.id,\n        "Member_id" => req.memberId,\n        "reservedAt" => req.reservedAt,\n        "status" => "pending"\n    ]);\n    return json(["success" => true, "reservationId" => res.id]);\n}\nreturn json(["error" => "Book not found"]);'
+                            name: "listReservationsAction",
+                            params: "Request req",
+                            body: "var res = Reservation.modelFindAll();\nreturn json(res);"
+                        },
+                        {
+                            name: "showReservationAction",
+                            params: "Request req",
+                            body: "var res = Reservation.modelFindOne([\"id\" => req.id]);\nif (res) {\n    return json(res);\n}\nreturn json([\"error\" => \"Reservation not found\"]);"
+                        },
+                        {
+                            name: "reserveBookAction",
+                            params: "Request req",
+                            body: "var book = Book.modelFindOne([\"id\" => req.bookId]);\nif (book) {\n    var res = Reservation.modelCreate([\n        \"Book_id\" => book.id,\n        \"Member_id\" => req.memberId,\n        \"reservedAt\" => req.reservedAt,\n        \"status\" => \"pending\"\n    ]);\n    return json([\"success\" => true, \"reservationId\" => res.id]);\n}\nreturn json([\"error\" => \"Book not found\"]);"
+                        },
+                        {
+                            name: "cancelReservationAction",
+                            params: "Request req",
+                            body: "var res = Reservation.modelFindOne([\"id\" => req.id]);\nif (res) {\n    Reservation.modelDelete([\"id\" => req.id]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Reservation not found\"]);"
                         }
                     ]
                 },
                 {
-                    id: 'm_fine',
-                    name: 'Fine',
+                    id: "m_fine",
+                    name: "Fine",
                     x: 1280,
                     y: 600,
                     attributes: [
-                        { name: 'id', type: 'integer', modifiers: ['primary'] },
-                        { name: 'BorrowRecord_id', type: 'integer', modifiers: [] },
-                        { name: 'Member_id', type: 'integer', modifiers: [] },
-                        { name: 'amount', type: 'decimal', modifiers: [] },
-                        { name: 'isPaid', type: 'boolean', modifiers: ['default(false)'] }
+                        { name: "id", type: "integer", modifiers: ["primary"] },
+                        { name: "BorrowRecord_id", type: "integer", modifiers: [] },
+                        { name: "Member_id", type: "integer", modifiers: [] },
+                        { name: "amount", type: "decimal", modifiers: [] },
+                        { name: "isPaid", type: "boolean", modifiers: ["default(false)"] }
                     ],
                     relations: [
-                        { type: 'belongsTo', target: 'BorrowRecord' },
-                        { type: 'belongsTo', target: 'Member' }
+                        { type: "belongsTo", target: "BorrowRecord" },
+                        { type: "belongsTo", target: "Member" }
                     ],
                     methods: [
                         {
-                            name: 'payFineAction',
-                            params: 'Request req',
-                            body: 'var fine = Fine.modelFindOne(["id" => req.fineId]);\nif (fine) {\n    Fine.modelUpdate(["id" => fine.id], ["isPaid" => true]);\n    return json(["success" => true]);\n}\nreturn json(["error" => "Fine record not found"]);'
+                            name: "listFinesAction",
+                            params: "Request req",
+                            body: "var fines = Fine.modelFindAll();\nreturn json(fines);"
+                        },
+                        {
+                            name: "showFineAction",
+                            params: "Request req",
+                            body: "var fine = Fine.modelFindOne([\"id\" => req.id]);\nif (fine) {\n    return json(fine);\n}\nreturn json([\"error\" => \"Fine record not found\"]);"
+                        },
+                        {
+                            name: "payFineAction",
+                            params: "Request req",
+                            body: "var fine = Fine.modelFindOne([\"id\" => req.fineId]);\nif (fine) {\n    Fine.modelUpdate([\"id\" => fine.id], [\"isPaid\" => true]);\n    return json([\"success\" => true]);\n}\nreturn json([\"error\" => \"Fine record not found\"]);"
                         }
                     ]
                 }
             ],
             middlewares: [
                 {
-                    id: 'mw_auth',
-                    name: 'AuthMiddleware',
-                    template: 'custom',
+                    id: "mw_auth",
+                    name: "AuthMiddleware",
+                    template: "custom",
                     config: {
-                        customCode: 'if (req.token != "123456") {\n    return json(["error" => "Token invalid"]);\n}'
+                        customCode: "if (req.token != \"123456\") {\n    return json([\"error\" => \"Token invalid\"]);\n}"
                     }
                 }
             ],
             controllers: [],
             routes: [
-                {
-                    id: 'r_0',
-                    method: 'get',
-                    path: '/',
-                    controller: 'BookController',
-                    action: 'indexAction',
-                    middlewares: []
-                },
-                {
-                    id: 'r_1',
-                    method: 'get',
-                    path: '/books',
-                    controller: 'BookController',
-                    action: 'listBooksAction',
-                    middlewares: ['AuthMiddleware']
-                },
-                {
-                    id: 'r_2',
-                    method: 'post',
-                    path: '/books',
-                    controller: 'BookController',
-                    action: 'createBookAction',
-                    middlewares: ['AuthMiddleware']
-                },
-                {
-                    id: 'r_3',
-                    method: 'post',
-                    path: '/books/borrow',
-                    controller: 'BookController',
-                    action: 'borrowBookAction',
-                    middlewares: ['AuthMiddleware']
-                },
-                {
-                    id: 'r_4',
-                    method: 'post',
-                    path: '/books/return',
-                    controller: 'BookController',
-                    action: 'returnBookAction',
-                    middlewares: ['AuthMiddleware']
-                },
-                {
-                    id: 'r_5',
-                    method: 'post',
-                    path: '/members',
-                    controller: 'MemberController',
-                    action: 'registerMemberAction',
-                    middlewares: []
-                },
-                {
-                    id: 'r_6',
-                    method: 'post',
-                    path: '/reservations',
-                    controller: 'ReservationController',
-                    action: 'reserveBookAction',
-                    middlewares: ['AuthMiddleware']
-                },
-                {
-                    id: 'r_7',
-                    method: 'post',
-                    path: '/fines/pay',
-                    controller: 'FineController',
-                    action: 'payFineAction',
-                    middlewares: ['AuthMiddleware']
-                },
-                {
-                    id: 'r_8',
-                    method: 'get',
-                    path: '/categories',
-                    controller: 'CategoryController',
-                    action: 'listCategoriesAction',
-                    middlewares: []
-                }
+                { id: "r_0", method: "get", path: "/", controller: "BookController", action: "indexAction", middlewares: [] },
+                { id: "r_1", method: "get", path: "/books", controller: "BookController", action: "listBooksAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_2", method: "get", path: "/books/detail", controller: "BookController", action: "showBookAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_3", method: "post", path: "/books", controller: "BookController", action: "createBookAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_4", method: "put", path: "/books", controller: "BookController", action: "updateBookAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_5", method: "delete", path: "/books", controller: "BookController", action: "deleteBookAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_6", method: "post", path: "/books/borrow", controller: "BookController", action: "borrowBookAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_7", method: "post", path: "/books/return", controller: "BookController", action: "returnBookAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_8", method: "get", path: "/categories", controller: "CategoryController", action: "listCategoriesAction", middlewares: [] },
+                { id: "r_9", method: "get", path: "/categories/detail", controller: "CategoryController", action: "showCategoryAction", middlewares: [] },
+                { id: "r_10", method: "post", path: "/categories", controller: "CategoryController", action: "createCategoryAction", middlewares: [] },
+                { id: "r_11", method: "put", path: "/categories", controller: "CategoryController", action: "updateCategoryAction", middlewares: [] },
+                { id: "r_12", method: "delete", path: "/categories", controller: "CategoryController", action: "deleteCategoryAction", middlewares: [] },
+                { id: "r_13", method: "get", path: "/publishers", controller: "PublisherController", action: "listPublishersAction", middlewares: [] },
+                { id: "r_14", method: "get", path: "/publishers/detail", controller: "PublisherController", action: "showPublisherAction", middlewares: [] },
+                { id: "r_15", method: "post", path: "/publishers", controller: "PublisherController", action: "createPublisherAction", middlewares: [] },
+                { id: "r_16", method: "put", path: "/publishers", controller: "PublisherController", action: "updatePublisherAction", middlewares: [] },
+                { id: "r_17", method: "delete", path: "/publishers", controller: "PublisherController", action: "deletePublisherAction", middlewares: [] },
+                { id: "r_18", method: "get", path: "/authors", controller: "AuthorController", action: "listAuthorsAction", middlewares: [] },
+                { id: "r_19", method: "get", path: "/authors/detail", controller: "AuthorController", action: "showAuthorAction", middlewares: [] },
+                { id: "r_20", method: "post", path: "/authors", controller: "AuthorController", action: "createAuthorAction", middlewares: [] },
+                { id: "r_21", method: "put", path: "/authors", controller: "AuthorController", action: "updateAuthorAction", middlewares: [] },
+                { id: "r_22", method: "delete", path: "/authors", controller: "AuthorController", action: "deleteAuthorAction", middlewares: [] },
+                { id: "r_23", method: "get", path: "/members", controller: "MemberController", action: "listMembersAction", middlewares: [] },
+                { id: "r_24", method: "get", path: "/members/detail", controller: "MemberController", action: "showMemberAction", middlewares: [] },
+                { id: "r_25", method: "post", path: "/members", controller: "MemberController", action: "registerMemberAction", middlewares: [] },
+                { id: "r_26", method: "put", path: "/members", controller: "MemberController", action: "updateMemberAction", middlewares: [] },
+                { id: "r_27", method: "delete", path: "/members", controller: "MemberController", action: "deleteMemberAction", middlewares: [] },
+                { id: "r_28", method: "get", path: "/reservations", controller: "ReservationController", action: "listReservationsAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_29", method: "get", path: "/reservations/detail", controller: "ReservationController", action: "showReservationAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_30", method: "post", path: "/reservations", controller: "ReservationController", action: "reserveBookAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_31", method: "delete", path: "/reservations", controller: "ReservationController", action: "cancelReservationAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_32", method: "get", path: "/fines", controller: "FineController", action: "listFinesAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_33", method: "get", path: "/fines/detail", controller: "FineController", action: "showFineAction", middlewares: ["AuthMiddleware"] },
+                { id: "r_34", method: "post", path: "/fines/pay", controller: "FineController", action: "payFineAction", middlewares: ["AuthMiddleware"] }
             ]
         };
 
