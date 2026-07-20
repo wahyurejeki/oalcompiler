@@ -1,13 +1,53 @@
 // ================= Models =================
+model Category {
+    integer id primary;
+    string name unique;
+    string description nullable;
+
+    hasMany Book;
+}
+
+model Publisher {
+    integer id primary;
+    string name unique;
+    string address nullable;
+    string phone nullable;
+
+    hasMany Book;
+}
+
+model Author {
+    integer id primary;
+    string name;
+    text biography nullable;
+    date birthDate nullable;
+
+    belongsToMany Book;
+}
+
 model Book {
     integer id primary;
     string title;
-    string author;
-    integer year;
     string isbn unique;
+    integer year;
+    integer Category_id;
+    integer Publisher_id;
     boolean available default(true);
 
+    belongsTo Category;
+    belongsTo Publisher;
+    belongsToMany Author;
     hasMany BorrowRecord;
+    hasMany Reservation;
+}
+
+model AuthorBook {
+    integer id primary;
+    integer Book_id;
+    integer Author_id;
+
+    belongsTo Book;
+    belongsTo Author;
 }
 
 model Member {
@@ -15,19 +55,57 @@ model Member {
     string name;
     string email unique;
     string phone nullable;
+    date membershipDate;
+    string status default("active");
 
     hasMany BorrowRecord;
+    hasMany Reservation;
+    hasMany Fine;
 }
 
 model BorrowRecord {
     integer id primary;
+    integer Book_id;
+    integer Member_id;
+    datetime borrowedAt;
+    datetime dueDate;
+    datetime returnedAt nullable;
+
     belongsTo Book;
     belongsTo Member;
-    datetime borrowedAt;
-    datetime returnedAt nullable;
+    hasOne Fine;
+}
+
+model Reservation {
+    integer id primary;
+    integer Book_id;
+    integer Member_id;
+    datetime reservedAt;
+    string status default("pending");
+
+    belongsTo Book;
+    belongsTo Member;
+}
+
+model Fine {
+    integer id primary;
+    integer BorrowRecord_id;
+    integer Member_id;
+    decimal amount;
+    boolean isPaid default(false);
+
+    belongsTo BorrowRecord;
+    belongsTo Member;
 }
 
 // ================= Controllers =================
+controller CategoryController {
+    function listCategoriesAction(Request req) {
+        var cats = Category.modelFindAll();
+        return json(cats);
+    }
+}
+
 controller BookController {
     function indexAction(Request req) {
         return json(["success" => true]);
@@ -41,46 +119,97 @@ controller BookController {
     function createBookAction(Request req) {
         var book = Book.modelCreate([
             "title" => req.title,
-            "author" => req.author,
-            "year" => req.year,
             "isbn" => req.isbn,
+            "year" => req.year,
+            "Category_id" => req.categoryId,
+            "Publisher_id" => req.publisherId,
             "available" => true
         ]);
         return json(["success" => true]);
     }
 
     function borrowBookAction(Request req) {
-        var book = Book.modelFindOne(["isbn" => req.isbn]);
+        var book = Book.modelFindOne(["id" => req.bookId]);
         if (book.available) {
-            var pinjam = BorrowRecord.modelCreate([
+            var due = req.dueDate;
+            var record = BorrowRecord.modelCreate([
                 "Book_id" => book.id,
                 "Member_id" => req.memberId,
-                "borrowedAt" => req.borrowedAt
+                "borrowedAt" => req.borrowedAt,
+                "dueDate" => due
             ]);
-            var updatePinjam = Book.modelUpdate(["id" => book.id], ["available" => false]);
-            return json(["success" => true]);
+            Book.modelUpdate(["id" => book.id], ["available" => false]);
+            return json(["success" => true, "borrowId" => record.id]);
         } else {
-            return json(["error" => "Book not available"]);
+            return json(["error" => "Book is currently unavailable"]);
         }
     }
 
     function returnBookAction(Request req) {
-        var record = BorrowRecord.modelFindOne([
-            "Book_id" => req.bookId,
-            "Member_id" => [">",req.memberId],
-            "returnedAt" => null
-        ]);
+        var record = BorrowRecord.modelFindOne(["Book_id" => req.bookId, "returnedAt" => null]);
         if (record) {
-            var update = BorrowRecord.modelUpdate(["id" => record.id], ["returnedAt" => req.returnedAt]);
+            var returnedTime = req.returnedAt;
+            BorrowRecord.modelUpdate(["id" => record.id], ["returnedAt" => returnedTime]);
             Book.modelUpdate(["id" => req.bookId], ["available" => true]);
-            return json(["success" => true]);
+
+            // If returned after due date, create a fine
+            if (returnedTime > record.dueDate) {
+                var denda = Fine.modelCreate([
+                    "BorrowRecord_id" => record.id,
+                    "Member_id" => record.Member_id,
+                    "amount" => 50000.00,
+                    "isPaid" => false
+                ]);
+                return json(["success" => true, "status" => "returned_with_fine", "fineAmount" => 50000.00]);
+            }
+            return json(["success" => true, "status" => "returned_on_time"]);
         } else {
-            return json(["error" => "No active borrow record"]);
+            return json(["error" => "No active borrow record found"]);
         }
     }
 }
 
-// ================= Middleware =================
+controller MemberController {
+    function registerMemberAction(Request req) {
+        var m = Member.modelCreate([
+            "name" => req.name,
+            "email" => req.email,
+            "phone" => req.phone,
+            "membershipDate" => req.membershipDate,
+            "status" => "active"
+        ]);
+        return json(["success" => true, "memberId" => m.id]);
+    }
+}
+
+controller ReservationController {
+    function reserveBookAction(Request req) {
+        var book = Book.modelFindOne(["id" => req.bookId]);
+        if (book) {
+            var res = Reservation.modelCreate([
+                "Book_id" => book.id,
+                "Member_id" => req.memberId,
+                "reservedAt" => req.reservedAt,
+                "status" => "pending"
+            ]);
+            return json(["success" => true, "reservationId" => res.id]);
+        }
+        return json(["error" => "Book not found"]);
+    }
+}
+
+controller FineController {
+    function payFineAction(Request req) {
+        var fine = Fine.modelFindOne(["id" => req.fineId]);
+        if (fine) {
+            Fine.modelUpdate(["id" => fine.id], ["isPaid" => true]);
+            return json(["success" => true]);
+        }
+        return json(["error" => "Fine record not found"]);
+    }
+}
+
+// ================= Middlewares =================
 middleware AuthMiddleware {
     function handleAction(Request req) {
         if (req.token != "123456") {
@@ -95,3 +224,7 @@ route get "/books" -> BookController@listBooksAction middleware AuthMiddleware;
 route post "/books" -> BookController@createBookAction middleware AuthMiddleware;
 route post "/books/borrow" -> BookController@borrowBookAction middleware AuthMiddleware;
 route post "/books/return" -> BookController@returnBookAction middleware AuthMiddleware;
+route post "/members" -> MemberController@registerMemberAction;
+route post "/reservations" -> ReservationController@reserveBookAction middleware AuthMiddleware;
+route post "/fines/pay" -> FineController@payFineAction middleware AuthMiddleware;
+route get "/categories" -> CategoryController@listCategoriesAction;
