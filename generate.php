@@ -1,4 +1,12 @@
 <?php
+// Set Composer environment variables for web hosting and shared servers
+$composerHome = __DIR__ . '/.composer';
+if (!is_dir($composerHome)) {
+    @mkdir($composerHome, 0755, true);
+}
+putenv('COMPOSER_HOME=' . $composerHome);
+putenv('HOME=' . $composerHome);
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Antlr\Antlr4\Runtime\CommonTokenStream;
