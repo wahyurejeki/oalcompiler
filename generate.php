@@ -20,12 +20,15 @@ use Antlr\Antlr4\Runtime\InputStream;
 
 $inputFile = 'examples/library.oal';
 $framework = 'laravel';
+$skipFormat = false;
 
 foreach ($argv as $arg) {
     if (str_ends_with($arg, '.oal')) {
         $inputFile = $arg;
     } elseif (strpos($arg, 'framework=') === 0) {
         $framework = explode('=', $arg)[1];
+    } elseif ($arg === '--no-format') {
+        $skipFormat = true;
     }
 }
 
@@ -153,8 +156,12 @@ TEXT;
         exec("npm install $packages --prefix $dirPathOutput");
     }
 
-    echo "Formatting code with Prettier...\n";
-    exec("cd $dirPathOutput && npx prettier --write . --ignore-path .prettierignore");
+    if (!$skipFormat) {
+        echo "Formatting code with Prettier...\n";
+        @exec("cd $dirPathOutput && npx prettier --write . --ignore-path .prettierignore");
+    } else {
+        echo "Skipping code formatting...\n";
+    }
 
     echo "Generated Express.js code successfully\n";
     exit;
@@ -337,8 +344,12 @@ if (!empty($requirements)) {
     }
 }
 
-echo "Formatting generated Laravel code...\n";
-exec("composer format $dirPathOutput");
+if (!$skipFormat) {
+    echo "Formatting generated Laravel code...\n";
+    @exec("composer format $dirPathOutput");
+} else {
+    echo "Skipping code formatting...\n";
+}
 echo "Generated Laravel PHP code successfully\n";
 
 function generateDatabaseSeeder($modelMetadata) {

@@ -54,7 +54,7 @@ switch ($action) {
         $currentDir = getcwd();
         chdir($projectRoot);
         
-        $command = "php generate.php " . escapeshellarg($relativeOalPath) . " 2>&1";
+        $command = "php generate.php " . escapeshellarg($relativeOalPath) . " --no-format 2>&1";
         $output = [];
         $returnVar = 0;
         exec($command, $output, $returnVar);
