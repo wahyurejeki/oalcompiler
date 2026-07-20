@@ -780,6 +780,98 @@ document.addEventListener('DOMContentLoaded', () => {
             canvasSvg.appendChild(tempLine);
         });
 
+        // Click on Anchor (alternative to drag & drop)
+        anchor.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            // Get all other models
+            const otherModels = state.models.filter(m => m.id !== model.id);
+            if (otherModels.length === 0) {
+                Swal.fire({
+                    title: 'No Other Models',
+                    text: 'Create another model first before adding a relationship.',
+                    icon: 'info',
+                    confirmButtonColor: '#4f46e5'
+                });
+                return;
+            }
+
+            const modelOptions = otherModels.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            
+            Swal.fire({
+                title: `Link from ${model.name}`,
+                html: `
+                    <div style="text-align: left; font-family: var(--font-sans); margin-top: 10px;">
+                        <div style="margin-bottom: 12px;">
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Target Model</label>
+                            <select id="swal-rel-target" class="form-select" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none;">
+                                ${modelOptions}
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px;">Relationship Type</label>
+                            <select id="swal-rel-type" class="form-select" style="width: 100%; padding: 8px 12px; font-size: 13px; border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none;">
+                                <option value="hasMany">hasMany</option>
+                                <option value="belongsTo">belongsTo</option>
+                                <option value="hasOne">hasOne</option>
+                                <option value="belongsToMany">belongsToMany</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonColor: '#4f46e5',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Create Link',
+                preConfirm: () => {
+                    return {
+                        targetId: document.getElementById('swal-rel-target').value,
+                        relType: document.getElementById('swal-rel-type').value
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const data = result.value;
+                    const targetModel = state.models.find(m => m.id === data.targetId);
+                    if (targetModel) {
+                        // 1. Add relationship to Source Model
+                        const existsSource = model.relations.some(r => r.target === targetModel.name && r.type === data.relType);
+                        if (!existsSource) {
+                            model.relations.push({
+                                type: data.relType,
+                                target: targetModel.name
+                            });
+                        }
+
+                        // 2. Add reciprocal relationship to Target Model
+                        let reciprocalType = '';
+                        if (data.relType === 'hasMany') {
+                            reciprocalType = 'belongsTo';
+                        } else if (data.relType === 'belongsTo') {
+                            reciprocalType = 'hasMany';
+                        } else if (data.relType === 'hasOne') {
+                            reciprocalType = 'belongsTo';
+                        } else if (data.relType === 'belongsToMany') {
+                            reciprocalType = 'belongsToMany';
+                        }
+
+                        if (reciprocalType) {
+                            const existsTarget = targetModel.relations.some(r => r.target === model.name && r.type === reciprocalType);
+                            if (!existsTarget) {
+                                targetModel.relations.push({
+                                    type: reciprocalType,
+                                    target: model.name
+                                });
+                            }
+                        }
+
+                        updateLines();
+                        generateOAL();
+                    }
+                }
+            });
+        });
+
         // Mouseup on Model Node (to complete links)
         node.addEventListener('mouseup', (e) => {
             if (isDrawingLine && lineStartModelId && lineStartModelId !== model.id) {
