@@ -31,6 +31,7 @@
             <li class="nav-item active"><a class="nav-link" href="/"><i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span></a></li>
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Modules</div>
+<li class="nav-item"><a class="nav-link" href="/"><i class="fas fa-fw fa-link"></i><span>Dashboard</span></a></li>
 <li class="nav-item"><a class="nav-link" href="/books"><i class="fas fa-fw fa-link"></i><span>Books</span></a></li>
 
         </ul>
