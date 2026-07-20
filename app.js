@@ -1836,10 +1836,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 compilerStatusBadge.textContent = 'Success';
                 compilerStatusBadge.className = 'badge badge-success';
                 compilerConsoleLog.textContent = data.output;
+
+                // Auto download zip file if available
+                if (data.zip_url) {
+                    const link = document.createElement('a');
+                    link.href = data.zip_url + '?t=' + Date.now(); // Cache busting
+                    link.download = 'project_laravel.zip';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    Swal.fire({
+                        title: 'Compilation Success!',
+                        text: 'Your Laravel project has been compiled, PANDUAN.md created, and the ZIP package downloaded successfully.',
+                        icon: 'success',
+                        confirmButtonColor: '#4f46e5'
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Compilation Success!',
+                        text: 'Your Laravel project files have been compiled successfully.',
+                        icon: 'success',
+                        confirmButtonColor: '#4f46e5'
+                    });
+                }
             } else {
                 compilerStatusBadge.textContent = 'Failed';
                 compilerStatusBadge.className = 'badge badge-error';
                 compilerConsoleLog.textContent = data.output || 'Unknown compilation error.';
+
+                Swal.fire({
+                    title: 'Compilation Failed',
+                    text: 'There was an error compiling your diagram to Laravel.',
+                    icon: 'error',
+                    confirmButtonColor: '#4f46e5'
+                });
             }
         })
         .catch(err => {
