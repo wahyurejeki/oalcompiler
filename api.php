@@ -170,7 +170,7 @@ EOD;
 
             // Write postman_collection.json to template/postman_collection.json
             $postmanFile = $projectRoot . '/template/postman_collection.json';
-            $postmanContent = generatePostmanCollection($input['routes'] ?? []);
+            $postmanContent = generatePostmanCollection($input['routes'] ?? [], $input['models'] ?? []);
             file_put_contents($postmanFile, $postmanContent);
 
             // Zip the template directory excluding vendor/node_modules/.git
@@ -245,8 +245,15 @@ function zipDir($source, $destination) {
     return $zip->close();
 }
 
-function generatePostmanCollection($routes) {
+function generatePostmanCollection($routes, $models) {
     $items = [];
+    
+    // Group models by their lowercase name for easy lookup
+    $modelsMap = [];
+    foreach ($models as $m) {
+        $modelsMap[strtolower($m['name'] ?? '')] = $m;
+    }
+
     foreach ($routes as $route) {
         $method = strtoupper($route['method'] ?? 'GET');
         $path = $route['path'] ?? '/';
@@ -285,12 +292,96 @@ function generatePostmanCollection($routes) {
             ];
         }
 
-        // For POST/PUT, add a placeholder raw JSON body
+        // For POST/PUT/PATCH, generate a smart JSON body
         $body = null;
         if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
+            $jsonData = [];
+            
+            // 1. Identify target model name from controller (e.g. BookController -> book)
+            $controller = $route['controller'] ?? '';
+            $actionName = $route['action'] ?? '';
+            $targetModelName = strtolower(str_replace('Controller', '', $controller));
+            
+            // 2. Find the model and check if custom action or standard action
+            if (isset($modelsMap[$targetModelName])) {
+                $modelObj = $modelsMap[$targetModelName];
+                
+                // Check if it's a custom action and find its OAL body
+                $customActionBody = '';
+                if (isset($modelObj['methods'])) {
+                    foreach ($modelObj['methods'] as $mthd) {
+                        if (($mthd['name'] ?? '') === $actionName) {
+                            $customActionBody = $mthd['body'] ?? '';
+                            break;
+                        }
+                    }
+                }
+                
+                // If custom action and we found 'req.<property>' patterns
+                if ($customActionBody && preg_match_all('/\breq\.([a-zA-Z0-9_]+)/', $customActionBody, $matches)) {
+                    $reqKeys = array_unique($matches[1]);
+                    foreach ($reqKeys as $key) {
+                        // Guess value based on key name
+                        $lowerKey = strtolower($key);
+                        if (str_contains($lowerKey, 'id')) {
+                            $jsonData[$key] = 1;
+                        } elseif (str_contains($lowerKey, 'date') || str_contains($lowerKey, 'time')) {
+                            $jsonData[$key] = date('Y-m-d');
+                        } elseif ($lowerKey === 'available' || str_contains($lowerKey, 'is')) {
+                            $jsonData[$key] = true;
+                        } else {
+                            $jsonData[$key] = 'Test ' . ucfirst($key);
+                        }
+                    }
+                } else {
+                    // Fallback to model fields (standard create/update)
+                    $attributes = $modelObj['attributes'] ?? [];
+                    foreach ($attributes as $attr) {
+                        $attrName = $attr['name'] ?? '';
+                        $attrType = strtolower($attr['type'] ?? 'string');
+                        $modifiers = $attr['modifiers'] ?? [];
+                        
+                        // Skip ID primary keys since they are auto-generated
+                        if ($attrName === 'id' && in_array('primary', $modifiers)) {
+                            continue;
+                        }
+                        
+                        // Generate mock values based on type
+                        if ($attrType === 'boolean') {
+                            $jsonData[$attrName] = true;
+                        } elseif (in_array($attrType, ['integer', 'biginteger'])) {
+                            if (stripos($attrName, 'year') !== false) {
+                                $jsonData[$attrName] = (int)date('Y');
+                            } else {
+                                $jsonData[$attrName] = 1;
+                            }
+                        } elseif (in_array($attrType, ['decimal', 'float', 'double'])) {
+                            $jsonData[$attrName] = 99.99;
+                        } elseif (in_array($attrType, ['date', 'datetime', 'timestamp'])) {
+                            $jsonData[$attrName] = date('Y-m-d');
+                        } else {
+                            // String/text fields
+                            $lowerAttrName = strtolower($attrName);
+                            if (str_contains($lowerAttrName, 'email')) {
+                                $jsonData[$attrName] = 'test@example.com';
+                            } elseif (str_contains($lowerAttrName, 'phone')) {
+                                $jsonData[$attrName] = '081234567890';
+                            } else {
+                                $jsonData[$attrName] = 'Test ' . ucfirst($attrName);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // If empty, put default placeholder
+            if (empty($jsonData)) {
+                $jsonData = ['example_field' => 'example_value'];
+            }
+            
             $body = [
                 'mode' => 'raw',
-                'raw' => "{\n    \"example_field\": \"example_value\"\n}",
+                'raw' => json_encode($jsonData, JSON_PRETTY_PRINT),
                 'options' => [
                     'raw' => [
                         'language' => 'json'
