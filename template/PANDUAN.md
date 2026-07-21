@@ -52,12 +52,24 @@ php artisan key:generate
    ```
    *(Sesuaikan `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` sesuai server database lokal Anda).*
 
-3. **Jalankan Migrasi & Seeder Database**:
-   Untuk membuat tabel database beserta kolom, relasi, dan data uji coba (dummy) otomatis sesuai skema OAL Anda, jalankan perintah berikut:
+3. **Jalankan Migrasi Database (Membuat Struktur Tabel)**:
+   Untuk membuat tabel database beserta seluruh kolom dan relasi kunci asing sesuai skema OAL Anda, jalankan perintah berikut:
    ```bash
-   php artisan migrate --seed
+   php artisan migrate
    ```
-   *(Catatan: DatabaseSeeder telah di-generate secara dinamis untuk mengisi data awal pada tabel independen maupun tabel relasi asing secara aman).*
+
+4. **Jalankan Seeder Database (Mengisi Data Uji Coba / Dummy - Opsional)**:
+   Jika Anda ingin mengisi database dengan data dummy awal secara otomatis untuk keperluan uji coba API (sangat disarankan untuk local development), jalankan perintah berikut:
+   ```bash
+   php artisan db:seed
+   ```
+   *Atau, jika Anda ingin menjalankan migrasi ulang sekaligus seeding dalam satu perintah:*
+   ```bash
+   php artisan migrate:fresh --seed
+   ```
+   > ⚠️ **Catatan Penting**:
+   > * DatabaseSeeder telah di-generate secara dinamis untuk mengisi data awal pada tabel independen maupun dependen secara aman guna menghindari kegagalan constraint.
+   > * Hindari menjalankan seeder di server production agar database utama Anda tidak terisi oleh data dummy sampel.
 
 ---
 

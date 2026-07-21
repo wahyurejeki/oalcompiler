@@ -1,6 +1,6 @@
 {
     "info": {
-        "_postman_id": "6a5dc3f51ef71",
+        "_postman_id": "6a5ec309b73f3",
         "name": "OAL Generated Laravel API",
         "description": "Collection generated automatically by OAL Editor for local endpoint testing.",
         "schema": "https:\/\/schema.getpostman.com\/json\/collection\/v2.1.0\/collection.json"
@@ -125,7 +125,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"title\": \"Test Title\",\n    \"isbn\": true,\n    \"year\": \"Test Year\",\n    \"Category_id\": 1,\n    \"Publisher_id\": 1\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -169,7 +169,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"id\": 1,\n    \"title\": \"Test Title\",\n    \"isbn\": true,\n    \"year\": \"Test Year\",\n    \"Category_id\": 1,\n    \"Publisher_id\": 1,\n    \"available\": true\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -250,7 +250,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"bookId\": 1,\n    \"memberId\": 1,\n    \"dueDate\": \"2026-07-21\",\n    \"borrowedAt\": \"Test BorrowedAt\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -295,7 +295,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"bookId\": 1,\n    \"returnedAt\": \"Test ReturnedAt\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -375,7 +375,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"name\": \"Test Name\",\n    \"description\": \"Test Description\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -407,7 +407,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"id\": 1,\n    \"name\": \"Test Name\",\n    \"description\": \"Test Description\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -511,7 +511,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"name\": \"Test Name\",\n    \"address\": \"Test Address\",\n    \"phone\": \"Test Phone\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -543,7 +543,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"id\": 1,\n    \"name\": \"Test Name\",\n    \"address\": \"Test Address\",\n    \"phone\": \"Test Phone\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -647,7 +647,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"name\": \"Test Name\",\n    \"biography\": \"Test Biography\",\n    \"birthDate\": \"2026-07-21\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -679,7 +679,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"id\": 1,\n    \"name\": \"Test Name\",\n    \"biography\": \"Test Biography\",\n    \"birthDate\": \"2026-07-21\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -783,7 +783,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"name\": \"Test Name\",\n    \"email\": \"Test Email\",\n    \"phone\": \"Test Phone\",\n    \"membershipDate\": \"2026-07-21\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -815,7 +815,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"id\": 1,\n    \"name\": \"Test Name\",\n    \"email\": \"Test Email\",\n    \"phone\": \"Test Phone\",\n    \"status\": \"Test Status\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -955,7 +955,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"bookId\": 1,\n    \"memberId\": 1,\n    \"reservedAt\": \"Test ReservedAt\"\n}",
                     "options": {
                         "raw": {
                             "language": "json"
@@ -1106,7 +1106,7 @@
                 ],
                 "body": {
                     "mode": "raw",
-                    "raw": "{\n    \"example_field\": \"example_value\"\n}",
+                    "raw": "{\n    \"fineId\": 1\n}",
                     "options": {
                         "raw": {
                             "language": "json"

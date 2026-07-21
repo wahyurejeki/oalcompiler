@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // Seed Category
         for ($i = 1; $i <= 10; $i++) {
             Category::create([
-                'name' => 'Demo Name ' . $i,
+                'name' => ["Novel & Fiksi", "Komputer & Pemrograman", "Sains & Teknologi", "Sejarah & Budaya", "Filsafat & Agama", "Biografi & Otobiografi", "Sastra & Bahasa", "Komik & Manga", "Ekonomi & Bisnis", "Kesehatan & Kedokteran"][($i - 1) % 10],
                 'description' => 'Demo ' . 'description' . ' ' . $i,
             ]);
         }
@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
         // Seed Publisher
         for ($i = 1; $i <= 10; $i++) {
             Publisher::create([
-                'name' => 'Demo Name ' . $i,
+                'name' => ["Gramedia Pustaka Utama", "Elex Media Komputindo", "Mizan Publishing", "Penerbit Andi", "Bentang Pustaka", "Republika Penerbit", "Pustaka Al-Kautsar", "GagasMedia", "Penerbit Haru", "Bukune"][($i - 1) % 10],
                 'address' => 'Demo ' . 'address' . ' ' . $i,
                 'phone' => '08' . rand(100000000, 999999999),
             ]);
@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
         // Seed Author
         for ($i = 1; $i <= 10; $i++) {
             Author::create([
-                'name' => 'Demo Name ' . $i,
+                'name' => ["Andrea Hirata", "Tere Liye", "Pramoedya Ananta Toer", "Dee Lestari", "Eka Kurniawan", "Habiburrahman El Shirazy", "Sapardi Djoko Damono", "Ahmad Fuadi", "Seno Gumira Ajidarma", "Dewi Sartika"][($i - 1) % 10],
                 'biography' => 'Lorem ipsum dolor sit amet text description for ' . 'biography' . ' demo ' . $i,
                 'birthDate' => now()->subDays(rand(1, 365))->format('Y-m-d'),
             ]);
@@ -46,8 +46,8 @@ class DatabaseSeeder extends Seeder
         // Seed Member
         for ($i = 1; $i <= 10; $i++) {
             Member::create([
-                'name' => 'Demo Name ' . $i,
-                'email' => 'email.' . $i . '@example.com',
+                'name' => ["Ahmad Fauzi", "Siti Aminah", "Budi Santoso", "Dewi Lestari", "Rian Hidayat", "Indah Permata", "Rizky Pratama", "Santi Wijaya", "Eko Prasetyo", "Mega Utami"][($i - 1) % 10],
+                'email' => ["ahmad.fauzi", "siti.aminah", "budi.santoso", "dewi.lestari", "rian.hidayat", "indah.permata", "rizky.pratama", "santi.wijaya", "eko.prasetyo", "mega.utami"][($i - 1) % 10] . $i . '@example.com',
                 'phone' => '08' . rand(100000000, 999999999),
                 'membershipDate' => now()->subDays(rand(1, 365))->format('Y-m-d'),
                 'status' => 'Demo ' . 'status' . ' ' . $i,
@@ -59,14 +59,12 @@ class DatabaseSeeder extends Seeder
             $category = \App\Models\Category::query()->inRandomOrder()->first();
             $publisher = \App\Models\Publisher::query()->inRandomOrder()->first();
             Book::create([
-                'title' => 'Demo ' . 'title' . ' ' . $i,
+                'title' => ["Laskar Pelangi", "Bumi Manusia", "Perahu Kertas", "Cantik itu Luka", "Negeri 5 Menara", "Belajar Laravel 11", "Dasar-Dasar Database MySQL", "Clean Code dan Arsitektur Clean", "Kosmos", "Sejarah Singkat Waktu"][($i - 1) % 10],
                 'isbn' => 'Demo ' . 'isbn' . ' ' . $i,
                 'year' => rand(2000, 2026),
                 'Category_id' => $category ? $category->id : null,
                 'Publisher_id' => $publisher ? $publisher->id : null,
                 'available' => rand(0, 1) == 1,
-                'category_id' => $category ? $category->id : null,
-                'publisher_id' => $publisher ? $publisher->id : null,
             ]);
         }
 
@@ -77,8 +75,6 @@ class DatabaseSeeder extends Seeder
             AuthorBook::create([
                 'Book_id' => $book ? $book->id : null,
                 'Author_id' => $author ? $author->id : null,
-                'book_id' => $book ? $book->id : null,
-                'author_id' => $author ? $author->id : null,
             ]);
         }
 
@@ -92,8 +88,6 @@ class DatabaseSeeder extends Seeder
                 'borrowedAt' => now()->subDays(rand(1, 365))->subHours(rand(1, 24)),
                 'dueDate' => now()->subDays(rand(1, 365))->subHours(rand(1, 24)),
                 'returnedAt' => now()->subDays(rand(1, 365))->subHours(rand(1, 24)),
-                'book_id' => $book ? $book->id : null,
-                'member_id' => $member ? $member->id : null,
             ]);
         }
 
@@ -106,8 +100,6 @@ class DatabaseSeeder extends Seeder
                 'Member_id' => $member ? $member->id : null,
                 'reservedAt' => now()->subDays(rand(1, 365))->subHours(rand(1, 24)),
                 'status' => 'Demo ' . 'status' . ' ' . $i,
-                'book_id' => $book ? $book->id : null,
-                'member_id' => $member ? $member->id : null,
             ]);
         }
 
@@ -120,8 +112,6 @@ class DatabaseSeeder extends Seeder
                 'Member_id' => $member ? $member->id : null,
                 'amount' => rand(10, 1000) . '.50',
                 'isPaid' => rand(0, 1) == 1,
-                'borrowRecord_id' => $borrowRecord ? $borrowRecord->id : null,
-                'member_id' => $member ? $member->id : null,
             ]);
         }
 
