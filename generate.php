@@ -158,7 +158,8 @@ TEXT;
 
     if (!$skipFormat) {
         echo "Formatting code with Prettier...\n";
-        @exec("cd $dirPathOutput && npx prettier --write . --ignore-path .prettierignore");
+        $nullDevice = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? 'NUL' : '/dev/null';
+        @exec("cd $dirPathOutput && npx prettier --write . --ignore-path .prettierignore > $nullDevice 2>&1");
     } else {
         echo "Skipping code formatting...\n";
     }
@@ -346,7 +347,8 @@ if (!empty($requirements)) {
 
 if (!$skipFormat) {
     echo "Formatting generated Laravel code...\n";
-    @exec("composer format $dirPathOutput");
+    $nullDevice = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? 'NUL' : '/dev/null';
+    @exec("composer format $dirPathOutput > $nullDevice 2>&1");
 } else {
     echo "Skipping code formatting...\n";
 }
