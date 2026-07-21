@@ -272,74 +272,51 @@ PHP;
         $modelScanner->visit($methodCtx->block());
         $queryModels = $modelScanner->getQueryModels();
 
-        // Resolve dependencies
-        $modelsToSeed = $queryModels;
+        // Resolve dependencies recursively (topological sort)
+        $modelsToSeed = [];
+        $seen = [];
+        
+        $resolveDeps = function ($modelName) use (&$modelsToSeed, &$seen, &$resolveDeps) {
+            if (in_array($modelName, $modelsToSeed)) return;
+            if (in_array($modelName, $seen)) return; // Prevent cycles
+            $seen[] = $modelName;
+            
+            $fields = $this->modelMetadata[$modelName] ?? [];
+            foreach ($fields as $fieldName => $fieldType) {
+                if (str_ends_with($fieldName, '_id') || str_ends_with($fieldName, 'Id')) {
+                    $depModel = $this->guessModelFromForeignKey($fieldName);
+                    if ($depModel) {
+                        $resolveDeps($depModel);
+                    }
+                }
+            }
+            $modelsToSeed[] = $modelName;
+        };
+
+        // First resolve query models and models derived from request foreign keys
+        $initialModels = $queryModels;
         foreach ($reqProperties as $prop) {
             if (str_ends_with($prop, 'Id') || str_ends_with($prop, '_id') || $prop === 'id') {
                 $depModel = $this->guessModelFromForeignKey($prop);
-                if ($depModel && !in_array($depModel, $modelsToSeed)) {
-                    $modelsToSeed[] = $depModel;
+                if ($depModel && !in_array($depModel, $initialModels)) {
+                    $initialModels[] = $depModel;
                 }
             }
         }
+
+        foreach ($initialModels as $m) {
+            $resolveDeps($m);
+        }
+
         $seededVars = [];
         $seedCodes = [];
 
-        // First pass: seed independent models
+        // Seed all resolved models in order (independent first, dependent last)
         foreach ($modelsToSeed as $m) {
-            $hasDeps = false;
-            $fields = $this->modelMetadata[$m] ?? [];
-            foreach ($fields as $fieldName => $fieldType) {
-                if (str_ends_with($fieldName, '_id') || str_ends_with($fieldName, 'Id')) {
-                    $depModel = $this->guessModelFromForeignKey($fieldName);
-                    if ($depModel) {
-                        $hasDeps = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!$hasDeps) {
-                $varName = '$' . lcfirst($m);
-                $seedCodes[] = $this->generateSeedingCodeInline($m, $varName, $reqProperties);
-                $seededVars[$m] = $varName;
-                $importedModels[$m] = true;
-            }
-        }
-
-        // Second pass: seed dependent models
-        foreach ($modelsToSeed as $m) {
-            $hasDeps = false;
-            $fields = $this->modelMetadata[$m] ?? [];
-            foreach ($fields as $fieldName => $fieldType) {
-                if (str_ends_with($fieldName, '_id') || str_ends_with($fieldName, 'Id')) {
-                    $depModel = $this->guessModelFromForeignKey($fieldName);
-                    if ($depModel) {
-                        $hasDeps = true;
-                        break;
-                    }
-                }
-            }
-
-            if ($hasDeps) {
-                $fields = $this->modelMetadata[$m] ?? [];
-                foreach ($fields as $fieldName => $fieldType) {
-                    if (str_ends_with($fieldName, '_id') || str_ends_with($fieldName, 'Id')) {
-                        $depModel = $this->guessModelFromForeignKey($fieldName);
-                        if ($depModel && !isset($seededVars[$depModel])) {
-                            $varName = '$' . lcfirst($depModel);
-                            $seedCodes[] = $this->generateSeedingCodeInline($depModel, $varName, $reqProperties);
-                            $seededVars[$depModel] = $varName;
-                            $importedModels[$depModel] = true;
-                        }
-                    }
-                }
-
-                $varName = '$' . lcfirst($m);
-                $seedCodes[] = $this->generateSeedingCodeInline($m, $varName, $reqProperties, $seededVars);
-                $seededVars[$m] = $varName;
-                $importedModels[$m] = true;
-            }
+            $varName = '$' . lcfirst($m);
+            $seedCodes[] = $this->generateSeedingCodeInline($m, $varName, $reqProperties, $seededVars);
+            $seededVars[$m] = $varName;
+            $importedModels[$m] = true;
         }
 
         // Generate payload data
@@ -451,10 +428,11 @@ PHP;
             $unauthTestName = "{$testName}_without_token";
             $testCode .= "\n\n    public function {$unauthTestName}(): void\n";
             $testCode .= "    {\n";
+            $httpMethodUpper = strtoupper($httpMethod);
             if ($httpMethod === 'get') {
                 $testCode .= "        \$response = \$this->getJson('{$testUrl}');\n";
             } else {
-                $testCode .= "        \$response = \$this->postJson('{$testUrl}', []);\n";
+                $testCode .= "        \$response = \$this->json('{$httpMethodUpper}', '{$testUrl}', []);\n";
             }
             $testCode .= "        \$response->assertJson(['error' => 'Token invalid']);\n";
             $testCode .= "    }";
@@ -465,10 +443,11 @@ PHP;
             $testCode .= "\n\n    public function {$unauthTestName}(): void\n";
             $testCode .= "    {\n";
             $urlWithAuth = $usesToken ? "{$testUrl}{$queryGlue}{$authParam}" : $testUrl;
+            $httpMethodUpper = strtoupper($httpMethod);
             if ($httpMethod === 'get') {
                 $testCode .= "        \$response = \$this->getJson('{$urlWithAuth}');\n";
             } else {
-                $testCode .= "        \$response = \$this->postJson('{$urlWithAuth}', []);\n";
+                $testCode .= "        \$response = \$this->json('{$httpMethodUpper}', '{$urlWithAuth}', []);\n";
             }
             $testCode .= "        \$response->assertRedirect('/login');\n";
             $testCode .= "    }";
