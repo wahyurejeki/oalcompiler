@@ -155,6 +155,23 @@ Server lokal akan aktif, dan Anda dapat mengakses aplikasi di browser pada alama
 
 ---
 
+## 🚀 Pengujian API Menggunakan Postman
+
+Proyek ini telah dilengkapi dengan berkas **Postman Collection** (`postman_collection.json`) yang di-generate secara otomatis sesuai rute dan skema form OAL Anda untuk memudahkan pengujian.
+
+### Langkah-Langkah Import:
+1. Buka aplikasi **Postman** di komputer Anda.
+2. Klik tombol **Import** di pojok kiri atas.
+3. Pilih/unggah berkas **`postman_collection.json`** yang berada di direktori utama hasil ekstrak proyek ini.
+4. Klik **Import** untuk memuat seluruh koleksi rute.
+
+### Cara Penggunaan:
+* **Base URL**: Koleksi ini menggunakan variabel `{{base_url}}` yang secara default mengarah ke server lokal `http://127.0.0.1:8000`. Pastikan server lokal Anda telah aktif (`php artisan serve`).
+* **Auth Token**: Rute yang memerlukan otentikasi (middleware auth) sudah dilengkapi dengan parameter token bawaan (misalnya parameter query `token=123456` atau header `X-API-Key`) untuk kemudahan pengujian.
+* **Form Body (JSON)**: Seluruh permintaan `POST` dan `PUT` (seperti tambah buku, pinjam buku, dsb.) sudah memiliki data body JSON bawaan dengan tipe data yang valid, sehingga Anda tidak perlu menulis struktur JSON secara manual.
+
+---
+
 ## 🛠️ Struktur Project yang Ter-generate
 * **Models**: Berkas model Laravel terletak di `app/Models/*.php` beserta konfigurasi relasi (`hasMany`, `belongsTo`, dll.).
 * **Migrations**: Struktur tabel terletak di `database/migrations/*.php`.
